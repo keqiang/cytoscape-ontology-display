@@ -15,7 +15,8 @@ import org.cytoscape.model.CyEdge.Type;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
-import org.cytoscape.model.CyTable;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CySubNetwork;
 
 /**
  * Creates a new menu item under Apps menu section.
@@ -53,34 +54,22 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 
 		// get the current network model
 		CyNetwork currentNetwork = applicationManager.getCurrentNetwork();
-		// get the default edge table
-		CyTable edgeTable = currentNetwork.getDefaultEdgeTable();
 
 		List<CyNode> allNodes = currentNetwork.getNodeList();
-		System.out.println(allNodes);
 		
 		for (CyNode sourceNode : allNodes) {
 			List<CyNode> neighborNodes = currentNetwork.getNeighborList(sourceNode, Type.DIRECTED);
 			List<CyNode> childNodes = new LinkedList<CyNode>();
 			
 			for (CyNode targetNode : neighborNodes) {
-				List<CyEdge> outGoingEdges = currentNetwork.getConnectingEdgeList(sourceNode, targetNode, Type.OUTGOING);
-				List<CyEdge> inComingEdges = currentNetwork.getConnectingEdgeList(sourceNode, targetNode, Type.INCOMING);
 				
-				for (CyEdge outEdge : outGoingEdges) {
-					String interactionType = currentNetwork.getRow(outEdge).get(
+				List<CyEdge> edges = currentNetwork.getAdjacentEdgeList(sourceNode, Type.INCOMING);
+				
+				for (CyEdge edge : edges) {
+					String interactionType = currentNetwork.getRow(edge).get(
 							CyEdge.INTERACTION, String.class);
 					
-					if (interactionType.equalsIgnoreCase(INTERACTION_HAS_PART) || interactionType.equalsIgnoreCase(INTERACTION_REGULATES)) {
-						childNodes.add(targetNode);
-					}
-				}
-				
-				for (CyEdge inEdge : inComingEdges) {
-					String interactionType = currentNetwork.getRow(inEdge).get(
-							CyEdge.INTERACTION, String.class);
-					
-					if (interactionType.equalsIgnoreCase(INTERACTION_IS_A) || interactionType.equalsIgnoreCase(INTERACTION_PART_OF) || interactionType.equalsIgnoreCase(INTERACTION_OCCURS_IN)) {
+					if (interactionType.equalsIgnoreCase(INTERACTION_IS_A)) {
 						childNodes.add(targetNode);
 					}
 				}
@@ -89,10 +78,21 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 			
 			if (childNodes.isEmpty()) continue;
 			
-			CyGroup group = groupFactory.createGroup(currentNetwork, sourceNode, childNodes, null, true);
+			childNodes.add(sourceNode);
+			CyGroup group = groupFactory.createGroup(currentNetwork, childNodes, null, true);
+//			group.collapse(currentNetwork);
+//			CyRow row = ((CySubNetwork)currentNetwork).getRootNetwork().getRow(sourceNode);
+//			String name = row.get("name", String.class);
+//			//String name = currentNetwork.getRow(sourceNode, CyNetwork.DEFAULT_ATTRS).get(CyNetwork.NAME, String.class);
+//			
+//			System.out.println(name);
+//			
+//			final CyRow groupRow = ((CySubNetwork)currentNetwork).getRootNetwork().getRow(group.getGroupNode(), CyRootNetwork.SHARED_ATTRS);
+//			groupRow.set(CyRootNetwork.SHARED_NAME, name);
 			
-			System.out.println(group);
+			
 		}
+
 	}
 
 }
