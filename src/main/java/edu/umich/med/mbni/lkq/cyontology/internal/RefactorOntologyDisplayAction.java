@@ -69,6 +69,7 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 		ExpandableNode node = nodeMap.get(nodeSUID);
 		if (node == null) {
 			node = new ExpandableNode(network);
+			nodeMap.put(nodeSUID, node);
 		}
 		
 		return node;
@@ -106,6 +107,7 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 			Long sourceNodeSUID = sourceNode.getSUID();
 			String sourceNodeName = originNetwork.getRow(sourceNode).get(CyNetwork.NAME, String.class);
 			ExpandableNode sourceExpandableNode = getExpandableNodeInNetwork(sourceNodeSUID, createdNodes, createdNetwork);
+			
 			
 			DelayedVizProp vizProp = new DelayedVizProp(sourceExpandableNode.getCyNode(), BasicVisualLexicon.NODE_WIDTH, 30.0, true);
 			vizProps.add(vizProp);
