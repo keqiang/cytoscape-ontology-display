@@ -53,15 +53,19 @@ public class ExpandableNode {
 		isCollapsed = false;
 	}
 	
-	public boolean collapse() {
-
+	public void collapse() {
+		
 		for (ExpandableNode childNode : childNodes.values()) {
-			if (childNode.getReferenceCount() > 1 || !childNode.collapse()) return false;
+			if (!childNode.isCollapsed) {
+				childNode.collapse();
+			}
+			if (childNode.getReferenceCount() == 1) {
+				childNode.setVisible(false);
+			}
+			childNode.decreaseReferenceCount();
 		}
 		
-		setChildNodesInvisible();
 		isCollapsed = true;
-		return true;	
 	}
 	
 	public boolean isCollapsed() {
@@ -89,6 +93,10 @@ public class ExpandableNode {
 	
 	public boolean isVisible() {
 		return visible;
+	}
+
+	public boolean hasChild(ExpandableNode targetExpandableNode) {
+		return childNodes.containsKey(targetExpandableNode.getSUID());
 	}
 	
 }
