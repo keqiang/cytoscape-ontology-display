@@ -22,4 +22,8 @@ public class OntologyNetwork {
 	public CyNetwork getOriginNetwork() {
 		return originNetwork;
 	}
+	
+	public ExpandableNode getNode(Long nodeSUID) {
+		return allExpandableNodes.get(nodeSUID);
+	}
 }
