@@ -20,6 +20,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.actions.RefactorOntologyDispla
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -68,6 +69,11 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps.setProperty("title","Collpase this ontology term");
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTask = new ExpandableNodeCollapseTaskFactory();
 		registerService(context, expandableNodeCollapseTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		
+		myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
+		ExpandableNodeExpandTaskFactory expandableNodeExpandTask = new ExpandableNodeExpandTaskFactory();
+		registerService(context, expandableNodeExpandTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 
 	}
 
