@@ -1,7 +1,6 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,10 +8,9 @@ import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
-
-import edu.umich.med.mbni.lkq.cyontology.internal.ExpandableNode;
-import edu.umich.med.mbni.lkq.cyontology.internal.OntologyNetwork;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
 public class OntologyNetworkUtils {
 
@@ -42,15 +40,18 @@ public class OntologyNetworkUtils {
 	 * @return the newly created network
 	 */
 	public static OntologyNetwork convertNetworkToOntology(
-			CyNetwork originNetwork, CyNetworkFactory networkFactory,
-			LinkedList<DelayedVizProp> vizProps) {
+			CyNetwork originNetwork, CyNetworkFactory networkFactory) {
+		
+		if (MyApplicationCenter.hasOntologyNetwork(originNetwork.getSUID())) {
+			return MyApplicationCenter.getOntologyNetwork(originNetwork.getSUID());
+		}
 
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
 		CyNetwork createdNetwork = networkFactory.createNetwork();
 
 		String networkName = originNetwork.getRow(originNetwork).get(
 				CyNetwork.NAME, String.class)
-				+ "(ontology)";
+				+ " Ontology View";
 		createdNetwork.getRow(createdNetwork).set(CyNetwork.NAME, networkName);
 
 		List<CyNode> allNodes = originNetwork.getNodeList();
@@ -63,14 +64,6 @@ public class OntologyNetworkUtils {
 			ExpandableNode sourceExpandableNode = getExpandableNodeInNetwork(
 					sourceNodeSUID, createdNodes, createdNetwork);
 
-			DelayedVizProp vizProp = new DelayedVizProp(
-					sourceExpandableNode.getCyNode(),
-					BasicVisualLexicon.NODE_WIDTH, 30.0, true);
-			vizProps.add(vizProp);
-			vizProp = new DelayedVizProp(sourceExpandableNode.getCyNode(),
-					BasicVisualLexicon.NODE_HEIGHT, 30.0, true);
-			vizProps.add(vizProp);
-
 			createdNetwork.getRow(sourceExpandableNode.getCyNode()).set(
 					CyNetwork.NAME, sourceNodeName);
 
@@ -82,12 +75,6 @@ public class OntologyNetworkUtils {
 				Long targetNodeSUID = targetNode.getSUID();
 				ExpandableNode targetExpandableNode = getExpandableNodeInNetwork(
 						targetNodeSUID, createdNodes, createdNetwork);
-				vizProp = new DelayedVizProp(targetExpandableNode.getCyNode(),
-						BasicVisualLexicon.NODE_WIDTH, 30.0, true);
-				vizProps.add(vizProp);
-				vizProp = new DelayedVizProp(targetExpandableNode.getCyNode(),
-						BasicVisualLexicon.NODE_HEIGHT, 30.0, true);
-				vizProps.add(vizProp);
 
 				List<CyEdge> edges = originNetwork.getConnectingEdgeList(
 						sourceNode, targetNode, CyEdge.Type.DIRECTED);

@@ -1,8 +1,10 @@
-package edu.umich.med.mbni.lkq.cyontology.internal;
+package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 
 public class OntologyNetwork {
 	private CyNetwork originNetwork;
@@ -25,5 +27,17 @@ public class OntologyNetwork {
 	
 	public ExpandableNode getNode(Long nodeSUID) {
 		return allExpandableNodes.get(nodeSUID);
+	}
+	
+	public ExpandableNode getCorrespondingNode(CyNode node) {
+		for (ExpandableNode expandableNode : allExpandableNodes.values()) {
+			if (node.getSUID() == expandableNode.getSUID())
+				return expandableNode;
+		}
+		return null;
+	}
+	
+	public Collection<ExpandableNode> getAllNodes() {
+		return allExpandableNodes.values();
 	}
 }

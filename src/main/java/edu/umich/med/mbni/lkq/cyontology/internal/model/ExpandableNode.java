@@ -1,4 +1,4 @@
-package edu.umich.med.mbni.lkq.cyontology.internal;
+package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
 import java.util.HashMap;
 import org.cytoscape.model.CyNetwork;

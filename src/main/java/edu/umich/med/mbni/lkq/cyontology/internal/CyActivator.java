@@ -9,14 +9,17 @@ import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.service.util.AbstractCyActivator;
+import org.cytoscape.task.NodeViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.osgi.framework.BundleContext;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.actions.RefactorOntologyDisplayAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -59,6 +62,12 @@ public class CyActivator extends AbstractCyActivator {
 				"force-directed");
 		// Register it as a service:
 		registerService(context, action, CyAction.class, new Properties());
+		
+		// Register myNodeViewTaskFactory as a service in CyActivator
+		Properties myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty("title","Collpase this ontology term");
+		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTask = new ExpandableNodeCollapseTaskFactory();
+		registerService(context, expandableNodeCollapseTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 
 	}
 
