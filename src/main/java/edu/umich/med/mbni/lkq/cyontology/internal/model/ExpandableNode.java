@@ -4,6 +4,9 @@ import java.util.HashMap;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
+
 public class ExpandableNode {
 
 	private int referCount = 0;
@@ -60,6 +63,8 @@ public class ExpandableNode {
 			childNode.increaseReferenceCount();
 			if (childNode.isCollapsed)
 				childNode.expand();
+			// TODO these view operations may not happen here
+			ViewOperationUtils.setEdgeVisibleBetweenNodes(getCyNode(), childNode.getCyNode(), MyApplicationCenter.getApplicationManager().getCyApplicationManager().getCurrentNetworkView(), false);
 		}
 
 		isCollapsed = false;
@@ -70,6 +75,7 @@ public class ExpandableNode {
 			return;
 
 		for (ExpandableNode childNode : childNodes.values()) {
+			
 			if (!childNode.isCollapsed) {
 				childNode.collapse();
 			}
@@ -77,6 +83,7 @@ public class ExpandableNode {
 				childNode.setVisible(false);
 			}
 			childNode.decreaseReferenceCount();
+			ViewOperationUtils.setEdgeVisibleBetweenNodes(getCyNode(), childNode.getCyNode(), MyApplicationCenter.getApplicationManager().getCyApplicationManager().getCurrentNetworkView(), false);
 		}
 
 		isCollapsed = true;
