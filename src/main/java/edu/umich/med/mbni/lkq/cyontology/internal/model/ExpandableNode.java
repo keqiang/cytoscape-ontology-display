@@ -23,6 +23,10 @@ public class ExpandableNode {
 	public Collection<ExpandableNode> getChildNodes() {
 		return childNodes.values();
 	}
+	
+	public boolean isReferred() {
+		return getReferenceCount() > 0;
+	}
 
 	public CyNode getCyNode() {
 		return node;

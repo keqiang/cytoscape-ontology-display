@@ -1,12 +1,15 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.LinkedList;
+
 import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.view.model.CyNetworkView;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.DelayedVizProp;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
 
@@ -18,7 +21,7 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 
 	public RefactorOntologyDisplayAction(String layoutName) {
 		super("Create collapsable and expandable ontology network");
-		appManager = MyApplicationCenter.getApplicationManager();
+		appManager = MyApplicationCenter.getInstance().getApplicationManager();
 		curLayoutName = layoutName;
 		setPreferredMenu("Apps.Ontology X");
 	}
@@ -28,11 +31,13 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 		Long originNetworkSUID = appManager.getCyApplicationManager()
 				.getCurrentNetwork().getSUID();
 		OntologyNetwork testOntologyNetwork;
-		if (!MyApplicationCenter.hasOntologyNetwork(originNetworkSUID)) {
+		if (!MyApplicationCenter.getInstance().hasOntologyNetwork(originNetworkSUID)) {
+			
+			LinkedList<DelayedVizProp> vizProps = new LinkedList<DelayedVizProp>();
 			testOntologyNetwork = OntologyNetworkUtils
 					.convertNetworkToOntology(appManager.getCyApplicationManager()
-							.getCurrentNetwork(), appManager.getCyNetworkFactory());
-			MyApplicationCenter.addNewOntologyNetwork(testOntologyNetwork);
+							.getCurrentNetwork(), appManager.getCyNetworkFactory(), vizProps);
+			MyApplicationCenter.getInstance().addNewOntologyNetwork(testOntologyNetwork);
 
 			appManager.getCyNetworkManager().addNetwork(
 					testOntologyNetwork.getUnderlyingNetwork());
@@ -44,11 +49,12 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 
 			appManager.getCyEventHelper().flushPayloadEvents();
 
+			DelayedVizProp.applyAll(networkView, vizProps);
 			ViewOperationUtils.reLayoutNetwork(
 					appManager.getCyLayoutAlgorithmManager(), networkView,
 					curLayoutName);
 		} else {
-			testOntologyNetwork = MyApplicationCenter.getOntologyNetwork(originNetworkSUID);
+			testOntologyNetwork = MyApplicationCenter.getInstance().getOntologyNetwork(originNetworkSUID);
 		}
 				
 

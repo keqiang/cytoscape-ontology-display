@@ -1,6 +1,7 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
 import java.util.Collection;
+
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyNetwork;
@@ -32,7 +33,7 @@ public class ViewOperationUtils {
 	
 	public static void hideSubTree(ExpandableNode rootNode, CyNetworkView networkView) {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
-			if (childNode.getReferenceCount() == 0) {
+			if (!childNode.isReferred()) {
 				networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
 						BasicVisualLexicon.NODE_VISIBLE, false);
 			}

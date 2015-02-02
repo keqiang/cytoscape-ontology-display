@@ -3,44 +3,73 @@ package edu.umich.med.mbni.lkq.cyontology.internal.app;
 import java.util.HashMap;
 
 import org.cytoscape.model.CyNetwork;
-
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
-public class MyApplicationCenter {
-	
+public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
+
+	private static MyApplicationCenter instance = null;
 	private static MyApplicationManager appManager;
-	private static HashMap<Long, OntologyNetwork> allOntologyNetwork = new HashMap<Long, OntologyNetwork>();
-	
-	public static void registerApplicationManager(MyApplicationManager myApplicationManager) {
-		appManager = myApplicationManager;
+	private HashMap<Long, OntologyNetwork> allOntologyNetwork;
+
+	public static MyApplicationCenter getInstance() {
+
+		if (instance == null) {
+			instance = new MyApplicationCenter();
+		}
+		return instance;
 	}
-	
-	public static MyApplicationManager getApplicationManager() {
+
+	private MyApplicationCenter() {
+		this.allOntologyNetwork = new HashMap<Long, OntologyNetwork>();
+	}
+
+	public MyApplicationManager getApplicationManager() {
 		return appManager;
 	}
-	
-	public static void addNewOntologyNetwork(OntologyNetwork network) {
+
+	public void addNewOntologyNetwork(OntologyNetwork network) {
 		allOntologyNetwork.put(network.getOriginNetwork().getSUID(), network);
 	}
-	
-	public static OntologyNetwork getOntologyNetwork(Long networkSUID) {
+
+	public OntologyNetwork getOntologyNetwork(Long networkSUID) {
 		return allOntologyNetwork.get(networkSUID);
 	}
-	
-	public static boolean hasOntologyNetwork(Long networkSUID) {
+
+	public boolean hasOntologyNetwork(Long networkSUID) {
 		return allOntologyNetwork.containsKey(networkSUID);
 	}
-	
-	public static ExpandableNode getExpandableNode(OntologyNetwork ontologyNetwork, Long nodeSUID) {
+
+	public ExpandableNode getExpandableNode(OntologyNetwork ontologyNetwork,
+			Long nodeSUID) {
 		return ontologyNetwork.getNode(nodeSUID);
 	}
-	
-	public static OntologyNetwork getCorrespondingOntologyNetwork(CyNetwork network) {
+
+	public OntologyNetwork getCorrespondingOntologyNetwork(CyNetwork network) {
 		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
-			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == network.getSUID())
+			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == network
+					.getSUID())
 				return ontologyNetwork;
 		}
 		return null;
+	}
+
+	@Override
+	public void handleEvent(NetworkAboutToBeDestroyedEvent e) {
+		Long networkSUID = e.getNetwork().getSUID();
+		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
+			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID) {
+				allOntologyNetwork.remove(ontologyNetwork.getOriginNetwork()
+						.getSUID());
+			}
+		}
+	}
+
+	public static void registerApplicationManager(
+			MyApplicationManager myApplicationManager) {
+		appManager = myApplicationManager;
+		
 	}
 }

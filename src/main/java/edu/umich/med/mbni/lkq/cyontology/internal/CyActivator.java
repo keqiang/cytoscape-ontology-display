@@ -8,6 +8,7 @@ import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.task.NodeViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -57,12 +58,16 @@ public class CyActivator extends AbstractCyActivator {
 				cytoscapeDesktopService, applicationManager, networkFactory,
 				networkManager, networkViewFactory, networkViewManager, vmMgr,
 				algorithmManager, eventHelper);
+		
+		MyApplicationCenter appCenter = MyApplicationCenter.getInstance();
 		MyApplicationCenter.registerApplicationManager(myApplicationManager);
 
 		RefactorOntologyDisplayAction action = new RefactorOntologyDisplayAction(
 				"force-directed");
 		// Register it as a service:
 		registerService(context, action, CyAction.class, new Properties());
+		
+		registerService(context, appCenter, NetworkAboutToBeDestroyedListener.class, new Properties());
 		
 		// Register myNodeViewTaskFactory as a service in CyActivator
 		Properties myNodeViewTaskFactoryProps = new Properties();

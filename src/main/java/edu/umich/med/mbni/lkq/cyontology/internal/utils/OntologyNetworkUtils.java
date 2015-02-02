@@ -1,6 +1,8 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
+import java.awt.Color;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,11 @@ import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
+import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
+import org.cytoscape.view.presentation.property.NodeShapeVisualProperty;
+
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
@@ -40,10 +47,12 @@ public class OntologyNetworkUtils {
 	 * @return the newly created network
 	 */
 	public static OntologyNetwork convertNetworkToOntology(
-			CyNetwork originNetwork, CyNetworkFactory networkFactory) {
-		
-		if (MyApplicationCenter.hasOntologyNetwork(originNetwork.getSUID())) {
-			return MyApplicationCenter.getOntologyNetwork(originNetwork.getSUID());
+			CyNetwork originNetwork, CyNetworkFactory networkFactory,
+			LinkedList<DelayedVizProp> vizProps) {
+
+		if (MyApplicationCenter.getInstance().hasOntologyNetwork(originNetwork.getSUID())) {
+			return MyApplicationCenter.getInstance().getOntologyNetwork(originNetwork
+					.getSUID());
 		}
 
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
@@ -64,6 +73,9 @@ public class OntologyNetworkUtils {
 			ExpandableNode sourceExpandableNode = getExpandableNodeInNetwork(
 					sourceNodeSUID, createdNodes, createdNetwork);
 
+			setNodeProp(sourceExpandableNode.getCyNode(), sourceNodeName,
+					vizProps);
+
 			createdNetwork.getRow(sourceExpandableNode.getCyNode()).set(
 					CyNetwork.NAME, sourceNodeName);
 
@@ -75,6 +87,11 @@ public class OntologyNetworkUtils {
 				Long targetNodeSUID = targetNode.getSUID();
 				ExpandableNode targetExpandableNode = getExpandableNodeInNetwork(
 						targetNodeSUID, createdNodes, createdNetwork);
+
+				String targetNodeName = originNetwork.getRow(targetNode).get(
+						CyNetwork.NAME, String.class);
+				setNodeProp(targetExpandableNode.getCyNode(), targetNodeName,
+						vizProps);
 
 				List<CyEdge> edges = originNetwork.getConnectingEdgeList(
 						sourceNode, targetNode, CyEdge.Type.DIRECTED);
@@ -92,11 +109,22 @@ public class OntologyNetworkUtils {
 							CyEdge connectingEdge = createdNetwork.addEdge(
 									targetExpandableNode.getCyNode(),
 									sourceExpandableNode.getCyNode(), true);
+
+							DelayedVizProp vizProp = new DelayedVizProp(
+									connectingEdge,
+									BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
+									ArrowShapeVisualProperty.DELTA, true);
+							vizProps.add(vizProp);
+							
+							vizProp = new DelayedVizProp(
+									connectingEdge,
+									BasicVisualLexicon.EDGE_WIDTH,
+									1.0, true);
+							vizProps.add(vizProp);
+
 							createdNetwork.getRow(connectingEdge).set(
 									CyEdge.INTERACTION, interactionType);
-							String targetNodeName = originNetwork.getRow(
-									targetNode).get(CyNetwork.NAME,
-									String.class);
+
 							createdNetwork.getRow(
 									targetExpandableNode.getCyNode()).set(
 									CyNetwork.NAME, targetNodeName);
@@ -107,6 +135,35 @@ public class OntologyNetworkUtils {
 		}
 
 		return new OntologyNetwork(originNetwork, createdNetwork, createdNodes);
+	}
+
+	private static void setNodeProp(CyNode node, String name,
+			LinkedList<DelayedVizProp> vizProps) {
+		DelayedVizProp vizProp = new DelayedVizProp(node,
+				BasicVisualLexicon.NODE_LABEL, name, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SHAPE,
+				NodeShapeVisualProperty.ELLIPSE, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_WIDTH, 50.0,
+				true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_HEIGHT,
+				50.0, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node,
+				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 7, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node,
+				BasicVisualLexicon.NODE_FILL_COLOR, Color.RED, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node,
+				BasicVisualLexicon.NODE_LABEL_COLOR, Color.BLACK, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node,
+				BasicVisualLexicon.NODE_BORDER_LINE_TYPE, LineTypeVisualProperty.SOLID, true);
+		vizProps.add(vizProp);
+
 	}
 
 	public static boolean isA(String interaction)

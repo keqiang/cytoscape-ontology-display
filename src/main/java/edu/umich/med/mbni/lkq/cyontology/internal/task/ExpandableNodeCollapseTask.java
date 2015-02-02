@@ -32,7 +32,7 @@ public class ExpandableNodeCollapseTask implements Task {
 		
 		CyNetwork underlyingNetwork = networkView.getModel();
 		
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getCorrespondingOntologyNetwork(underlyingNetwork);
+		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance().getCorrespondingOntologyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getCorrespondingNode(nodeToCollapse);
 		
 		expandableNode.collapse();
