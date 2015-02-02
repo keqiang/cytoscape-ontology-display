@@ -15,6 +15,7 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.actions.RefactorOntologyDisplayAction;
@@ -53,11 +54,13 @@ public class CyActivator extends AbstractCyActivator {
 
 		CyLayoutAlgorithmManager algorithmManager = getService(context,
 				CyLayoutAlgorithmManager.class);
+		
+		UndoSupport undoSupport = getService(context, UndoSupport.class);
 
 		MyApplicationManager myApplicationManager = new MyApplicationManager(
 				cytoscapeDesktopService, applicationManager, networkFactory,
 				networkManager, networkViewFactory, networkViewManager, vmMgr,
-				algorithmManager, eventHelper);
+				algorithmManager, eventHelper, undoSupport);
 		
 		MyApplicationCenter appCenter = MyApplicationCenter.getInstance();
 		MyApplicationCenter.registerApplicationManager(myApplicationManager);

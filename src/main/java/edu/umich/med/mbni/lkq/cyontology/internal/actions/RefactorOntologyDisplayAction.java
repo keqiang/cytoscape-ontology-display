@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.view.model.CyNetworkView;
-
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
@@ -32,6 +31,7 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 				.getCurrentNetwork().getSUID();
 		OntologyNetwork testOntologyNetwork;
 		if (!MyApplicationCenter.getInstance().hasOntologyNetwork(originNetworkSUID)) {
+	
 			
 			LinkedList<DelayedVizProp> vizProps = new LinkedList<DelayedVizProp>();
 			testOntologyNetwork = OntologyNetworkUtils

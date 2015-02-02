@@ -9,6 +9,7 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.work.undo.UndoSupport;
 
 public class MyApplicationManager {
 
@@ -26,6 +27,8 @@ public class MyApplicationManager {
 	CyLayoutAlgorithmManager cyLayoutAlgorithmManager;
 
 	CyEventHelper cyEventHelper;
+	
+	UndoSupport cyUndoSupport;
 
 	public MyApplicationManager(CySwingApplication desktopService,
 			CyApplicationManager applicationManager,
@@ -34,7 +37,7 @@ public class MyApplicationManager {
 			CyNetworkViewManager networkViewManager,
 			VisualMappingManager visualMappingManager,
 			CyLayoutAlgorithmManager layoutAlgorithmManager,
-			CyEventHelper eventHelper) {
+			CyEventHelper eventHelper, UndoSupport undoSupport) {
 		cyDesktopService = desktopService;
 
 		cyApplicationManager = applicationManager;
@@ -49,6 +52,8 @@ public class MyApplicationManager {
 		cyLayoutAlgorithmManager = layoutAlgorithmManager;
 
 		cyEventHelper = eventHelper;
+		
+		cyUndoSupport = undoSupport;
 	}
 
 	public CySwingApplication getCyDesktopService() {
@@ -85,6 +90,10 @@ public class MyApplicationManager {
 
 	public CyEventHelper getCyEventHelper() {
 		return cyEventHelper;
+	}
+	
+	public UndoSupport getCyUndoSupport() {
+		return cyUndoSupport;
 	}
 
 }
