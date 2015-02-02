@@ -37,7 +37,7 @@ public class ExpandableNodeExpandTask implements Task {
 		
 		expandableNode.expand();
 		
-		ViewOperationUtils.updateOntologyNetworkView(ontologyNetwork.getAllNodes(), networkView, true);
+		ViewOperationUtils.showSubTree(expandableNode, networkView);
 		
 	}
 

@@ -37,7 +37,7 @@ public class ExpandableNodeCollapseTask implements Task {
 		
 		expandableNode.collapse();
 		
-		ViewOperationUtils.updateOntologyNetworkView(ontologyNetwork.getAllNodes(), networkView, false);
+		ViewOperationUtils.hideSubTree(expandableNode, networkView);
 		
 	}
 

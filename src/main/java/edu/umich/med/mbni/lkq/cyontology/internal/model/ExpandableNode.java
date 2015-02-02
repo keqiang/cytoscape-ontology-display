@@ -1,11 +1,9 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
-
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
 
 public class ExpandableNode {
 
@@ -13,7 +11,6 @@ public class ExpandableNode {
 	private CyNode node;
 
 	private boolean isCollapsed;
-	private boolean visible;
 
 	private HashMap<Long, ExpandableNode> childNodes;
 
@@ -21,7 +18,10 @@ public class ExpandableNode {
 		node = nestedNetwork.addNode();
 		childNodes = new HashMap<>();
 		isCollapsed = false;
-		visible = true;
+	}
+
+	public Collection<ExpandableNode> getChildNodes() {
+		return childNodes.values();
 	}
 
 	public CyNode getCyNode() {
@@ -43,7 +43,7 @@ public class ExpandableNode {
 
 	public void addChildNode(ExpandableNode otherNode) {
 		childNodes.put(otherNode.getSUID(), otherNode);
-		otherNode.increaseReferenceCount();;
+		otherNode.increaseReferenceCount();
 	}
 
 	public CyNetwork getNetwork() {
@@ -56,15 +56,10 @@ public class ExpandableNode {
 			return;
 
 		for (ExpandableNode childNode : childNodes.values()) {
-			if (!childNode.isVisible()) {
-				childNode.setVisible(true);
-			}
 
 			childNode.increaseReferenceCount();
 			if (childNode.isCollapsed)
 				childNode.expand();
-			// TODO these view operations may not happen here
-			ViewOperationUtils.setEdgeVisibleBetweenNodes(getCyNode(), childNode.getCyNode(), MyApplicationCenter.getApplicationManager().getCyApplicationManager().getCurrentNetworkView(), false);
 		}
 
 		isCollapsed = false;
@@ -75,15 +70,12 @@ public class ExpandableNode {
 			return;
 
 		for (ExpandableNode childNode : childNodes.values()) {
-			
+
+			childNode.decreaseReferenceCount();
+
 			if (!childNode.isCollapsed) {
 				childNode.collapse();
 			}
-			if (childNode.getReferenceCount() == 1) {
-				childNode.setVisible(false);
-			}
-			childNode.decreaseReferenceCount();
-			ViewOperationUtils.setEdgeVisibleBetweenNodes(getCyNode(), childNode.getCyNode(), MyApplicationCenter.getApplicationManager().getCyApplicationManager().getCurrentNetworkView(), false);
 		}
 
 		isCollapsed = true;
@@ -93,17 +85,6 @@ public class ExpandableNode {
 		return isCollapsed;
 	}
 
-	public void setChildNodesInvisible() {
-		for (ExpandableNode childNode : childNodes.values()) {
-			childNode.decreaseReferenceCount();
-			childNode.setVisible(false);
-		}
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-
 	public void decreaseReferenceCount() {
 		if (referCount > 0)
 			referCount--;
@@ -111,10 +92,6 @@ public class ExpandableNode {
 
 	public void increaseReferenceCount() {
 		referCount++;
-	}
-
-	public boolean isVisible() {
-		return visible;
 	}
 
 	public boolean hasChild(ExpandableNode targetExpandableNode) {

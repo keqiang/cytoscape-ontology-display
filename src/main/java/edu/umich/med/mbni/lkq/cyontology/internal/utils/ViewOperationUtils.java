@@ -1,8 +1,6 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
 import java.util.Collection;
-import java.util.LinkedList;
-
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyNetwork;
@@ -21,6 +19,27 @@ import edu.umich.med.mbni.lkq.cyontology.internal.task.HeadlessTaskMonitor;
  *
  */
 public class ViewOperationUtils {
+	
+	public static void showSubTree(ExpandableNode rootNode, CyNetworkView networkView) {
+		for (ExpandableNode childNode : rootNode.getChildNodes()) {
+			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
+					BasicVisualLexicon.NODE_VISIBLE, true);
+
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
+			showSubTree(childNode, networkView);
+		}
+	}
+	
+	public static void hideSubTree(ExpandableNode rootNode, CyNetworkView networkView) {
+		for (ExpandableNode childNode : rootNode.getChildNodes()) {
+			if (childNode.getReferenceCount() == 0) {
+				networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
+						BasicVisualLexicon.NODE_VISIBLE, false);
+			}
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, false);
+			hideSubTree(childNode, networkView);
+		}
+	}
 
 	/**
 	 * @param nodes
@@ -30,28 +49,28 @@ public class ViewOperationUtils {
 	 * @param visible
 	 *            flag variable indicates whether to hide or show the nodes
 	 */
-	public static void setVisibleNodes(Collection<CyNode> nodes,
-			CyNetworkView networkView, boolean visible) {
-		if (networkView == null)
-			return;
-
-		final CyNetwork network = networkView.getModel();
-
-		for (CyNode node : nodes) {
-			networkView.getNodeView(node).setVisualProperty(
-					BasicVisualLexicon.NODE_VISIBLE, visible);
-			for (CyNode neighborNode : network.getNeighborList(node,
-					CyEdge.Type.ANY)) {
-				for (CyEdge edge : network.getConnectingEdgeList(node,
-						neighborNode, CyEdge.Type.ANY)) {
-					networkView.getEdgeView(edge).setVisualProperty(
-							BasicVisualLexicon.EDGE_VISIBLE, visible);
-				}
-			}
-		}
-
-		networkView.updateView();
-	}
+//	public static void setVisibleNodes(Collection<CyNode> nodes,
+//			CyNetworkView networkView, boolean visible) {
+//		if (networkView == null)
+//			return;
+//
+//		final CyNetwork network = networkView.getModel();
+//
+//		for (CyNode node : nodes) {
+//			networkView.getNodeView(node).setVisualProperty(
+//					BasicVisualLexicon.NODE_VISIBLE, visible);
+//			for (CyNode neighborNode : network.getNeighborList(node,
+//					CyEdge.Type.ANY)) {
+//				for (CyEdge edge : network.getConnectingEdgeList(node,
+//						neighborNode, CyEdge.Type.ANY)) {
+//					networkView.getEdgeView(edge).setVisualProperty(
+//							BasicVisualLexicon.EDGE_VISIBLE, visible);
+//				}
+//			}
+//		}
+//
+//		networkView.updateView();
+//	}
 
 	/**
 	 * @param edges
@@ -97,28 +116,28 @@ public class ViewOperationUtils {
 	 * @param networkView
 	 * @param isExpanding
 	 */
-	public static void updateOntologyNetworkView(
-			Collection<ExpandableNode> nodes, CyNetworkView networkView,
-			boolean isExpanding) {
-		LinkedList<CyNode> nodesToChange = new LinkedList<CyNode>();
-
-		if (isExpanding) {
-			for (ExpandableNode node : nodes) {
-				if (node.isVisible()) {
-					nodesToChange.add(node.getCyNode());
-				}
-			}
-
-		} else {
-			for (ExpandableNode node : nodes) {
-				if (!node.isVisible()) {
-					nodesToChange.add(node.getCyNode());
-				}
-			}
-		}
-
-		setVisibleNodes(nodesToChange, networkView, isExpanding);
-	}
+//	public static void updateOntologyNetworkView(
+//			Collection<ExpandableNode> nodes, CyNetworkView networkView,
+//			boolean isExpanding) {
+//		LinkedList<CyNode> nodesToChange = new LinkedList<CyNode>();
+//
+//		if (isExpanding) {
+//			for (ExpandableNode node : nodes) {
+//				if (node.isVisible()) {
+//					nodesToChange.add(node.getCyNode());
+//				}
+//			}
+//
+//		} else {
+//			for (ExpandableNode node : nodes) {
+//				if (!node.isVisible()) {
+//					nodesToChange.add(node.getCyNode());
+//				}
+//			}
+//		}
+//
+//		setVisibleNodes(nodesToChange, networkView, isExpanding);
+//	}
 
 	public static void reLayoutNetwork(
 			CyLayoutAlgorithmManager layoutAlgorithmManager,
