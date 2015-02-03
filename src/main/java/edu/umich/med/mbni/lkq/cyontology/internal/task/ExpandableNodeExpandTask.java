@@ -27,6 +27,8 @@ public class ExpandableNodeExpandTask implements Task {
 
 	@Override
 	public void run(TaskMonitor arg0) throws Exception {
+		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(networkView.getModel())) return;
+		
 		AbstractCyEdit expanding = new ExpandNodeEdit("expand", networkView, nodeToExpand);
 		expanding.redo();
 		MyApplicationCenter.getInstance().getApplicationManager().getCyUndoSupport().postEdit(expanding);

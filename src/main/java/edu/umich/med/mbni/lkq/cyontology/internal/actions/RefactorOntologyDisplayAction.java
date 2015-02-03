@@ -4,7 +4,9 @@ import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 
 import org.cytoscape.application.swing.AbstractCyAction;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.view.model.CyNetworkView;
+
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
@@ -22,17 +24,17 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 		super("Create collapsable and expandable ontology network");
 		appManager = MyApplicationCenter.getInstance().getApplicationManager();
 		curLayoutName = layoutName;
-		setPreferredMenu("Apps.Ontology X");
+		setPreferredMenu("Apps.Ontology Viewer");
 	}
 
 	public void actionPerformed(ActionEvent e) {
 
-		Long originNetworkSUID = appManager.getCyApplicationManager()
-				.getCurrentNetwork().getSUID();
+		CyNetwork originNetwork = appManager.getCyApplicationManager()
+				.getCurrentNetwork();
+		
 		OntologyNetwork testOntologyNetwork;
-		if (!MyApplicationCenter.getInstance().hasOntologyNetwork(originNetworkSUID)) {
+		if (!MyApplicationCenter.getInstance().hasCorrespondingOntologyNetwork(originNetwork)) {
 	
-			
 			LinkedList<DelayedVizProp> vizProps = new LinkedList<DelayedVizProp>();
 			testOntologyNetwork = OntologyNetworkUtils
 					.convertNetworkToOntology(appManager.getCyApplicationManager()
@@ -54,7 +56,7 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 					appManager.getCyLayoutAlgorithmManager(), networkView,
 					curLayoutName);
 		} else {
-			testOntologyNetwork = MyApplicationCenter.getInstance().getOntologyNetwork(originNetworkSUID);
+			testOntologyNetwork = MyApplicationCenter.getInstance().getCorrespondingOntologyNetwork(originNetwork);
 		}
 				
 

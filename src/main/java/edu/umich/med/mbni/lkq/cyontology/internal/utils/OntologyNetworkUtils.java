@@ -27,6 +27,7 @@ public class OntologyNetworkUtils {
 	public static final String INTERACTION_REGULATES = "regulates";
 	public static final String INTERACTION_NEGATIVELY_REGULATES = "negatively_regulates";
 	public static final String INTERACTION_OCCURS_IN = "occurs_in";
+	public static final String INTERACTION_SUB_ONTOLOGY_ITEM = "sub_ontology_item";
 
 	private static ExpandableNode getExpandableNodeInNetwork(Long nodeSUID,
 			Map<Long, ExpandableNode> nodeMap, CyNetwork network) {
@@ -50,9 +51,10 @@ public class OntologyNetworkUtils {
 			CyNetwork originNetwork, CyNetworkFactory networkFactory,
 			LinkedList<DelayedVizProp> vizProps) {
 
-		if (MyApplicationCenter.getInstance().hasOntologyNetwork(originNetwork.getSUID())) {
-			return MyApplicationCenter.getInstance().getOntologyNetwork(originNetwork
-					.getSUID());
+		if (MyApplicationCenter.getInstance().hasCorrespondingOntologyNetwork(
+				originNetwork)) {
+			return MyApplicationCenter.getInstance()
+					.getCorrespondingOntologyNetwork(originNetwork);
 		}
 
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
@@ -93,48 +95,41 @@ public class OntologyNetworkUtils {
 				setNodeProp(targetExpandableNode.getCyNode(), targetNodeName,
 						vizProps);
 
-				List<CyEdge> edges = originNetwork.getConnectingEdgeList(
-						sourceNode, targetNode, CyEdge.Type.DIRECTED);
+				if (isParent(sourceNode, targetNode, originNetwork)) {
+					if (!sourceExpandableNode.hasChild(targetExpandableNode)) {
+						sourceExpandableNode.addChildNode(targetExpandableNode);
 
-				for (CyEdge edge : edges) {
-					String interactionType = originNetwork.getRow(edge).get(
-							CyEdge.INTERACTION, String.class);
+						CyEdge connectingEdge = createdNetwork.addEdge(
+								targetExpandableNode.getCyNode(),
+								sourceExpandableNode.getCyNode(), true);
 
-					if (isParent(sourceNode, targetNode, originNetwork)) {
-						if (!sourceExpandableNode
-								.hasChild(targetExpandableNode)) {
-							sourceExpandableNode
-									.addChildNode(targetExpandableNode);
+						setEdgeProp(connectingEdge, targetNodeName, vizProps);
 
-							CyEdge connectingEdge = createdNetwork.addEdge(
-									targetExpandableNode.getCyNode(),
-									sourceExpandableNode.getCyNode(), true);
+						createdNetwork.getRow(connectingEdge).set(
+								CyEdge.INTERACTION, INTERACTION_SUB_ONTOLOGY_ITEM);
 
-							DelayedVizProp vizProp = new DelayedVizProp(
-									connectingEdge,
-									BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
-									ArrowShapeVisualProperty.DELTA, true);
-							vizProps.add(vizProp);
-							
-							vizProp = new DelayedVizProp(
-									connectingEdge,
-									BasicVisualLexicon.EDGE_WIDTH,
-									1.0, true);
-							vizProps.add(vizProp);
-
-							createdNetwork.getRow(connectingEdge).set(
-									CyEdge.INTERACTION, interactionType);
-
-							createdNetwork.getRow(
-									targetExpandableNode.getCyNode()).set(
-									CyNetwork.NAME, targetNodeName);
-						}
+						createdNetwork.getRow(targetExpandableNode.getCyNode())
+								.set(CyNetwork.NAME, targetNodeName);
 					}
+
 				}
+
 			}
 		}
 
 		return new OntologyNetwork(originNetwork, createdNetwork, createdNodes);
+	}
+
+	private static void setEdgeProp(CyEdge connectingEdge,
+			String targetNodeName, LinkedList<DelayedVizProp> vizProps) {
+		DelayedVizProp vizProp = new DelayedVizProp(connectingEdge,
+				BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
+				ArrowShapeVisualProperty.DELTA, true);
+		vizProps.add(vizProp);
+
+		vizProp = new DelayedVizProp(connectingEdge,
+				BasicVisualLexicon.EDGE_WIDTH, 1.0, true);
+		vizProps.add(vizProp);
 	}
 
 	private static void setNodeProp(CyNode node, String name,
@@ -154,14 +149,15 @@ public class OntologyNetworkUtils {
 		vizProp = new DelayedVizProp(node,
 				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 7, true);
 		vizProps.add(vizProp);
-		vizProp = new DelayedVizProp(node,
-				BasicVisualLexicon.NODE_FILL_COLOR, Color.RED, true);
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_FILL_COLOR,
+				Color.RED, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_LABEL_COLOR,
+				Color.BLACK, true);
 		vizProps.add(vizProp);
 		vizProp = new DelayedVizProp(node,
-				BasicVisualLexicon.NODE_LABEL_COLOR, Color.BLACK, true);
-		vizProps.add(vizProp);
-		vizProp = new DelayedVizProp(node,
-				BasicVisualLexicon.NODE_BORDER_LINE_TYPE, LineTypeVisualProperty.SOLID, true);
+				BasicVisualLexicon.NODE_BORDER_LINE_TYPE,
+				LineTypeVisualProperty.SOLID, true);
 		vizProps.add(vizProp);
 
 	}
@@ -172,13 +168,13 @@ public class OntologyNetworkUtils {
 		case INTERACTION_IS_A:
 		case INTERACTION_PART_OF:
 		case INTERACTION_OCCURS_IN:
+		case INTERACTION_SUB_ONTOLOGY_ITEM:
 			return true;
 		case INTERACTION_HAS_PART:
 		case INTERACTION_REGULATES:
 		case INTERACTION_NEGATIVELY_REGULATES:
 			return false;
 		default:
-			System.out.println(interaction);
 			throw new IllegalArgumentException();
 		}
 	}

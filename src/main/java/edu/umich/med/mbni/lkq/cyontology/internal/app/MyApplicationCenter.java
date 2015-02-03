@@ -34,26 +34,32 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 		allOntologyNetwork.put(network.getOriginNetwork().getSUID(), network);
 	}
 
-	public OntologyNetwork getOntologyNetwork(Long networkSUID) {
+	public boolean hasCorrespondingOntologyNetwork(CyNetwork network) {
+		Long networkSUID = network.getSUID();
+		return allOntologyNetwork.containsKey(networkSUID);
+	}
+	
+	public OntologyNetwork getCorrespondingOntologyNetwork(CyNetwork network) {
+		Long networkSUID = network.getSUID();
 		return allOntologyNetwork.get(networkSUID);
 	}
+	
+	public OntologyNetwork getEncapsulatingOntologyNetwork(CyNetwork network) {
+		Long networkSUID = network.getSUID();
+		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
+			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID)
+				return ontologyNetwork;
+		}
+		return null;
+	}
 
-	public boolean hasOntologyNetwork(Long networkSUID) {
-		return allOntologyNetwork.containsKey(networkSUID);
+	public boolean hasEncapsulatingOntologyNetwork(CyNetwork network) {
+		return getEncapsulatingOntologyNetwork(network) != null;
 	}
 
 	public ExpandableNode getExpandableNode(OntologyNetwork ontologyNetwork,
 			Long nodeSUID) {
 		return ontologyNetwork.getNode(nodeSUID);
-	}
-
-	public OntologyNetwork getCorrespondingOntologyNetwork(CyNetwork network) {
-		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
-			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == network
-					.getSUID())
-				return ontologyNetwork;
-		}
-		return null;
 	}
 
 	@Override

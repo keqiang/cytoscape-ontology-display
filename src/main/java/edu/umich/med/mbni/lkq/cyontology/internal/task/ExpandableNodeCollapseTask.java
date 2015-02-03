@@ -28,6 +28,8 @@ public class ExpandableNodeCollapseTask implements Task {
 	@Override
 	public void run(TaskMonitor arg0) throws Exception {
 		
+		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(networkView.getModel())) return;
+		
 		AbstractCyEdit collapsing = new CollapseNodeEdit("collpse", networkView, nodeToCollapse);
 		collapsing.redo();
 		MyApplicationCenter.getInstance().getApplicationManager().getCyUndoSupport().postEdit(collapsing);
