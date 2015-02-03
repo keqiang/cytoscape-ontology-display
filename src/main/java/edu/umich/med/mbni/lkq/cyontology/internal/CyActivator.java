@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
@@ -18,11 +19,13 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.actions.OntologyControlPanelAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.actions.RefactorOntologyDisplayAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -82,6 +85,12 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
 		ExpandableNodeExpandTaskFactory expandableNodeExpandTask = new ExpandableNodeExpandTaskFactory();
 		registerService(context, expandableNodeExpandTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		
+		OntologyViewerControlPanel controlPanel = new OntologyViewerControlPanel();
+		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());
+		
+		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, controlPanel);
+		registerService(context, controlPanelAction, CyAction.class, new Properties());
 
 	}
 

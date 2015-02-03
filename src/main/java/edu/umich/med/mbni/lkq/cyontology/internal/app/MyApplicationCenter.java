@@ -2,11 +2,15 @@ package edu.umich.med.mbni.lkq.cyontology.internal.app;
 
 import java.util.HashMap;
 
+import org.cytoscape.application.swing.CytoPanel;
+import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
+
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
 
 public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 
@@ -71,6 +75,18 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 						.getSUID());
 			}
 		}
+		
+		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance().getApplicationManager().getCyDesktopService().getCytoPanel(CytoPanelName.WEST);
+		
+		int index = cytoPanelWest.indexOfComponent(OntologyViewerControlPanel.CONTROL_PANEL_TITLE);
+		
+		if (index == -1)
+			return;
+		
+		OntologyViewerControlPanel ontologyViewerControlPanel = (OntologyViewerControlPanel) cytoPanelWest.getComponentAt(index);
+		
+		ontologyViewerControlPanel.rePopTheAggregationValues();
+
 	}
 
 	public static void registerApplicationManager(

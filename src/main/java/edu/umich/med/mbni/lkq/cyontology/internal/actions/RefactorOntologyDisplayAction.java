@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 
 import org.cytoscape.application.swing.AbstractCyAction;
+import org.cytoscape.application.swing.CytoPanel;
+import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.view.model.CyNetworkView;
 
@@ -13,6 +16,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.DelayedVizProp;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
 
 public class RefactorOntologyDisplayAction extends AbstractCyAction {
 
@@ -55,6 +59,24 @@ public class RefactorOntologyDisplayAction extends AbstractCyAction {
 			ViewOperationUtils.reLayoutNetwork(
 					appManager.getCyLayoutAlgorithmManager(), networkView,
 					curLayoutName);
+			
+			CytoPanel cytoPanelWest = MyApplicationCenter.getInstance().getApplicationManager().getCyDesktopService().getCytoPanel(CytoPanelName.WEST);
+			
+			if (cytoPanelWest.getState() == CytoPanelState.HIDE) {
+				cytoPanelWest.setState(CytoPanelState.DOCK);
+			}
+			
+			int index = cytoPanelWest.indexOfComponent(OntologyViewerControlPanel.CONTROL_PANEL_TITLE);
+			
+			if (index == -1)
+				return;
+			
+			OntologyViewerControlPanel ontologyViewerControlPanel = (OntologyViewerControlPanel) cytoPanelWest.getComponentAt(index);
+
+			cytoPanelWest.setSelectedIndex(index);
+			
+			ontologyViewerControlPanel.rePopTheAggregationValues();
+			
 		} else {
 			testOntologyNetwork = MyApplicationCenter.getInstance().getCorrespondingOntologyNetwork(originNetwork);
 		}

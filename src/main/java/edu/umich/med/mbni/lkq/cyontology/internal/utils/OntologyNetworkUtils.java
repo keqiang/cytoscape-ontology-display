@@ -64,7 +64,7 @@ public class OntologyNetworkUtils {
 				CyNetwork.NAME, String.class)
 				+ " Ontology View";
 		createdNetwork.getRow(createdNetwork).set(CyNetwork.NAME, networkName);
-
+		
 		List<CyNode> allNodes = originNetwork.getNodeList();
 
 		for (CyNode sourceNode : allNodes) {
@@ -106,7 +106,8 @@ public class OntologyNetworkUtils {
 						setEdgeProp(connectingEdge, targetNodeName, vizProps);
 
 						createdNetwork.getRow(connectingEdge).set(
-								CyEdge.INTERACTION, INTERACTION_SUB_ONTOLOGY_ITEM);
+								CyEdge.INTERACTION,
+								INTERACTION_SUB_ONTOLOGY_ITEM);
 
 						createdNetwork.getRow(targetExpandableNode.getCyNode())
 								.set(CyNetwork.NAME, targetNodeName);
