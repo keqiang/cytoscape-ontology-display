@@ -14,8 +14,8 @@ public class ExpandableNode {
 
 	private HashMap<Long, ExpandableNode> childNodes;
 
-	public ExpandableNode(CyNetwork nestedNetwork) {
-		node = nestedNetwork.addNode();
+	public ExpandableNode(CyNode node) {
+		this.node = node;
 		childNodes = new HashMap<>();
 		isCollapsed = false;
 	}

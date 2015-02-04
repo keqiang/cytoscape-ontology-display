@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
@@ -27,117 +26,138 @@ public class OntologyNetworkUtils {
 	public static final String INTERACTION_REGULATES = "regulates";
 	public static final String INTERACTION_NEGATIVELY_REGULATES = "negatively_regulates";
 	public static final String INTERACTION_OCCURS_IN = "occurs_in";
-	public static final String INTERACTION_SUB_ONTOLOGY_ITEM = "sub_ontology_item";
 
-	private static ExpandableNode getExpandableNodeInNetwork(Long nodeSUID,
-			Map<Long, ExpandableNode> nodeMap, CyNetwork network) {
-		ExpandableNode node = nodeMap.get(nodeSUID);
-		if (node == null) {
-			node = new ExpandableNode(network);
-			nodeMap.put(nodeSUID, node);
+	private static ExpandableNode getExpandableNodeInNetwork(
+			Map<Long, ExpandableNode> nodeMap, CyNode node) {
+		Long nodeSUID = node.getSUID();
+		ExpandableNode expandableNode = nodeMap.get(nodeSUID);
+		if (expandableNode == null) {
+			expandableNode = new ExpandableNode(node);
+			nodeMap.put(nodeSUID, expandableNode);
 		}
 
-		return node;
+		return expandableNode;
 	}
 
 	/**
-	 * @param originNetwork
+	 * @param underlyingNetwork
 	 *            the original network
 	 * @param networkFactory
 	 *            network factory used to create a new ontology network
 	 * @return the newly created network
 	 */
 	public static OntologyNetwork convertNetworkToOntology(
-			CyNetwork originNetwork, CyNetworkFactory networkFactory,
-			LinkedList<DelayedVizProp> vizProps) {
+			CyNetwork underlyingNetwork, LinkedList<DelayedVizProp> vizProps,
+			String keepInteraction) {
 
-		if (MyApplicationCenter.getInstance().hasCorrespondingOntologyNetwork(
-				originNetwork)) {
-			return MyApplicationCenter.getInstance()
-					.getCorrespondingOntologyNetwork(originNetwork);
+		
+		if (MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
+				underlyingNetwork)) {
+			MyApplicationCenter.getInstance().removeOntologyNetwork(MyApplicationCenter.getInstance().getEncapsulatingOntologyNetwork(
+				underlyingNetwork));
 		}
-
+		
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
-		CyNetwork createdNetwork = networkFactory.createNetwork();
 
-		String networkName = originNetwork.getRow(originNetwork).get(
+		String networkName = underlyingNetwork.getRow(underlyingNetwork).get(
 				CyNetwork.NAME, String.class)
 				+ " Ontology View";
-		createdNetwork.getRow(createdNetwork).set(CyNetwork.NAME, networkName);
-		
-		List<CyNode> allNodes = originNetwork.getNodeList();
+		underlyingNetwork.getRow(underlyingNetwork).set(CyNetwork.NAME,
+				networkName);
+
+		List<CyNode> allNodes = underlyingNetwork.getNodeList();
 
 		for (CyNode sourceNode : allNodes) {
-
-			Long sourceNodeSUID = sourceNode.getSUID();
-			String sourceNodeName = originNetwork.getRow(sourceNode).get(
-					CyNetwork.NAME, String.class);
 			ExpandableNode sourceExpandableNode = getExpandableNodeInNetwork(
-					sourceNodeSUID, createdNodes, createdNetwork);
+					createdNodes, sourceNode);
+			String sourceNodeName = underlyingNetwork.getRow(sourceNode).get(
+					CyNetwork.NAME, String.class);
 
-			setNodeProp(sourceExpandableNode.getCyNode(), sourceNodeName,
-					vizProps);
+			setNodeProp(sourceNode, vizProps, sourceNodeName);
 
-			createdNetwork.getRow(sourceExpandableNode.getCyNode()).set(
-					CyNetwork.NAME, sourceNodeName);
-
-			List<CyNode> neighborNodes = originNetwork.getNeighborList(
+			List<CyNode> neighborNodes = underlyingNetwork.getNeighborList(
 					sourceNode, CyEdge.Type.DIRECTED);
 
 			for (CyNode targetNode : neighborNodes) {
-
-				Long targetNodeSUID = targetNode.getSUID();
 				ExpandableNode targetExpandableNode = getExpandableNodeInNetwork(
-						targetNodeSUID, createdNodes, createdNetwork);
+						createdNodes, targetNode);
 
-				String targetNodeName = originNetwork.getRow(targetNode).get(
-						CyNetwork.NAME, String.class);
-				setNodeProp(targetExpandableNode.getCyNode(), targetNodeName,
-						vizProps);
+				String targetNodeName = underlyingNetwork.getRow(targetNode)
+						.get(CyNetwork.NAME, String.class);
+				setNodeProp(targetNode, vizProps, targetNodeName);
 
-				if (isParent(sourceNode, targetNode, originNetwork)) {
-					if (!sourceExpandableNode.hasChild(targetExpandableNode)) {
-						sourceExpandableNode.addChildNode(targetExpandableNode);
+				List<CyEdge> allEdges = underlyingNetwork
+						.getConnectingEdgeList(sourceNode, targetNode,
+								CyEdge.Type.DIRECTED);
 
-						CyEdge connectingEdge = createdNetwork.addEdge(
-								targetExpandableNode.getCyNode(),
-								sourceExpandableNode.getCyNode(), true);
+				for (CyEdge edge : allEdges) {
+					
+					String interactionType = underlyingNetwork.getRow(edge)
+							.get(CyEdge.INTERACTION, String.class);
 
-						setEdgeProp(connectingEdge, targetNodeName, vizProps);
+					if (!interactionType.equals(keepInteraction))
+						continue;
 
-						createdNetwork.getRow(connectingEdge).set(
-								CyEdge.INTERACTION,
-								INTERACTION_SUB_ONTOLOGY_ITEM);
+					if (containedInteraction(keepInteraction)) {
+						if (edge.getSource() == targetNode
+								&& edge.getTarget() == sourceNode) {
 
-						createdNetwork.getRow(targetExpandableNode.getCyNode())
-								.set(CyNetwork.NAME, targetNodeName);
+							if (!sourceExpandableNode
+									.hasChild(targetExpandableNode)) {
+								sourceExpandableNode
+										.addChildNode(targetExpandableNode);
+								setEdgeProp(edge, vizProps);
+
+							}
+						}
+					} else if (containingInteraction(keepInteraction)) {
+						if (edge.getSource() == sourceNode
+								&& edge.getTarget() == targetNode) {
+
+							if (!sourceExpandableNode
+									.hasChild(targetExpandableNode)) {
+								sourceExpandableNode
+										.addChildNode(targetExpandableNode);
+								setEdgeProp(edge, vizProps);
+
+							}
+						}
 					}
-
 				}
-
 			}
 		}
-
-		return new OntologyNetwork(originNetwork, createdNetwork, createdNodes);
+		
+		return new OntologyNetwork(underlyingNetwork, createdNodes);
 	}
 
 	private static void setEdgeProp(CyEdge connectingEdge,
-			String targetNodeName, LinkedList<DelayedVizProp> vizProps) {
+			LinkedList<DelayedVizProp> vizProps) {
 		DelayedVizProp vizProp = new DelayedVizProp(connectingEdge,
 				BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
 				ArrowShapeVisualProperty.DELTA, true);
 		vizProps.add(vizProp);
 
 		vizProp = new DelayedVizProp(connectingEdge,
-				BasicVisualLexicon.EDGE_WIDTH, 1.0, true);
+				BasicVisualLexicon.EDGE_WIDTH, 2.0, true);
+		vizProps.add(vizProp);
+		
+		vizProp = new DelayedVizProp(connectingEdge,
+				BasicVisualLexicon.EDGE_LINE_TYPE,
+				LineTypeVisualProperty.SOLID, true);
+		vizProps.add(vizProp);
+		vizProp = new DelayedVizProp(connectingEdge,
+				BasicVisualLexicon.EDGE_TRANSPARENCY,
+				255, true);
 		vizProps.add(vizProp);
 	}
 
-	private static void setNodeProp(CyNode node, String name,
-			LinkedList<DelayedVizProp> vizProps) {
+	private static void setNodeProp(CyNode node,
+			LinkedList<DelayedVizProp> vizProps, String nodeName) {
+
 		DelayedVizProp vizProp = new DelayedVizProp(node,
-				BasicVisualLexicon.NODE_LABEL, name, true);
+				BasicVisualLexicon.NODE_LABEL, nodeName, true);
 		vizProps.add(vizProp);
+
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SHAPE,
 				NodeShapeVisualProperty.ELLIPSE, true);
 		vizProps.add(vizProp);
@@ -163,93 +183,15 @@ public class OntologyNetworkUtils {
 
 	}
 
-	public static boolean isA(String interaction)
-			throws IllegalArgumentException {
-		switch (interaction) {
-		case INTERACTION_IS_A:
-		case INTERACTION_PART_OF:
-		case INTERACTION_OCCURS_IN:
-		case INTERACTION_SUB_ONTOLOGY_ITEM:
-			return true;
-		case INTERACTION_HAS_PART:
-		case INTERACTION_REGULATES:
-		case INTERACTION_NEGATIVELY_REGULATES:
-			return false;
-		default:
-			throw new IllegalArgumentException();
-		}
+	private static boolean containedInteraction(String interactionType) {
+		return interactionType.equals(INTERACTION_PART_OF)
+				|| interactionType.equals(INTERACTION_OCCURS_IN)
+				|| interactionType.equals(INTERACTION_IS_A);
 	}
 
-	public static boolean isParent(CyNode parentNode, CyNode childNode,
-			CyNetwork network) {
-		List<CyEdge> allEdges = network.getConnectingEdgeList(parentNode,
-				childNode, CyEdge.Type.DIRECTED);
-		for (CyEdge edge : allEdges) {
-			String interactionType = network.getRow(edge).get(
-					CyEdge.INTERACTION, String.class);
-			try {
-				return isA(interactionType) ? edge.getSource() == childNode
-						: edge.getSource() == parentNode;
-			} catch (IllegalArgumentException e) {
-				return false;
-			}
-		}
-		return false;
+	private static boolean containingInteraction(String interactionType) {
+		return interactionType.equals(INTERACTION_HAS_PART)
+				|| interactionType.equals(INTERACTION_REGULATES)
+				|| interactionType.equals(INTERACTION_NEGATIVELY_REGULATES);
 	}
-
-	/**
-	 * @author Keqiang Li.
-	 * @param propType
-	 *            to which property the settings will be applied
-	 * @param in
-	 *            the input stream from the OBO file
-	 * @return the imported OBO file as a tree structured data object
-	 *
-	 */
-	// public static void importOntologyAsNetworkFromOBOFile(CyNetworkFactory
-	// networkFactory, InputStream in) {
-	//
-	// CyNetwork ontologyNetwork = networkFactory.createNetwork();
-	// HashMap<String ,CyNode> existingNodes = new HashMap<String, CyNode>();
-	//
-	// BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-	//
-	// String line;
-	// String currentChildTerm = null;
-	//
-	// CyNode newNode = null;
-	//
-	// try {
-	// while ((line = reader.readLine()) != null) {
-	// if (line.startsWith("[Term]")) {
-	// newNode = null;
-	// } else {
-	// if (newNode == null) newNode = ontologyNetwork.addNode();
-	// int index = line.indexOf(":");
-	// if (line.startsWith("id")) {
-	// currentChildTerm = line.substring(index + 1).trim();
-	// ontologyNetwork.getRow(newNode).set("id", currentChildTerm);
-	// existingNodes.put(currentChildTerm, newNode);
-	// } else if (line.startsWith(CyNetwork.NAME)) {
-	// String uniqueName = line.substring(index + 1).trim();
-	// ontologyNetwork.getRow(newNode).set(CyNetwork.NAME, uniqueName);
-	// } else if (line.startsWith("is_a")) {
-	// line = line.substring(index + 1);
-	// currentGroup.setParent(line);
-	// groupSetting.addGroupBranch(line, currentChildTerm);
-	// }
-	// }
-	// }
-	// reader.close();
-	// } catch (Exception e) {
-	// return null;
-	// }
-	//
-	// if (currentGroup != null) {
-	// groupSetting.addGroup(currentGroup);
-	// }
-	// groupSetting.validate();
-	// return groupSetting;
-	// }
-
 }

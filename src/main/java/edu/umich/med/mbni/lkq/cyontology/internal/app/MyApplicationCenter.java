@@ -34,31 +34,22 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 		return appManager;
 	}
 
-	public void addNewOntologyNetwork(OntologyNetwork network) {
-		allOntologyNetwork.put(network.getOriginNetwork().getSUID(), network);
-	}
-
-	public boolean hasCorrespondingOntologyNetwork(CyNetwork network) {
-		Long networkSUID = network.getSUID();
-		return allOntologyNetwork.containsKey(networkSUID);
+	public void addOntologyNetwork(OntologyNetwork network) {
+		allOntologyNetwork.put(network.getUnderlyingNetwork().getSUID(),
+				network);
 	}
 	
-	public OntologyNetwork getCorrespondingOntologyNetwork(CyNetwork network) {
+	public void removeOntologyNetwork(OntologyNetwork network) {
+		allOntologyNetwork.remove(network.getUnderlyingNetwork().getSUID());
+	}
+
+	public OntologyNetwork getEncapsulatingOntologyNetwork(CyNetwork network) {
 		Long networkSUID = network.getSUID();
 		return allOntologyNetwork.get(networkSUID);
 	}
-	
-	public OntologyNetwork getEncapsulatingOntologyNetwork(CyNetwork network) {
-		Long networkSUID = network.getSUID();
-		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
-			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID)
-				return ontologyNetwork;
-		}
-		return null;
-	}
 
 	public boolean hasEncapsulatingOntologyNetwork(CyNetwork network) {
-		return getEncapsulatingOntologyNetwork(network) != null;
+		return allOntologyNetwork.containsKey(network.getSUID());
 	}
 
 	public ExpandableNode getExpandableNode(OntologyNetwork ontologyNetwork,
@@ -71,20 +62,24 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 		Long networkSUID = e.getNetwork().getSUID();
 		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
 			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID) {
-				allOntologyNetwork.remove(ontologyNetwork.getOriginNetwork()
-						.getSUID());
+				allOntologyNetwork.remove(ontologyNetwork
+						.getUnderlyingNetwork().getSUID());
 			}
 		}
-		
-		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance().getApplicationManager().getCyDesktopService().getCytoPanel(CytoPanelName.WEST);
-		
-		int index = cytoPanelWest.indexOfComponent(OntologyViewerControlPanel.CONTROL_PANEL_TITLE);
-		
+
+		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance()
+				.getApplicationManager().getCyDesktopService()
+				.getCytoPanel(CytoPanelName.WEST);
+
+		int index = cytoPanelWest
+				.indexOfComponent(OntologyViewerControlPanel.CONTROL_PANEL_TITLE);
+
 		if (index == -1)
 			return;
-		
-		OntologyViewerControlPanel ontologyViewerControlPanel = (OntologyViewerControlPanel) cytoPanelWest.getComponentAt(index);
-		
+
+		OntologyViewerControlPanel ontologyViewerControlPanel = (OntologyViewerControlPanel) cytoPanelWest
+				.getComponentAt(index);
+
 		ontologyViewerControlPanel.rePopTheAggregationValues();
 
 	}
@@ -92,6 +87,6 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 	public static void registerApplicationManager(
 			MyApplicationManager myApplicationManager) {
 		appManager = myApplicationManager;
-		
+
 	}
 }
