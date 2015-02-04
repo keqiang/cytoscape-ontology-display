@@ -24,6 +24,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.actions.RefactorOntologyDispla
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
 
@@ -85,6 +86,11 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
 		ExpandableNodeExpandTaskFactory expandableNodeExpandTask = new ExpandableNodeExpandTaskFactory();
 		registerService(context, expandableNodeExpandTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		
+		myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term for one level");
+		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTask = new ExpandableNodeExpandOneLevelTaskFactory();
+		registerService(context, expandableNodeExpandOneLevelTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
 		OntologyViewerControlPanel controlPanel = new OntologyViewerControlPanel();
 		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());

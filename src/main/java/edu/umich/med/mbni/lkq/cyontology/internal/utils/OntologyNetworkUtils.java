@@ -25,7 +25,9 @@ public class OntologyNetworkUtils {
 	public static final String INTERACTION_PART_OF = "part_of";
 	public static final String INTERACTION_REGULATES = "regulates";
 	public static final String INTERACTION_NEGATIVELY_REGULATES = "negatively_regulates";
+	public static final String INTERACTION_POSITIVELY_REGULATES = "positively_regulates";
 	public static final String INTERACTION_OCCURS_IN = "occurs_in";
+	public static final String INTERACTION_HAPPENS_DURING = "happens_during";
 
 	private static ExpandableNode getExpandableNodeInNetwork(
 			Map<Long, ExpandableNode> nodeMap, CyNode node) {
@@ -95,7 +97,7 @@ public class OntologyNetworkUtils {
 					String interactionType = underlyingNetwork.getRow(edge)
 							.get(CyEdge.INTERACTION, String.class);
 
-					if (!interactionType.equals(keepInteraction))
+					if (!interactionType.equalsIgnoreCase(keepInteraction))
 						continue;
 
 					if (containedInteraction(keepInteraction)) {
@@ -184,14 +186,14 @@ public class OntologyNetworkUtils {
 	}
 
 	private static boolean containedInteraction(String interactionType) {
-		return interactionType.equals(INTERACTION_PART_OF)
-				|| interactionType.equals(INTERACTION_OCCURS_IN)
-				|| interactionType.equals(INTERACTION_IS_A);
+		return interactionType.equalsIgnoreCase(INTERACTION_PART_OF)
+				|| interactionType.equalsIgnoreCase(INTERACTION_OCCURS_IN)
+				|| interactionType.equalsIgnoreCase(INTERACTION_IS_A) || interactionType.equalsIgnoreCase(INTERACTION_HAPPENS_DURING);
 	}
 
 	private static boolean containingInteraction(String interactionType) {
-		return interactionType.equals(INTERACTION_HAS_PART)
-				|| interactionType.equals(INTERACTION_REGULATES)
-				|| interactionType.equals(INTERACTION_NEGATIVELY_REGULATES);
+		return interactionType.equalsIgnoreCase(INTERACTION_HAS_PART)
+				|| interactionType.equalsIgnoreCase(INTERACTION_REGULATES)
+				|| interactionType.equalsIgnoreCase(INTERACTION_NEGATIVELY_REGULATES) || interactionType.equalsIgnoreCase(INTERACTION_POSITIVELY_REGULATES);
 	}
 }

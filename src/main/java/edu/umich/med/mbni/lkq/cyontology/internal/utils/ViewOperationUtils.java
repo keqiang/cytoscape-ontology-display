@@ -41,6 +41,17 @@ public class ViewOperationUtils {
 			hideSubTree(childNode, networkView);
 		}
 	}
+	
+
+	public static void showOneLevel(ExpandableNode rootNode,
+			CyNetworkView networkView) {
+		for (ExpandableNode childNode : rootNode.getChildNodes()) {
+			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
+					BasicVisualLexicon.NODE_VISIBLE, true);
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
+		}
+		
+	}
 
 	/**
 	 * @param nodes
@@ -112,34 +123,6 @@ public class ViewOperationUtils {
 
 	}
 
-	/**
-	 * @param nodes
-	 * @param networkView
-	 * @param isExpanding
-	 */
-//	public static void updateOntologyNetworkView(
-//			Collection<ExpandableNode> nodes, CyNetworkView networkView,
-//			boolean isExpanding) {
-//		LinkedList<CyNode> nodesToChange = new LinkedList<CyNode>();
-//
-//		if (isExpanding) {
-//			for (ExpandableNode node : nodes) {
-//				if (node.isVisible()) {
-//					nodesToChange.add(node.getCyNode());
-//				}
-//			}
-//
-//		} else {
-//			for (ExpandableNode node : nodes) {
-//				if (!node.isVisible()) {
-//					nodesToChange.add(node.getCyNode());
-//				}
-//			}
-//		}
-//
-//		setVisibleNodes(nodesToChange, networkView, isExpanding);
-//	}
-
 	public static void reLayoutNetwork(
 			CyLayoutAlgorithmManager layoutAlgorithmManager,
 			CyNetworkView networkView, String layoutAlgorithmName) {
@@ -161,4 +144,5 @@ public class ViewOperationUtils {
 		}
 
 	}
+
 }

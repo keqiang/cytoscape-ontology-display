@@ -11,12 +11,12 @@ import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
 
-public class CollapseNodeEdit extends AbstractCyEdit {
+public class ExpandOneLevelEdit extends AbstractCyEdit {
 
 	private CyNetworkView networkView;
 	private View<CyNode> nodeView;
 
-	public CollapseNodeEdit(String presentationName, CyNetworkView networkView,
+	public ExpandOneLevelEdit(String presentationName, CyNetworkView networkView,
 			View<CyNode> nodeView) {
 		super(presentationName);
 		this.networkView = networkView;
@@ -31,9 +31,9 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 				.getEncapsulatingOntologyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel().getSUID());
 
-		expandableNode.collapse();
+		expandableNode.expandOneLevel();
 
-		ViewOperationUtils.hideSubTree(expandableNode, networkView);
+		ViewOperationUtils.showOneLevel(expandableNode, networkView);
 
 	}
 
@@ -46,9 +46,9 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 		ExpandableNode expandableNode = ontologyNetwork
 				.getNode(nodeView.getModel().getSUID());
 
-		expandableNode.expand();
+		expandableNode.collapse();
 
-		ViewOperationUtils.showSubTree(expandableNode, networkView);
+		ViewOperationUtils.hideSubTree(expandableNode, networkView);
 
 	}
 

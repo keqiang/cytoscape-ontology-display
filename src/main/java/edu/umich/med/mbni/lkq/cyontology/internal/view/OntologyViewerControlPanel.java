@@ -134,7 +134,6 @@ public class OntologyViewerControlPanel extends JPanel implements
 					ViewOperationUtils.reLayoutNetwork(
 							appManager.getCyLayoutAlgorithmManager(), networkView,
 							"force-directed");				
-					
 				}
 				
 			}

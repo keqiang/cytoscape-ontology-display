@@ -10,8 +10,8 @@ import org.cytoscape.work.TaskIterator;
 public class ExpandableNodeExpandTaskFactory extends AbstractNodeViewTaskFactory {
 
 	@Override
-	public TaskIterator createTaskIterator(View<CyNode> arg0, CyNetworkView arg1) {
-		ExpandableNodeExpandTask task = new ExpandableNodeExpandTask(arg0.getModel(), arg1);
+	public TaskIterator createTaskIterator(View<CyNode> nodeView, CyNetworkView networkView) {
+		ExpandableNodeExpandTask task = new ExpandableNodeExpandTask(nodeView, networkView);
 		Task[] initialTasks = new Task[1];
 		initialTasks[0] = task;
 		return new TaskIterator(initialTasks);

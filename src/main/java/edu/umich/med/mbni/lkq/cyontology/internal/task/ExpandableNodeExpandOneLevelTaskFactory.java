@@ -7,11 +7,11 @@ import org.cytoscape.view.model.View;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 
-public class ExpandableNodeCollapseTaskFactory extends AbstractNodeViewTaskFactory {
+public class ExpandableNodeExpandOneLevelTaskFactory extends AbstractNodeViewTaskFactory {
 
 	@Override
 	public TaskIterator createTaskIterator(View<CyNode> nodeView, CyNetworkView networkView) {
-		ExpandableNodeCollapseTask task = new ExpandableNodeCollapseTask(nodeView, networkView);
+		ExpandableNodeExpandOneLevelTask task = new ExpandableNodeExpandOneLevelTask(nodeView, networkView);
 		Task[] initialTasks = new Task[1];
 		initialTasks[0] = task;
 		return new TaskIterator(initialTasks);

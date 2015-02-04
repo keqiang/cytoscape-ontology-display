@@ -56,14 +56,24 @@ public class ExpandableNode {
 
 	public void expand() {
 
-		if (!isCollapsed)
-			return;
-
 		for (ExpandableNode childNode : childNodes.values()) {
 
-			childNode.increaseReferenceCount();
-			if (childNode.isCollapsed)
-				childNode.expand();
+			if (isCollapsed) {
+				childNode.increaseReferenceCount();
+			}
+		
+			childNode.expand();
+		}
+
+		isCollapsed = false;
+	}
+	
+	public void expandOneLevel() {
+
+		for (ExpandableNode childNode : childNodes.values()) {
+			if (isCollapsed) {
+				childNode.increaseReferenceCount();
+			}
 		}
 
 		isCollapsed = false;
@@ -75,11 +85,11 @@ public class ExpandableNode {
 
 		for (ExpandableNode childNode : childNodes.values()) {
 
-			childNode.decreaseReferenceCount();
-
 			if (!childNode.isCollapsed) {
 				childNode.collapse();
 			}
+			
+			childNode.decreaseReferenceCount();
 		}
 
 		isCollapsed = true;
