@@ -39,8 +39,8 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 				network);
 	}
 	
-	public void removeOntologyNetwork(OntologyNetwork network) {
-		allOntologyNetwork.remove(network.getUnderlyingNetwork().getSUID());
+	public void removeOntologyNetwork(CyNetwork network) {
+		allOntologyNetwork.remove(network.getSUID());
 	}
 
 	public OntologyNetwork getEncapsulatingOntologyNetwork(CyNetwork network) {

@@ -10,8 +10,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
@@ -23,16 +21,12 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.events.NetworkAddedEvent;
 import org.cytoscape.model.events.NetworkAddedListener;
-import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
-import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
+import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.DelayedVizProp;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
 
 public class OntologyViewerControlPanel extends JPanel implements
 		CytoPanelComponent2, NetworkAddedListener {
@@ -84,56 +78,17 @@ public class OntologyViewerControlPanel extends JPanel implements
 				
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					
-					String selectedItem = interactionTypeChoice.getSelectedItem();
-					CyNetwork underlyingNetwork = MyApplicationCenter.getInstance().getApplicationManager().getCyApplicationManager().getCurrentNetwork();
-
 					MyApplicationManager appManager = MyApplicationCenter.getInstance().getApplicationManager();
-					Collection<CyNetworkView> networkViews = appManager.getCyNetworkViewManager().getNetworkViews(underlyingNetwork);
-					CyNetworkView networkView;
 					
-					if (networkViews.isEmpty()) {
-						networkView = appManager.getCyNetworkViewFactory().createNetworkView(underlyingNetwork);
-						appManager.getCyNetworkViewManager().addNetworkView(networkView);
-					} else {
-						networkView = networkViews.iterator().next();
-					}
+					CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
+							.getCurrentNetwork();				
 					
-					LinkedList<DelayedVizProp> vizProps = new LinkedList<>();
+					String selectedItem = interactionTypeChoice.getSelectedItem();
+					PopulateOntologyNetworkTaskFactory populateOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(selectedItem);
 					
-					for (CyEdge edge : underlyingNetwork.getEdgeList()) {
-						DelayedVizProp vizProp = new DelayedVizProp(edge,
-								BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
-								ArrowShapeVisualProperty.NONE, true);
-						vizProps.add(vizProp);
-						vizProp = new DelayedVizProp(edge,
-								BasicVisualLexicon.EDGE_WIDTH,
-								1.0, true);
-						vizProps.add(vizProp);
-						vizProp = new DelayedVizProp(edge,
-								BasicVisualLexicon.EDGE_LINE_TYPE,
-								LineTypeVisualProperty.LONG_DASH, true);
-						vizProps.add(vizProp);
-						
-						vizProp = new DelayedVizProp(edge,
-								BasicVisualLexicon.EDGE_TRANSPARENCY,
-								120, true);
-						vizProps.add(vizProp);
-						
-					}
-					
-					appManager.getCyEventHelper().flushPayloadEvents();
-					DelayedVizProp.applyAll(networkView, vizProps);
-							
-					vizProps.clear();
-					
-					MyApplicationCenter.getInstance().addOntologyNetwork(OntologyNetworkUtils.convertNetworkToOntology(underlyingNetwork, vizProps, selectedItem));
-					
-					appManager.getCyEventHelper().flushPayloadEvents();
-					DelayedVizProp.applyAll(networkView, vizProps);
-					
-					ViewOperationUtils.reLayoutNetwork(
-							appManager.getCyLayoutAlgorithmManager(), networkView,
-							"force-directed");				
+					DialogTaskManager taskManager = appManager.getTaskManager();
+					taskManager.execute(populateOntologyNetworkTaskFactory.createTaskIterator(underlyingNetwork));
+			
 				}
 				
 			}

@@ -10,9 +10,10 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.swing.DialogTaskManager;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.HeadlessTaskMonitor;
 
 /**
  * @author keqiangli an utility class to perform operations on the node and edge
@@ -20,37 +21,45 @@ import edu.umich.med.mbni.lkq.cyontology.internal.task.HeadlessTaskMonitor;
  *
  */
 public class ViewOperationUtils {
-	
-	public static void showSubTree(ExpandableNode rootNode, CyNetworkView networkView) {
+
+	public static void showSubTree(ExpandableNode rootNode,
+			CyNetworkView networkView) {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
 			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
 					BasicVisualLexicon.NODE_VISIBLE, true);
 
-			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(),
+					childNode.getCyNode(), networkView, true);
 			showSubTree(childNode, networkView);
 		}
+		networkView.updateView();
 	}
-	
-	public static void hideSubTree(ExpandableNode rootNode, CyNetworkView networkView) {
+
+	public static void hideSubTree(ExpandableNode rootNode,
+			CyNetworkView networkView) {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
 			if (!childNode.isReferred()) {
-				networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
-						BasicVisualLexicon.NODE_VISIBLE, false);
+				networkView.getNodeView(childNode.getCyNode())
+						.setVisualProperty(BasicVisualLexicon.NODE_VISIBLE,
+								false);
 			}
-			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, false);
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(),
+					childNode.getCyNode(), networkView, false);
 			hideSubTree(childNode, networkView);
 		}
+		networkView.updateView();
 	}
-	
 
 	public static void showOneLevel(ExpandableNode rootNode,
 			CyNetworkView networkView) {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
 			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
 					BasicVisualLexicon.NODE_VISIBLE, true);
-			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(),
+					childNode.getCyNode(), networkView, true);
 		}
-		
+		networkView.updateView();
+
 	}
 
 	/**
@@ -61,28 +70,28 @@ public class ViewOperationUtils {
 	 * @param visible
 	 *            flag variable indicates whether to hide or show the nodes
 	 */
-//	public static void setVisibleNodes(Collection<CyNode> nodes,
-//			CyNetworkView networkView, boolean visible) {
-//		if (networkView == null)
-//			return;
-//
-//		final CyNetwork network = networkView.getModel();
-//
-//		for (CyNode node : nodes) {
-//			networkView.getNodeView(node).setVisualProperty(
-//					BasicVisualLexicon.NODE_VISIBLE, visible);
-//			for (CyNode neighborNode : network.getNeighborList(node,
-//					CyEdge.Type.ANY)) {
-//				for (CyEdge edge : network.getConnectingEdgeList(node,
-//						neighborNode, CyEdge.Type.ANY)) {
-//					networkView.getEdgeView(edge).setVisualProperty(
-//							BasicVisualLexicon.EDGE_VISIBLE, visible);
-//				}
-//			}
-//		}
-//
-//		networkView.updateView();
-//	}
+	// public static void setVisibleNodes(Collection<CyNode> nodes,
+	// CyNetworkView networkView, boolean visible) {
+	// if (networkView == null)
+	// return;
+	//
+	// final CyNetwork network = networkView.getModel();
+	//
+	// for (CyNode node : nodes) {
+	// networkView.getNodeView(node).setVisualProperty(
+	// BasicVisualLexicon.NODE_VISIBLE, visible);
+	// for (CyNode neighborNode : network.getNeighborList(node,
+	// CyEdge.Type.ANY)) {
+	// for (CyEdge edge : network.getConnectingEdgeList(node,
+	// neighborNode, CyEdge.Type.ANY)) {
+	// networkView.getEdgeView(edge).setVisualProperty(
+	// BasicVisualLexicon.EDGE_VISIBLE, visible);
+	// }
+	// }
+	// }
+	//
+	// networkView.updateView();
+	// }
 
 	/**
 	 * @param edges
@@ -92,14 +101,12 @@ public class ViewOperationUtils {
 	 * @param visible
 	 *            flag variable indicates whether to hide or show the edges
 	 */
-	public static void setVisibleEdges(Collection<CyEdge> edges,
+	private static void setVisibleEdges(Collection<CyEdge> edges,
 			CyNetworkView networkView, boolean visible) {
 		for (CyEdge edge : edges) {
 			networkView.getEdgeView(edge).setVisualProperty(
 					BasicVisualLexicon.EDGE_VISIBLE, visible);
 		}
-
-		networkView.updateView();
 	}
 
 	/**
@@ -127,6 +134,9 @@ public class ViewOperationUtils {
 			CyLayoutAlgorithmManager layoutAlgorithmManager,
 			CyNetworkView networkView, String layoutAlgorithmName) {
 
+		DialogTaskManager taskManager = MyApplicationCenter.getInstance()
+				.getApplicationManager().getTaskManager();
+
 		final CyLayoutAlgorithm layout = layoutAlgorithmManager
 				.getLayout(layoutAlgorithmName);
 		if (layout == null) {
@@ -136,12 +146,7 @@ public class ViewOperationUtils {
 		final TaskIterator itr = layout.createTaskIterator(networkView,
 				layout.getDefaultLayoutContext(),
 				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
-
-		try {
-			itr.next().run(new HeadlessTaskMonitor());
-		} catch (Exception e) {
-			return;
-		}
+		taskManager.execute(itr);
 
 	}
 

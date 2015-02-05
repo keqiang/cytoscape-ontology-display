@@ -55,8 +55,7 @@ public class OntologyNetworkUtils {
 		
 		if (MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
 				underlyingNetwork)) {
-			MyApplicationCenter.getInstance().removeOntologyNetwork(MyApplicationCenter.getInstance().getEncapsulatingOntologyNetwork(
-				underlyingNetwork));
+			MyApplicationCenter.getInstance().removeOntologyNetwork(underlyingNetwork);
 		}
 		
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();

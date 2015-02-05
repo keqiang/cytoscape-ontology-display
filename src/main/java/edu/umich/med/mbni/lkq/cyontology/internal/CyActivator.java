@@ -16,6 +16,7 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
@@ -33,6 +34,9 @@ public class CyActivator extends AbstractCyActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 
+		/*
+		 * get all the services needed by this App
+		 */
 		CySwingApplication cytoscapeDesktopService = getService(context,
 				CySwingApplication.class);
 
@@ -60,23 +64,30 @@ public class CyActivator extends AbstractCyActivator {
 				CyLayoutAlgorithmManager.class);
 		
 		UndoSupport undoSupport = getService(context, UndoSupport.class);
-
+		
+		DialogTaskManager taskManager = getService(context, DialogTaskManager.class);
+		
+		
+		/*
+		 * register these services to this App
+		 */
 		MyApplicationManager myApplicationManager = new MyApplicationManager(
 				cytoscapeDesktopService, applicationManager, networkFactory,
 				networkManager, networkViewFactory, networkViewManager, vmMgr,
-				algorithmManager, eventHelper, undoSupport);
+				algorithmManager, eventHelper, undoSupport, taskManager);
 		
 		MyApplicationCenter appCenter = MyApplicationCenter.getInstance();
 		MyApplicationCenter.registerApplicationManager(myApplicationManager);
 
-		RefactorOntologyDisplayAction action = new RefactorOntologyDisplayAction(
-				"force-directed");
-		// Register it as a service:
+
+		/*
+		 *  register all the services this App provides
+		 */
+		RefactorOntologyDisplayAction action = new RefactorOntologyDisplayAction();
 		registerService(context, action, CyAction.class, new Properties());
 		
 		registerService(context, appCenter, NetworkAboutToBeDestroyedListener.class, new Properties());
 		
-		// Register myNodeViewTaskFactory as a service in CyActivator
 		Properties myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty("title","Collpase this ontology term");
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTask = new ExpandableNodeCollapseTaskFactory();

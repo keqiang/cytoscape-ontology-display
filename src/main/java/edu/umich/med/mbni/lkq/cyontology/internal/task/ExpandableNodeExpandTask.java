@@ -23,12 +23,14 @@ public class ExpandableNodeExpandTask extends AbstractNodeViewTask {
 		this.nodeView = nodeView;
 	}
 	@Override
-	public void run(TaskMonitor arg0) throws Exception {
+	public void run(TaskMonitor taskMonitor) throws Exception {
 		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(networkView.getModel())) return;
-		
+		taskMonitor.setProgress(0.2);
 		AbstractCyEdit expanding = new ExpandNodeEdit("expand", networkView, nodeView);
 		expanding.redo();
+		taskMonitor.setProgress(0.8);
 		MyApplicationCenter.getInstance().getApplicationManager().getCyUndoSupport().postEdit(expanding);
+		taskMonitor.setProgress(1.0);
 	}
 
 }

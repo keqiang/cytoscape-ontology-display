@@ -29,11 +29,14 @@ public class ExpandableNodeCollapseTask extends AbstractNodeViewTask {
 				networkView.getModel()))
 			return;
 
+		taskMonitor.setProgress(0.2);
 		AbstractCyEdit collapsing = new CollapseNodeEdit("collpse",
 				networkView, nodeView);
 		collapsing.redo();
+		taskMonitor.setProgress(0.8);
 		MyApplicationCenter.getInstance().getApplicationManager()
 				.getCyUndoSupport().postEdit(collapsing);
+		taskMonitor.setProgress(1.0);
 
 	}
 

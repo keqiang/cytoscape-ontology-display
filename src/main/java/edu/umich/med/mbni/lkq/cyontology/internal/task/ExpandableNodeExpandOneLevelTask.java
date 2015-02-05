@@ -28,11 +28,14 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 				networkView.getModel()))
 			return;
 
+		taskMonitor.setProgress(0.2);
 		AbstractCyEdit expanding = new ExpandOneLevelEdit("expand one level",
 				networkView, nodeView);
 		expanding.redo();
+		taskMonitor.setProgress(0.8);
 		MyApplicationCenter.getInstance().getApplicationManager()
 				.getCyUndoSupport().postEdit(expanding);
+		taskMonitor.setProgress(1.0);
 
 	}
 
