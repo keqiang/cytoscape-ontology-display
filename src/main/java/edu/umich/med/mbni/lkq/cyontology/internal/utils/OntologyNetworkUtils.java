@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -29,18 +28,6 @@ public class OntologyNetworkUtils {
 	public static final String INTERACTION_OCCURS_IN = "occurs_in";
 	public static final String INTERACTION_HAPPENS_DURING = "happens_during";
 
-	private static ExpandableNode getExpandableNodeInNetwork(
-			Map<Long, ExpandableNode> nodeMap, CyNode node) {
-		Long nodeSUID = node.getSUID();
-		ExpandableNode expandableNode = nodeMap.get(nodeSUID);
-		if (expandableNode == null) {
-			expandableNode = new ExpandableNode(node);
-			nodeMap.put(nodeSUID, expandableNode);
-		}
-
-		return expandableNode;
-	}
-
 	/**
 	 * @param underlyingNetwork
 	 *            the original network
@@ -51,15 +38,12 @@ public class OntologyNetworkUtils {
 	public static OntologyNetwork convertNetworkToOntology(
 			CyNetwork underlyingNetwork, LinkedList<DelayedVizProp> vizProps,
 			String keepInteraction) {
-
 		
 		if (MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
 				underlyingNetwork)) {
 			MyApplicationCenter.getInstance().removeOntologyNetwork(underlyingNetwork);
 		}
-		
-		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
-
+				
 		String networkName = underlyingNetwork.getRow(underlyingNetwork).get(
 				CyNetwork.NAME, String.class);
 		
@@ -67,14 +51,21 @@ public class OntologyNetworkUtils {
 			networkName += " Ontology View";
 			underlyingNetwork.getRow(underlyingNetwork).set(CyNetwork.NAME,
 					networkName);
-		}
-		
+		}		
 
 		List<CyNode> allNodes = underlyingNetwork.getNodeList();
+		
+		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
+		HashMap<Long, ExpandableNode> allRootNodes = new HashMap<Long, ExpandableNode>();
+		
+		for (CyNode node : allNodes) {
+			ExpandableNode expandableNode = new ExpandableNode(node);
+			allRootNodes.put(node.getSUID(), expandableNode);
+			createdNodes.put(node.getSUID(), expandableNode);
+		}
 
 		for (CyNode sourceNode : allNodes) {
-			ExpandableNode sourceExpandableNode = getExpandableNodeInNetwork(
-					createdNodes, sourceNode);
+			ExpandableNode sourceExpandableNode = createdNodes.get(sourceNode.getSUID());
 			String sourceNodeName = underlyingNetwork.getRow(sourceNode).get(
 					CyNetwork.NAME, String.class);
 
@@ -84,8 +75,7 @@ public class OntologyNetworkUtils {
 					sourceNode, CyEdge.Type.DIRECTED);
 
 			for (CyNode targetNode : neighborNodes) {
-				ExpandableNode targetExpandableNode = getExpandableNodeInNetwork(
-						createdNodes, targetNode);
+				ExpandableNode targetExpandableNode = createdNodes.get(targetNode.getSUID());
 
 				String targetNodeName = underlyingNetwork.getRow(targetNode)
 						.get(CyNetwork.NAME, String.class);
@@ -112,7 +102,8 @@ public class OntologyNetworkUtils {
 								sourceExpandableNode
 										.addChildNode(targetExpandableNode);
 								setEdgeProp(edge, vizProps);
-
+								// this node is a child node of some other node, so remove it from the root list.
+								allRootNodes.remove(targetNode.getSUID());
 							}
 						}
 					} else if (containingInteraction(keepInteraction)) {
@@ -124,15 +115,18 @@ public class OntologyNetworkUtils {
 								sourceExpandableNode
 										.addChildNode(targetExpandableNode);
 								setEdgeProp(edge, vizProps);
+								allRootNodes.remove(targetNode.getSUID());
 
 							}
 						}
 					}
 				}
 			}
+			
+			//sourceExpandableNode.collapse();
 		}
 		
-		return new OntologyNetwork(underlyingNetwork, createdNodes);
+		return new OntologyNetwork(underlyingNetwork, createdNodes, allRootNodes);
 	}
 
 	private static void setEdgeProp(CyEdge connectingEdge,

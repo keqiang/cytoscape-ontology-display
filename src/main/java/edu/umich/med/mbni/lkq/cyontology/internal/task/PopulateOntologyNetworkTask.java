@@ -97,18 +97,26 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 				.convertNetworkToOntology(appManager.getCyApplicationManager()
 						.getCurrentNetwork(), vizProps, interactionType);
 
-		taskMonitor.setProgress(0.8);
-
 		MyApplicationCenter.getInstance().addOntologyNetwork(
 				generatedOntologyNetwork);
 
 		appManager.getCyEventHelper().flushPayloadEvents();
 		DelayedVizProp.applyAll(networkView, vizProps);
+		
+		vizProps.clear();
+		
+		taskMonitor.setProgress(0.7);
 
 		taskMonitor.setStatusMessage("relayouting the ontology network");
+				
+//		for (ExpandableNode node : generatedOntologyNetwork.getAllRootNodes()) {
+//			ViewOperationUtils.hideSubTree(node, networkView);
+//		}
+//		networkView.updateView();
+		
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), networkView,
-				"grid");
+				"force-directed");
 
 		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance()
 				.getApplicationManager().getCyDesktopService()

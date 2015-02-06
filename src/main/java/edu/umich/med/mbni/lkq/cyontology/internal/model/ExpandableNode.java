@@ -40,11 +40,6 @@ public class ExpandableNode {
 		return node.getSUID();
 	}
 
-	public void removeChildNode(ExpandableNode otherNode) {
-		childNodes.remove(otherNode.getSUID());
-		otherNode.decreaseReferenceCount();
-	}
-
 	public void addChildNode(ExpandableNode otherNode) {
 		childNodes.put(otherNode.getSUID(), otherNode);
 		otherNode.increaseReferenceCount();

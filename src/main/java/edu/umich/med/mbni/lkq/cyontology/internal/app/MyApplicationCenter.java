@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 
@@ -53,8 +54,8 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 	}
 
 	public ExpandableNode getExpandableNode(OntologyNetwork ontologyNetwork,
-			Long nodeSUID) {
-		return ontologyNetwork.getNode(nodeSUID);
+			CyNode node) {
+		return ontologyNetwork.getNode(node);
 	}
 
 	@Override
