@@ -61,10 +61,14 @@ public class OntologyNetworkUtils {
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
 
 		String networkName = underlyingNetwork.getRow(underlyingNetwork).get(
-				CyNetwork.NAME, String.class)
-				+ " Ontology View";
-		underlyingNetwork.getRow(underlyingNetwork).set(CyNetwork.NAME,
-				networkName);
+				CyNetwork.NAME, String.class);
+		
+		if (!networkName.endsWith("Ontology View")) {
+			networkName += " Ontology View";
+			underlyingNetwork.getRow(underlyingNetwork).set(CyNetwork.NAME,
+					networkName);
+		}
+		
 
 		List<CyNode> allNodes = underlyingNetwork.getNodeList();
 
