@@ -40,8 +40,9 @@ public class ExpandOneLevelEdit extends AbstractCyEdit {
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), networkView,
 				"force-directed");
+		
 		networkView.updateView();
-
+		appManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 	@Override
@@ -56,7 +57,9 @@ public class ExpandOneLevelEdit extends AbstractCyEdit {
 		expandableNode.collapse();
 
 		ViewOperationUtils.hideSubTree(expandableNode, networkView);
+		
 		networkView.updateView();
+		appManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 }

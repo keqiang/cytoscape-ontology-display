@@ -37,7 +37,9 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 		expandableNode.collapse();
 
 		ViewOperationUtils.hideSubTree(expandableNode, networkView);
+		
 		networkView.updateView();
+		appManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 	@Override
@@ -55,8 +57,9 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), networkView,
 				"force-directed");
+		
 		networkView.updateView();
-
+		appManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 }

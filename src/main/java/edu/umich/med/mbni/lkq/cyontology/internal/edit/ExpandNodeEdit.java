@@ -44,6 +44,7 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 				appManager.getCyLayoutAlgorithmManager(), networkView,
 				"force-directed");
 		networkView.updateView();
+		appManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 	@Override
@@ -59,7 +60,7 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 
 		ViewOperationUtils.hideSubTree(expandableNode, networkView);
 		networkView.updateView();
-
+		appManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 }

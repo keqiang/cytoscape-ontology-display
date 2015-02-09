@@ -27,6 +27,7 @@ public class ViewOperationUtils {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
 			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
 					BasicVisualLexicon.NODE_VISIBLE, true);
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
 			showSubTree(childNode, networkView);
 		}
 	}
@@ -38,6 +39,8 @@ public class ViewOperationUtils {
 				networkView.getNodeView(childNode.getCyNode())
 						.setVisualProperty(BasicVisualLexicon.NODE_VISIBLE,
 								false);
+			} else {
+				setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, false);
 			}
 			hideSubTree(childNode, networkView);
 		}
@@ -48,6 +51,7 @@ public class ViewOperationUtils {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
 			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
 					BasicVisualLexicon.NODE_VISIBLE, true);
+			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
 		}
 
 	}
