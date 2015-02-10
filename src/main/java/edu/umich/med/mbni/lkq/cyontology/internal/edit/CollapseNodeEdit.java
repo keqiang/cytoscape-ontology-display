@@ -2,6 +2,7 @@ package edu.umich.med.mbni.lkq.cyontology.internal.edit;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.work.undo.AbstractCyEdit;
@@ -56,7 +57,7 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 		ViewOperationUtils.showSubTree(expandableNode, networkView);
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), networkView,
-				"force-directed");
+				"hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		
 		networkView.updateView();
 		appManager.getCyEventHelper().flushPayloadEvents();

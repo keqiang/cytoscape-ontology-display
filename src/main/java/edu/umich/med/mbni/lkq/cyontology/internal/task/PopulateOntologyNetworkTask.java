@@ -1,6 +1,7 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.task;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.cytoscape.application.swing.CytoPanel;
@@ -8,8 +9,10 @@ import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.task.AbstractNetworkTask;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
@@ -17,6 +20,7 @@ import org.cytoscape.work.TaskMonitor;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.DelayedVizProp;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
@@ -64,8 +68,6 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 			networkView = networkViews.iterator().next();
 		}
 
-		taskMonitor.setProgress(0.1);
-
 		LinkedList<DelayedVizProp> vizProps = new LinkedList<DelayedVizProp>();
 
 		for (CyEdge edge : underlyingNetwork.getEdgeList()) {
@@ -88,8 +90,6 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		appManager.getCyEventHelper().flushPayloadEvents();
 		DelayedVizProp.applyAll(networkView, vizProps);
 
-		taskMonitor.setProgress(0.3);
-
 		vizProps.clear();
 
 		taskMonitor.setStatusMessage("populating all ontology items");
@@ -102,21 +102,41 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 
 		appManager.getCyEventHelper().flushPayloadEvents();
 		DelayedVizProp.applyAll(networkView, vizProps);
-		
+
 		vizProps.clear();
-		
-		taskMonitor.setProgress(0.7);
 
 		taskMonitor.setStatusMessage("relayouting the ontology network");
-				
-//		for (ExpandableNode node : generatedOntologyNetwork.getAllRootNodes()) {
-//			ViewOperationUtils.hideSubTree(node, networkView);
-//		}
-//		networkView.updateView();
-		
+
+		HashSet<View<CyNode>> nodesToLayout = new HashSet<View<CyNode>>();
+
+		for (Long nodeSUID : generatedOntologyNetwork.getAllRootNodes()) {
+			ExpandableNode expandableNode = generatedOntologyNetwork
+					.getNode(nodeSUID);
+			expandableNode.collapse();
+			ViewOperationUtils.hideSubTree(expandableNode, networkView);
+			if (!expandableNode.getChildNodes().isEmpty()) {
+				expandableNode.expandOneLevel();
+				nodesToLayout.add(networkView.getNodeView(expandableNode
+						.getCyNode()));
+				for (ExpandableNode childNode : expandableNode.getChildNodes()) {
+					View<CyNode> nodeView = networkView.getNodeView(childNode
+							.getCyNode());
+					nodesToLayout.add(nodeView);
+				}
+				ViewOperationUtils.showOneLevel(expandableNode, networkView);
+			} else {
+				networkView.getNodeView(expandableNode.getCyNode())
+						.setVisualProperty(BasicVisualLexicon.NODE_VISIBLE,
+								false);
+			}
+		}
+
+		networkView.updateView();
+		appManager.getCyEventHelper().flushPayloadEvents();
+
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), networkView,
-				"force-directed");
+				"hierarchical", nodesToLayout);
 
 		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance()
 				.getApplicationManager().getCyDesktopService()
@@ -138,8 +158,6 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		cytoPanelWest.setSelectedIndex(index);
 
 		ontologyViewerControlPanel.rePopTheAggregationValues();
-
-		taskMonitor.setProgress(1.0);
 
 	}
 

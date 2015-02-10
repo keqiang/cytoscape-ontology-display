@@ -1,13 +1,15 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.cytoscape.model.CyEdge;
-import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.swing.DialogTaskManager;
@@ -126,7 +128,7 @@ public class ViewOperationUtils {
 
 	public static void reLayoutNetwork(
 			CyLayoutAlgorithmManager layoutAlgorithmManager,
-			CyNetworkView networkView, String layoutAlgorithmName) {
+			CyNetworkView networkView, String layoutAlgorithmName, Set<View<CyNode>> nodesToLayout) {
 
 		DialogTaskManager taskManager = MyApplicationCenter.getInstance()
 				.getApplicationManager().getTaskManager();
@@ -139,7 +141,7 @@ public class ViewOperationUtils {
 
 		final TaskIterator itr = layout.createTaskIterator(networkView,
 				layout.getDefaultLayoutContext(),
-				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
+				nodesToLayout, "");
 		taskManager.execute(itr);
 
 	}

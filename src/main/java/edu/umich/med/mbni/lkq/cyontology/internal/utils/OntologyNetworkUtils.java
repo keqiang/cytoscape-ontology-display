@@ -2,6 +2,7 @@ package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,11 +57,11 @@ public class OntologyNetworkUtils {
 		List<CyNode> allNodes = underlyingNetwork.getNodeList();
 		
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
-		HashMap<Long, ExpandableNode> allRootNodes = new HashMap<Long, ExpandableNode>();
+		HashSet<Long> allRootNodes = new HashSet<Long>();
 		
 		for (CyNode node : allNodes) {
 			ExpandableNode expandableNode = new ExpandableNode(node);
-			allRootNodes.put(node.getSUID(), expandableNode);
+			allRootNodes.add(node.getSUID());
 			createdNodes.put(node.getSUID(), expandableNode);
 		}
 

@@ -2,6 +2,7 @@ package edu.umich.med.mbni.lkq.cyontology.internal.edit;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.work.undo.AbstractCyEdit;
@@ -37,9 +38,19 @@ public class ExpandOneLevelEdit extends AbstractCyEdit {
 		expandableNode.expandOneLevel();
 
 		ViewOperationUtils.showOneLevel(expandableNode, networkView);
-		ViewOperationUtils.reLayoutNetwork(
-				appManager.getCyLayoutAlgorithmManager(), networkView,
-				"force-directed");
+		
+//		HashSet<View<CyNode>> nodesToLayout = new HashSet<View<CyNode>>();
+//		nodesToLayout.add(networkView.getNodeView(expandableNode.getCyNode()));
+//		for (ExpandableNode childNode : expandableNode.getChildNodes()) {
+//			View<CyNode> nodeView = networkView.getNodeView(childNode.getCyNode());
+//			nodesToLayout.add(nodeView);
+//		}
+		
+		if (!expandableNode.getChildNodes().isEmpty()) {
+			ViewOperationUtils.reLayoutNetwork(
+					appManager.getCyLayoutAlgorithmManager(), networkView,
+					"hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
+		}
 		
 		networkView.updateView();
 		appManager.getCyEventHelper().flushPayloadEvents();
