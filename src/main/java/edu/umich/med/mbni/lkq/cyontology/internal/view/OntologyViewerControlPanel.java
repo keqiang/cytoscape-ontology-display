@@ -1,6 +1,7 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.view;
 
 import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.Component;
 import java.awt.Label;
@@ -40,7 +41,7 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 	Choice aggregateColumnChoice;
 	Choice interactionTypeChoice;
-	Choice hideOrShowDanglingNodes;
+	Checkbox hideDanglingNodes;
 	
 	Button refreshAggregationChoicesButton;
 
@@ -100,41 +101,30 @@ public class OntologyViewerControlPanel extends JPanel implements
 		
 		rePopTheInteractionType();
 		
-		label = new Label("show or hide the dangling nodes");
-		label.setSize(50, 20);
-		this.add(label);
+		hideDanglingNodes = new Checkbox();
+		hideDanglingNodes.setLabel("select to hide dangling nodes");
+		hideDanglingNodes.setState(true);
+		this.add(hideDanglingNodes);
 		
-		hideOrShowDanglingNodes = new Choice();
-		hideOrShowDanglingNodes.add("hide");
-		hideOrShowDanglingNodes.add("show");
-		hideOrShowDanglingNodes.select("hide");
-		this.add(hideOrShowDanglingNodes);
-		
-		hideOrShowDanglingNodes.addItemListener(new ItemListener() {
+		hideDanglingNodes.addItemListener(new ItemListener() {
 			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					
-					String selectedItem = hideOrShowDanglingNodes.getSelectedItem();
-					boolean isShowing = selectedItem.equals("hide") ? false : true;
-					
-					MyApplicationManager appManager = MyApplicationCenter.getInstance().getApplicationManager();
-					
-					CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
-							.getCurrentNetwork();
-					
-					Collection<CyNetworkView> networkViews = appManager
-							.getCyNetworkViewManager().getNetworkViews(underlyingNetwork);
-					if (networkViews.isEmpty()) return;
-					
-					CyNetworkView networkView = networkViews.iterator().next();
-					
-					HideOrShowDanglingNodesTaskFactory hideOrShowDanglingNodesTaskFactory = new HideOrShowDanglingNodesTaskFactory(isShowing);
-					
-					DialogTaskManager taskManager = appManager.getTaskManager();
-					taskManager.execute(hideOrShowDanglingNodesTaskFactory.createTaskIterator(networkView));
-				}
+				MyApplicationManager appManager = MyApplicationCenter.getInstance().getApplicationManager();
+				
+				CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
+						.getCurrentNetwork();
+				
+				Collection<CyNetworkView> networkViews = appManager
+						.getCyNetworkViewManager().getNetworkViews(underlyingNetwork);
+				if (networkViews.isEmpty()) return;
+				
+				CyNetworkView networkView = networkViews.iterator().next();
+				
+				DialogTaskManager taskManager = appManager.getTaskManager();
+				HideOrShowDanglingNodesTaskFactory hideOrShowDanglingNodesTaskFactory = new HideOrShowDanglingNodesTaskFactory(!hideDanglingNodes.getState());
+				
+				taskManager.execute(hideOrShowDanglingNodesTaskFactory.createTaskIterator(networkView));
 			}
 		});
 	}
