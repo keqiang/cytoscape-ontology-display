@@ -161,6 +161,7 @@ public class OntologyNetworkUtils {
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SHAPE,
 				NodeShapeVisualProperty.ELLIPSE, true);
 		vizProps.add(vizProp);
+		
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_WIDTH, 50.0,
 				true);
 		vizProps.add(vizProp);

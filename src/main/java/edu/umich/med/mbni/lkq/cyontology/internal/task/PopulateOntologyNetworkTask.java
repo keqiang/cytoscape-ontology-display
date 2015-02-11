@@ -29,17 +29,15 @@ import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPane
 
 public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 
-	private CyNetwork underlyingNetwork;
 	private String interactionType;
 
 	public PopulateOntologyNetworkTask(CyNetwork network, String interactionType) {
 		super(network);
-		this.underlyingNetwork = network;
 		this.interactionType = interactionType;
 	}
 
 	@Override
-	public void run(TaskMonitor taskMonitor) throws Exception {
+	public void run(TaskMonitor taskMonitor) {
 
 		taskMonitor.setTitle("Generating Ontology Network");
 		taskMonitor.setStatusMessage("cleaning up old ontology network");
@@ -47,63 +45,57 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		MyApplicationManager appManager = MyApplicationCenter.getInstance()
 				.getApplicationManager();
 
-		OntologyNetwork generatedOntologyNetwork;
-
 		if (MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
-				underlyingNetwork)) {
-
+				network)) {
 			MyApplicationCenter.getInstance().removeOntologyNetwork(
-					underlyingNetwork);
+					network);
 		}
 
+		LinkedList<DelayedVizProp> edgeVizProps = new LinkedList<DelayedVizProp>();
+
+		for (CyEdge edge : network.getEdgeList()) {
+			DelayedVizProp vizProp = new DelayedVizProp(edge,
+					BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
+					ArrowShapeVisualProperty.NONE, true);
+			edgeVizProps.add(vizProp);
+			vizProp = new DelayedVizProp(edge, BasicVisualLexicon.EDGE_WIDTH,
+					1.0, true);
+			edgeVizProps.add(vizProp);
+			vizProp = new DelayedVizProp(edge,
+					BasicVisualLexicon.EDGE_LINE_TYPE,
+					LineTypeVisualProperty.LONG_DASH, true);
+			edgeVizProps.add(vizProp);
+			vizProp = new DelayedVizProp(edge,
+					BasicVisualLexicon.EDGE_TRANSPARENCY, 120, true);
+			edgeVizProps.add(vizProp);
+		}
+		
+		LinkedList<DelayedVizProp> otherVizProps = new LinkedList<DelayedVizProp>();
+		
+		taskMonitor.setStatusMessage("populating all ontology items");
+		
+		OntologyNetwork generatedOntologyNetwork = OntologyNetworkUtils
+				.convertNetworkToOntology(appManager.getCyApplicationManager()
+						.getCurrentNetwork(), otherVizProps, interactionType);
+
+		MyApplicationCenter.getInstance().addOntologyNetwork(
+				generatedOntologyNetwork);
+		
 		Collection<CyNetworkView> networkViews = appManager
-				.getCyNetworkViewManager().getNetworkViews(underlyingNetwork);
+				.getCyNetworkViewManager().getNetworkViews(network);
 		CyNetworkView networkView;
 
 		if (networkViews.isEmpty()) {
 			networkView = appManager.getCyNetworkViewFactory()
-					.createNetworkView(underlyingNetwork);
+					.createNetworkView(network);
 			appManager.getCyNetworkViewManager().addNetworkView(networkView);
 		} else {
 			networkView = networkViews.iterator().next();
 		}
 
-		LinkedList<DelayedVizProp> vizProps = new LinkedList<DelayedVizProp>();
-
-		for (CyEdge edge : underlyingNetwork.getEdgeList()) {
-			DelayedVizProp vizProp = new DelayedVizProp(edge,
-					BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
-					ArrowShapeVisualProperty.NONE, true);
-			vizProps.add(vizProp);
-			vizProp = new DelayedVizProp(edge, BasicVisualLexicon.EDGE_WIDTH,
-					1.0, true);
-			vizProps.add(vizProp);
-			vizProp = new DelayedVizProp(edge,
-					BasicVisualLexicon.EDGE_LINE_TYPE,
-					LineTypeVisualProperty.LONG_DASH, true);
-			vizProps.add(vizProp);
-			vizProp = new DelayedVizProp(edge,
-					BasicVisualLexicon.EDGE_TRANSPARENCY, 120, true);
-			vizProps.add(vizProp);
-		}
-
 		appManager.getCyEventHelper().flushPayloadEvents();
-		DelayedVizProp.applyAll(networkView, vizProps);
-
-		vizProps.clear();
-
-		taskMonitor.setStatusMessage("populating all ontology items");
-		generatedOntologyNetwork = OntologyNetworkUtils
-				.convertNetworkToOntology(appManager.getCyApplicationManager()
-						.getCurrentNetwork(), vizProps, interactionType);
-
-		MyApplicationCenter.getInstance().addOntologyNetwork(
-				generatedOntologyNetwork);
-
-		appManager.getCyEventHelper().flushPayloadEvents();
-		DelayedVizProp.applyAll(networkView, vizProps);
-
-		vizProps.clear();
+		DelayedVizProp.applyAll(networkView, edgeVizProps);
+		DelayedVizProp.applyAll(networkView, otherVizProps);
 
 		taskMonitor.setStatusMessage("relayouting the ontology network");
 

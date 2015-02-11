@@ -27,6 +27,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
 
 public class CyActivator extends AbstractCyActivator {
@@ -67,7 +68,6 @@ public class CyActivator extends AbstractCyActivator {
 		
 		DialogTaskManager taskManager = getService(context, DialogTaskManager.class);
 		
-		
 		/*
 		 * register these services to this App
 		 */
@@ -102,6 +102,11 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term for one level");
 		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTask = new ExpandableNodeExpandOneLevelTaskFactory();
 		registerService(context, expandableNodeExpandOneLevelTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		
+		myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty("title","Select all childrens ontology items");
+		SelectChildNodeTaskFactory selectChildNodeTaskFactory = new SelectChildNodeTaskFactory();
+		registerService(context, selectChildNodeTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
 		OntologyViewerControlPanel controlPanel = new OntologyViewerControlPanel();
 		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());

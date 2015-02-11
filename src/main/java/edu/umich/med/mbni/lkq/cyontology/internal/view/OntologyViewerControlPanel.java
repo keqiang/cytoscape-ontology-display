@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import javax.swing.Icon;
+import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 
 import org.cytoscape.application.swing.CytoPanelComponent2;
@@ -44,6 +45,8 @@ public class OntologyViewerControlPanel extends JPanel implements
 	Checkbox hideDanglingNodes;
 	
 	Button refreshAggregationChoicesButton;
+	
+	JColorChooser colorChooser;
 
 	public OntologyViewerControlPanel() {
 		
@@ -127,6 +130,10 @@ public class OntologyViewerControlPanel extends JPanel implements
 				taskManager.execute(hideOrShowDanglingNodesTaskFactory.createTaskIterator(networkView));
 			}
 		});
+		
+		colorChooser = new JColorChooser();
+		this.add(colorChooser);
+		
 	}
 
 	@Override

@@ -15,20 +15,18 @@ import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
 
 public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 
-	private CyNetworkView networkView;
 	private boolean isShowing;
 	private MyApplicationManager appManager;
 
 	public HideOrShowDanglingNodesTask(CyNetworkView view, boolean isShowing) {
 		super(view);
-		this.networkView = view;
 		this.isShowing = isShowing;
 		appManager = MyApplicationCenter.getInstance().getApplicationManager();
 	}
 
 	@Override
-	public void run(TaskMonitor taskMonitor) throws Exception {
-		CyNetwork underlyingNetwork = networkView.getModel();
+	public void run(TaskMonitor taskMonitor) {
+		CyNetwork underlyingNetwork = view.getModel();
 		OntologyNetwork encapsulatingNetwork = MyApplicationCenter
 				.getInstance().getEncapsulatingOntologyNetwork(
 						underlyingNetwork);
@@ -38,14 +36,13 @@ public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 		for (Long nodeSUID : encapsulatingNetwork.getAllRootNodes()) {
 			ExpandableNode node = encapsulatingNetwork.getNode(nodeSUID);
 			if (node.getChildNodes().isEmpty()) {
-				networkView.getNodeView(node.getCyNode()).setVisualProperty(
+				view.getNodeView(node.getCyNode()).setVisualProperty(
 						BasicVisualLexicon.NODE_VISIBLE, isShowing);
 			}
 		}
 		
-		ViewOperationUtils.reLayoutNetwork(appManager.getCyLayoutAlgorithmManager(), networkView, "hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
-		networkView.updateView();
-		appManager.getCyEventHelper().flushPayloadEvents();
+		ViewOperationUtils.reLayoutNetwork(appManager.getCyLayoutAlgorithmManager(), view, "hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
+		view.updateView();
 	}
 
 }

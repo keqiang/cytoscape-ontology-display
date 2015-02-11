@@ -1,43 +1,46 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.task;
 
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.task.AbstractNodeViewTask;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.work.TaskMonitor;
-import org.cytoscape.work.undo.AbstractCyEdit;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
-import edu.umich.med.mbni.lkq.cyontology.internal.edit.CollapseNodeEdit;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
 
 public class ExpandableNodeCollapseTask extends AbstractNodeViewTask {
-
-	private CyNetworkView networkView;
-	private View<CyNode> nodeView;
-
+	
 	public ExpandableNodeCollapseTask(View<CyNode> nodeView,
 			CyNetworkView netView) {
 		super(nodeView, netView);
-
-		this.networkView = netView;
-		this.nodeView = nodeView;
 	}
 
 	@Override
-	public void run(TaskMonitor taskMonitor) throws Exception {
+	public void run(TaskMonitor taskMonitor) {
 		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
-				networkView.getModel()))
+				netView.getModel()))
 			return;
+		
+		taskMonitor.setProgress(0.0);
+		
+		CyNetwork underlyingNetwork = netView.getModel();
 
-		taskMonitor.setProgress(0.2);
-		AbstractCyEdit collapsing = new CollapseNodeEdit("collpse",
-				networkView, nodeView);
-		collapsing.redo();
+		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+				.getEncapsulatingOntologyNetwork(underlyingNetwork);
+		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
+
+		expandableNode.collapse();
+		taskMonitor.setProgress(0.3);
+
+		ViewOperationUtils.hideSubTree(expandableNode, netView);
 		taskMonitor.setProgress(0.8);
-		MyApplicationCenter.getInstance().getApplicationManager()
-				.getCyUndoSupport().postEdit(collapsing);
+		
+		netView.updateView();
 		taskMonitor.setProgress(1.0);
-
 	}
 
 }

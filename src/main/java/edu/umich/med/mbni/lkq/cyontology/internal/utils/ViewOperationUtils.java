@@ -51,8 +51,11 @@ public class ViewOperationUtils {
 	public static void showOneLevel(ExpandableNode rootNode,
 			CyNetworkView networkView) {
 		for (ExpandableNode childNode : rootNode.getChildNodes()) {
-			networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
-					BasicVisualLexicon.NODE_VISIBLE, true);
+			boolean visible = networkView.getNodeView(childNode.getCyNode()).getVisualProperty(BasicVisualLexicon.NODE_VISIBLE);
+			if (!visible) {
+				networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
+						BasicVisualLexicon.NODE_VISIBLE, true);
+			}
 			setEdgeVisibleBetweenNodes(rootNode.getCyNode(), childNode.getCyNode(), networkView, true);
 		}
 
