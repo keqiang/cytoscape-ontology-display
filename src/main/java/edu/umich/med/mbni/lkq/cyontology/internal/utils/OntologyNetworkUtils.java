@@ -172,7 +172,7 @@ public class OntologyNetworkUtils {
 				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 7, true);
 		vizProps.add(vizProp);
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_FILL_COLOR,
-				Color.RED, true);
+				Color.WHITE, true);
 		vizProps.add(vizProp);
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_LABEL_COLOR,
 				Color.BLACK, true);
