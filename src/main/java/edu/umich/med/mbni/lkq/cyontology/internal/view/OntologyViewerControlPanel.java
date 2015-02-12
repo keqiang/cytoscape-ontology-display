@@ -5,6 +5,7 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +15,6 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import javax.swing.Icon;
-import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 
 import org.cytoscape.application.swing.CytoPanelComponent2;
@@ -46,25 +46,44 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 	Choice aggregateColumnChoice;
 	Choice interactionTypeChoice;
+	Choice aggregationType;
 	Checkbox hideDanglingNodes;
 
 	Button refreshAggregationChoicesButton;
-	Button aggregationButton;
-
-	JColorChooser colorChooser;
+	Button triggerAggregationButton;
 
 	public OntologyViewerControlPanel() {
+		
+		//this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
+		this.setLayout(layout);
+		
+		JPanel methodPanel = new JPanel();
+		
+		Label label = new Label("aggretation methods");
+		methodPanel.add(label);
+		
+		aggregationType = new Choice();
+		aggregationType.addItem("mean");
+		aggregationType.addItem("median");
+		aggregationType.addItem("max");
+		aggregationType.addItem("min");
+		aggregationType.addItem("sum");
+		methodPanel.add(aggregationType);
+		
+		this.add(methodPanel);
 
-		Label label = new Label("value used to aggregate");
-		label.setSize(50, 20);
-		this.add(label);
+		JPanel collumnPanel = new JPanel();
+		
+		label = new Label("collumn used to aggregate");
+		collumnPanel.add(label);
 
 		aggregateColumnChoice = new Choice();
-		aggregateColumnChoice.setSize(50, 20);
-		this.add(aggregateColumnChoice);
+		collumnPanel.add(aggregateColumnChoice);
 
 		refreshAggregationChoicesButton = new Button("Refresh");
-		this.add(refreshAggregationChoicesButton);
+		collumnPanel.add(refreshAggregationChoicesButton);
 
 		refreshAggregationChoicesButton.addActionListener(new ActionListener() {
 
@@ -76,10 +95,12 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 		rePopTheAggregationValues();
 
-		aggregationButton = new Button("update view");
-		this.add(aggregationButton);
+		triggerAggregationButton = new Button("update view");
+		collumnPanel.add(triggerAggregationButton);
+		
+		this.add(collumnPanel);
 
-		aggregationButton.addActionListener(new ActionListener() {
+		triggerAggregationButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -135,13 +156,15 @@ public class OntologyViewerControlPanel extends JPanel implements
 			}
 		});
 
+		JPanel interactionPanel = new JPanel();
+		
 		label = new Label("interaction type");
-		label.setSize(50, 20);
-		this.add(label);
+		interactionPanel.add(label);
 
 		interactionTypeChoice = new Choice();
-		interactionTypeChoice.setSize(50, 50);
-		this.add(interactionTypeChoice);
+		interactionPanel.add(interactionTypeChoice);
+		
+		this.add(interactionPanel);
 
 		interactionTypeChoice.addItemListener(new ItemListener() {
 
@@ -203,10 +226,6 @@ public class OntologyViewerControlPanel extends JPanel implements
 						.createTaskIterator(networkView));
 			}
 		});
-
-		colorChooser = new JColorChooser();
-		this.add(colorChooser);
-
 	}
 
 	@Override

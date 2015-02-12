@@ -162,14 +162,12 @@ public class OntologyNetworkUtils {
 				NodeShapeVisualProperty.ELLIPSE, true);
 		vizProps.add(vizProp);
 		
-		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_WIDTH, 80.0,
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SIZE, 150.0,
 				true);
 		vizProps.add(vizProp);
-		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_HEIGHT,
-				80.0, true);
-		vizProps.add(vizProp);
+		
 		vizProp = new DelayedVizProp(node,
-				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 7, true);
+				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 20, true);
 		vizProps.add(vizProp);
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_FILL_COLOR,
 				Color.WHITE, true);
@@ -181,7 +179,10 @@ public class OntologyNetworkUtils {
 				BasicVisualLexicon.NODE_BORDER_LINE_TYPE,
 				LineTypeVisualProperty.SOLID, true);
 		vizProps.add(vizProp);
-
+		
+		vizProp = new DelayedVizProp(node,
+				BasicVisualLexicon.NODE_BORDER_WIDTH, 3.0, true);
+		vizProps.add(vizProp);
 	}
 
 	private static boolean containedInteraction(String interactionType) {
