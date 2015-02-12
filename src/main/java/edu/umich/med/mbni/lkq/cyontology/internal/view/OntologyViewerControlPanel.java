@@ -34,6 +34,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.NumberConvertUtil;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
 
@@ -73,6 +74,32 @@ public class OntologyViewerControlPanel extends JPanel implements
 		methodPanel.add(aggregationType);
 		
 		this.add(methodPanel);
+		
+		aggregationType.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+
+					MyApplicationManager appManager = MyApplicationCenter
+							.getInstance().getApplicationManager();
+
+					String selectedItem = aggregationType
+							.getSelectedItem();
+					CyNetworkView networkView = appManager.getCyApplicationManager().getCurrentNetworkView();
+					
+					String columnName = aggregateColumnChoice.getSelectedItem();
+					
+					UpdateAggregationTaskFactory updateAggregationTaskFactory = new UpdateAggregationTaskFactory(selectedItem, columnName);
+
+					DialogTaskManager taskManager = appManager.getTaskManager();
+					taskManager.execute(updateAggregationTaskFactory
+							.createTaskIterator(networkView));
+
+				}
+			}
+		});
+		
 
 		JPanel collumnPanel = new JPanel();
 		
