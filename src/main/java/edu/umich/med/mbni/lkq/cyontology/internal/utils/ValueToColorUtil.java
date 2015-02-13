@@ -2,13 +2,13 @@ package edu.umich.med.mbni.lkq.cyontology.internal.utils;
 
 import java.awt.Color;
 
-public class NumberConvertUtil {
+public class ValueToColorUtil {
 
 	private double min;
 	private double max;
 	private double factor;
 	
-	public NumberConvertUtil(double min, double max) {
+	public ValueToColorUtil(double min, double max) {
 		this.min = min;
 		this.max = max;
 		this.factor = 255 / (max - min);

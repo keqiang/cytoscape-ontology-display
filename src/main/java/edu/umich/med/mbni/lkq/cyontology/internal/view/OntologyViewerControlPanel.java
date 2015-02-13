@@ -3,7 +3,6 @@ package edu.umich.med.mbni.lkq.cyontology.internal.view;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Choice;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Label;
@@ -22,12 +21,10 @@ import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.events.NetworkAddedEvent;
 import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
@@ -35,7 +32,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.NumberConvertUtil;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.AggregationMethodUtil;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
 
 public class OntologyViewerControlPanel extends JPanel implements
@@ -45,38 +42,45 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 	public static final String CONTROL_PANEL_TITLE = "Ontology Control Panel";
 
-	Choice aggregateColumnChoice;
+	Choice aggregationColumnChoice;
 	Choice interactionTypeChoice;
-	Choice aggregationType;
-	Checkbox hideDanglingNodes;
+	Choice aggregationMethodChoice;
+	Checkbox hideDanglingNodesCheckBox;
 
 	Button refreshAggregationChoicesButton;
 	Button triggerAggregationButton;
 
 	public OntologyViewerControlPanel() {
-		
-		//this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
+
 		FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
 		this.setLayout(layout);
-		
-		JPanel methodPanel = new JPanel();
-		
-		Label label = new Label("aggretation methods");
-		methodPanel.add(label);
-		
-		aggregationType = new Choice();
-		aggregationType.addItem("mean");
-		aggregationType.addItem("median");
-		aggregationType.addItem("max");
-		aggregationType.addItem("min");
-		aggregationType.addItem("sum");
-		methodPanel.add(aggregationType);
-		
-		this.add(methodPanel);
-		
-		aggregationType.addItemListener(new ItemListener() {
-			
+
+		JPanel AggregationMethodPanel = new JPanel();
+
+		Label label = new Label("Choose Aggretation Methods");
+		AggregationMethodPanel.add(label);
+
+		aggregationMethodChoice = new Choice();
+		aggregationMethodChoice
+				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MEAN);
+		aggregationMethodChoice
+				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MEDIAN);
+		aggregationMethodChoice
+				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MAX);
+		aggregationMethodChoice
+				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MIN);
+//		aggregationMethodChoice
+//				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_SUM);
+
+		aggregationMethodChoice
+				.select(AggregationMethodUtil.AGGREGATION_METHOD_MEAN);
+
+		AggregationMethodPanel.add(aggregationMethodChoice);
+
+		this.add(AggregationMethodPanel);
+
+		aggregationMethodChoice.addItemListener(new ItemListener() {
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -84,13 +88,21 @@ public class OntologyViewerControlPanel extends JPanel implements
 					MyApplicationManager appManager = MyApplicationCenter
 							.getInstance().getApplicationManager();
 
-					String selectedItem = aggregationType
+					String aggregationMethod = aggregationMethodChoice
 							.getSelectedItem();
-					CyNetworkView networkView = appManager.getCyApplicationManager().getCurrentNetworkView();
-					
-					String columnName = aggregateColumnChoice.getSelectedItem();
-					
-					UpdateAggregationTaskFactory updateAggregationTaskFactory = new UpdateAggregationTaskFactory(selectedItem, columnName);
+
+					CyNetworkView networkView = appManager
+							.getCyApplicationManager().getCurrentNetworkView();
+
+					String aggregationColumn = aggregationColumnChoice
+							.getSelectedItem();
+
+					if (aggregationColumn == null
+							|| aggregationColumn.isEmpty())
+						return;
+
+					UpdateAggregationTaskFactory updateAggregationTaskFactory = new UpdateAggregationTaskFactory(
+							aggregationMethod, aggregationColumn);
 
 					DialogTaskManager taskManager = appManager.getTaskManager();
 					taskManager.execute(updateAggregationTaskFactory
@@ -99,17 +111,17 @@ public class OntologyViewerControlPanel extends JPanel implements
 				}
 			}
 		});
-		
 
 		JPanel collumnPanel = new JPanel();
-		
-		label = new Label("collumn used to aggregate");
+
+		label = new Label("Choose Column to Aggregate");
 		collumnPanel.add(label);
 
-		aggregateColumnChoice = new Choice();
-		collumnPanel.add(aggregateColumnChoice);
+		aggregationColumnChoice = new Choice();
+		collumnPanel.add(aggregationColumnChoice);
 
-		refreshAggregationChoicesButton = new Button("Refresh");
+		refreshAggregationChoicesButton = new Button(
+				"Populate All Aggregatable Columns");
 		collumnPanel.add(refreshAggregationChoicesButton);
 
 		refreshAggregationChoicesButton.addActionListener(new ActionListener() {
@@ -121,76 +133,16 @@ public class OntologyViewerControlPanel extends JPanel implements
 		});
 
 		rePopTheAggregationValues();
-
-		triggerAggregationButton = new Button("update view");
-		collumnPanel.add(triggerAggregationButton);
-		
 		this.add(collumnPanel);
 
-		triggerAggregationButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				String selectedColumn = aggregateColumnChoice.getSelectedItem();
-
-				MyApplicationManager appManager = MyApplicationCenter
-						.getInstance().getApplicationManager();
-
-				CyNetwork underlyingNetwork = appManager
-						.getCyApplicationManager().getCurrentNetwork();
-
-				double min = Double.MAX_VALUE;
-				double max = Double.MIN_VALUE;
-
-				for (CyNode node : underlyingNetwork.getNodeList()) {
-					if (underlyingNetwork.getRow(node).isSet(selectedColumn)) {
-
-						Double value = underlyingNetwork.getRow(node).get(
-								selectedColumn, Double.class);
-						if (value == null)
-							continue;
-						if (value < min) {
-							min = value;
-						}
-
-						if (value > max) {
-							max = value;
-						}
-					}
-				}
-
-				NumberConvertUtil convertUtil = new NumberConvertUtil(min, max);
-
-				CyNetworkView networkView = appManager
-						.getCyApplicationManager().getCurrentNetworkView();
-
-				for (CyNode node : underlyingNetwork.getNodeList()) {
-
-					if (underlyingNetwork.getRow(node).isSet(selectedColumn)) {
-
-						Double value = underlyingNetwork.getRow(node).get(
-								selectedColumn, Double.class);
-						Color setColor = convertUtil.convertToColor(value);
-
-						networkView.getNodeView(node).setLockedValue(
-								BasicVisualLexicon.NODE_FILL_COLOR, setColor);
-					}
-				}
-
-				networkView.updateView();
-
-			}
-		});
-
 		JPanel interactionPanel = new JPanel();
-		
-		label = new Label("interaction type");
+
+		label = new Label("Choose Interaction Type");
 		interactionPanel.add(label);
 
 		interactionTypeChoice = new Choice();
 		interactionPanel.add(interactionTypeChoice);
-		
+
 		this.add(interactionPanel);
 
 		interactionTypeChoice.addItemListener(new ItemListener() {
@@ -222,12 +174,12 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 		rePopTheInteractionType();
 
-		hideDanglingNodes = new Checkbox();
-		hideDanglingNodes.setLabel("select to hide dangling nodes");
-		hideDanglingNodes.setState(true);
-		this.add(hideDanglingNodes);
+		hideDanglingNodesCheckBox = new Checkbox();
+		hideDanglingNodesCheckBox.setLabel("Select to Hide Dangling Nodes");
+		hideDanglingNodesCheckBox.setState(true);
+		this.add(hideDanglingNodesCheckBox);
 
-		hideDanglingNodes.addItemListener(new ItemListener() {
+		hideDanglingNodesCheckBox.addItemListener(new ItemListener() {
 
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -247,7 +199,7 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 				DialogTaskManager taskManager = appManager.getTaskManager();
 				HideOrShowDanglingNodesTaskFactory hideOrShowDanglingNodesTaskFactory = new HideOrShowDanglingNodesTaskFactory(
-						!hideDanglingNodes.getState());
+						!hideDanglingNodesCheckBox.getState());
 
 				taskManager.execute(hideOrShowDanglingNodesTaskFactory
 						.createTaskIterator(networkView));
@@ -267,7 +219,6 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 	@Override
 	public Icon getIcon() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -287,6 +238,7 @@ public class OntologyViewerControlPanel extends JPanel implements
 		rePopTheInteractionType();
 	}
 
+	// TODO : should rewrite to task
 	public void rePopTheInteractionType() {
 		interactionTypeChoice.removeAll();
 
@@ -308,13 +260,14 @@ public class OntologyViewerControlPanel extends JPanel implements
 		for (String interactionType : allTypes) {
 			interactionTypeChoice.add(interactionType);
 		}
-		interactionTypeChoice.select(OntologyNetworkUtils.INTERACTION_IS_A);
 
+		interactionTypeChoice.select(OntologyNetworkUtils.INTERACTION_IS_A);
 	}
 
+	// TODO: make it a task
 	public void rePopTheAggregationValues() {
 
-		aggregateColumnChoice.removeAll();
+		aggregationColumnChoice.removeAll();
 
 		CyNetwork curNetwork = MyApplicationCenter.getInstance()
 				.getApplicationManager().getCyApplicationManager()
@@ -333,7 +286,7 @@ public class OntologyViewerControlPanel extends JPanel implements
 					|| column.getType() == Long.class) {
 				if (column.getName() == "SUID")
 					continue;
-				aggregateColumnChoice.add(column.getName());
+				aggregationColumnChoice.add(column.getName());
 			}
 		}
 	}

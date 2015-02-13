@@ -2,7 +2,6 @@ package edu.umich.med.mbni.lkq.cyontology.internal.task;
 
 import java.awt.Color;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -14,16 +13,17 @@ import org.cytoscape.work.TaskMonitor;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.AggregationUtil;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.NumberConvertUtil;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.AggregationMethodUtil;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.ValueToColorUtil;
 
 public class UpdateAggregationTask extends AbstractNetworkViewTask {
 	private final String aggregationType;
 	private final String columnName;
-	
-	private NumberConvertUtil convertUtil;
 
-	public UpdateAggregationTask(CyNetworkView view, String aggregationType, final String columnName) {
+	private ValueToColorUtil convertUtil;
+
+	public UpdateAggregationTask(CyNetworkView view, String aggregationType,
+			final String columnName) {
 		super(view);
 		this.aggregationType = aggregationType;
 		this.columnName = columnName;
@@ -31,21 +31,24 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		if (view == null) return;
-		
+		if (view == null)
+			return;
+
 		CyNetwork network = view.getModel();
-		
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance().getEncapsulatingOntologyNetwork(network);
-		if (ontologyNetwork == null) return;
-		
+
+		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+				.getEncapsulatingOntologyNetwork(network);
+		if (ontologyNetwork == null)
+			return;
+
 		double min = Double.MAX_VALUE;
 		double max = Double.MIN_VALUE;
 
 		for (CyNode node : network.getNodeList()) {
 			if (network.getRow(node).isSet(columnName)) {
 
-				Double nodeValue = network.getRow(node).get(
-						columnName, Double.class);
+				Double nodeValue = network.getRow(node).get(columnName,
+						Double.class);
 				if (nodeValue == null)
 					continue;
 				if (nodeValue < min) {
@@ -58,23 +61,24 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 			}
 		}
 
-		convertUtil = new NumberConvertUtil(min, max);
-		
+		convertUtil = new ValueToColorUtil(min, max);
+
 		for (Long rootSUID : ontologyNetwork.getAllRootNodes()) {
 			ExpandableNode root = ontologyNetwork.getNode(rootSUID);
-			
+
 			popTreeAggregationValue(root, network);
 		}
-		
+
 		view.updateView();
 	}
 
 	public Double popTreeAggregationValue(ExpandableNode root, CyNetwork network) {
 		Double rootValue = null;
-		
+
 		if (root.getChildNodes().isEmpty()) {
 			if (network.getRow(root.getCyNode()).isSet(columnName)) {
-				rootValue = network.getRow(root.getCyNode()).get(columnName, Double.class);
+				rootValue = network.getRow(root.getCyNode()).get(columnName,
+						Double.class);
 			}
 		} else {
 			LinkedList<Double> allChildValues = new LinkedList<Double>();
@@ -84,31 +88,17 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 					allChildValues.add(value);
 				}
 			}
-			
-			rootValue = getAggregatedValue(allChildValues, aggregationType);
+
+			rootValue = AggregationMethodUtil.getAggregatedValue(
+					allChildValues, aggregationType);
 		}
-		
+
 		if (rootValue != null) {
 			Color color = convertUtil.convertToColor(rootValue);
-			view.getNodeView(root.getCyNode()).setLockedValue(BasicVisualLexicon.NODE_FILL_COLOR, color);
+			view.getNodeView(root.getCyNode()).setLockedValue(
+					BasicVisualLexicon.NODE_FILL_COLOR, color);
 		}
-		
+
 		return rootValue;
 	}
-	
-	private Double getAggregatedValue(List<Double> values, String aggregationType) {
-        switch (aggregationType) {
-            case "mean":
-                return AggregationUtil.getMean(values);
-            case "sum":
-                return AggregationUtil.getSum(values);
-            case "min":
-                return AggregationUtil.getMin(values);
-            case "max":
-                return AggregationUtil.getMax(values);
-            case "median":
-                return AggregationUtil.getMedian(values);
-                default : return AggregationUtil.getMean(values);
-        }
-    }
 }
