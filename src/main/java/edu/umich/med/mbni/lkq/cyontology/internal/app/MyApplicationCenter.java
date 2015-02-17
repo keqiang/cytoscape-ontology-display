@@ -8,10 +8,13 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
+import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask.UpdateOntologyControlOptions;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
 
 public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 
@@ -73,15 +76,20 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 				.getCytoPanel(CytoPanelName.WEST);
 
 		int index = cytoPanelWest
-				.indexOfComponent(OntologyViewerControlPanel.CONTROL_PANEL_TITLE);
+				.indexOfComponent(OntologyControlPanel.CONTROL_PANEL_TITLE);
 
 		if (index == -1)
 			return;
 
-		OntologyViewerControlPanel ontologyViewerControlPanel = (OntologyViewerControlPanel) cytoPanelWest
+		OntologyControlPanel ontologyViewerControlPanel = (OntologyControlPanel) cytoPanelWest
 				.getComponentAt(index);
 
-		ontologyViewerControlPanel.rePopTheAggregationValues();
+		UpdateOntologyControlOptions options = new UpdateOntologyControlOptions(false, true, false, null);
+		
+		UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(ontologyViewerControlPanel, options);
+		DialogTaskManager taskManager = appManager.getTaskManager();
+		taskManager.execute(updateOntologyControlPanelTaskFactory
+				.createTaskIterator(e.getNetwork()));
 
 	}
 

@@ -28,7 +28,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTas
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -108,7 +108,7 @@ public class CyActivator extends AbstractCyActivator {
 		SelectChildNodeTaskFactory selectChildNodeTaskFactory = new SelectChildNodeTaskFactory();
 		registerService(context, selectChildNodeTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
-		OntologyViewerControlPanel controlPanel = new OntologyViewerControlPanel();
+		OntologyControlPanel controlPanel = new OntologyControlPanel();
 		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());
 		
 		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, controlPanel);

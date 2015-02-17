@@ -17,15 +17,17 @@ import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask.UpdateOntologyControlOptions;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.DelayedVizProp;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
 
 public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 
@@ -139,17 +141,24 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		}
 
 		int index = cytoPanelWest
-				.indexOfComponent(OntologyViewerControlPanel.CONTROL_PANEL_TITLE);
+				.indexOfComponent(OntologyControlPanel.CONTROL_PANEL_TITLE);
 
 		if (index == -1)
 			return;
 
-		OntologyViewerControlPanel ontologyViewerControlPanel = (OntologyViewerControlPanel) cytoPanelWest
+		OntologyControlPanel ontologyViewerControlPanel = (OntologyControlPanel) cytoPanelWest
 				.getComponentAt(index);
 
 		cytoPanelWest.setSelectedIndex(index);
 
-		ontologyViewerControlPanel.rePopTheAggregationValues();
+		UpdateOntologyControlOptions options = new UpdateOntologyControlOptions(true, true, true, interactionType);
+		
+		UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(ontologyViewerControlPanel, options);
+		DialogTaskManager taskManager = appManager.getTaskManager();
+		taskManager.execute(updateOntologyControlPanelTaskFactory
+				.createTaskIterator(networkView.getModel()));
+		
+		networkView.updateView();
 
 	}
 

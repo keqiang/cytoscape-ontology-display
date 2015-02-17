@@ -1,29 +1,28 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.view;
 
-import java.awt.Button;
-import java.awt.Checkbox;
 import java.awt.Choice;
+import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Label;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
-import java.util.HashSet;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.border.BevelBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
-import org.cytoscape.model.CyColumn;
-import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyRow;
-import org.cytoscape.model.events.NetworkAddedEvent;
-import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.swing.DialogTaskManager;
 
@@ -32,11 +31,11 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.AggregationMethodUtil;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
 
-public class OntologyViewerControlPanel extends JPanel implements
-		CytoPanelComponent2, NetworkAddedListener {
+public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 {
 
 	private static final long serialVersionUID = -5561297105387148003L;
 
@@ -45,22 +44,76 @@ public class OntologyViewerControlPanel extends JPanel implements
 	Choice aggregationColumnChoice;
 	Choice interactionTypeChoice;
 	Choice aggregationMethodChoice;
-	Checkbox hideDanglingNodesCheckBox;
+	JCheckBox hideDanglingNodesCheckBox;
 
-	Button refreshAggregationChoicesButton;
-	Button triggerAggregationButton;
+	JButton refreshAggregationChoicesButton;
 
-	public OntologyViewerControlPanel() {
+	private JTree ontologyTree;
 
-		FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
-		this.setLayout(layout);
+	/**
+	 * Create the panel.
+	 */
+	public OntologyControlPanel() {
+		setUpUI();
+		// rePopTheAggregationValues();
+		// rePopTheInteractionType();
+	}
 
-		JPanel AggregationMethodPanel = new JPanel();
+	private void createsOntologyTree(DefaultMutableTreeNode root) {
+		root.add(new DefaultMutableTreeNode("test 1"));
+		root.add(new DefaultMutableTreeNode("test 2"));
 
-		Label label = new Label("Choose Aggretation Methods");
-		AggregationMethodPanel.add(label);
+	}
+
+	private void setUpUI() {
+
+		setBorder(new BevelBorder(BevelBorder.LOWERED, new Color(255, 200, 0),
+				new Color(255, 200, 0), Color.ORANGE, Color.ORANGE));
+		setLayout(null);
+		setPreferredSize(new Dimension(433, 545));
+
+		JLabel lblNewLabel = new JLabel("Aggregation Method");
+		lblNewLabel.setBounds(17, 6, 130, 29);
+		add(lblNewLabel);
 
 		aggregationMethodChoice = new Choice();
+		aggregationMethodChoice.setBounds(176, 10, 130, 23);
+		add(aggregationMethodChoice);
+
+		JLabel lblNewLabel_1 = new JLabel("Aggregation Column");
+		lblNewLabel_1.setBounds(17, 40, 130, 29);
+		add(lblNewLabel_1);
+
+		aggregationColumnChoice = new Choice();
+		aggregationColumnChoice.setBounds(176, 44, 130, 23);
+		add(aggregationColumnChoice);
+
+		refreshAggregationChoicesButton = new JButton("Refresh");
+		refreshAggregationChoicesButton.setBounds(326, 41, 88, 29);
+		add(refreshAggregationChoicesButton);
+
+		JLabel lblNewLabel_2 = new JLabel("Interaction Type");
+		lblNewLabel_2.setBounds(17, 73, 119, 29);
+		add(lblNewLabel_2);
+
+		interactionTypeChoice = new Choice();
+		interactionTypeChoice.setBounds(176, 77, 130, 23);
+		add(interactionTypeChoice);
+
+		hideDanglingNodesCheckBox = new JCheckBox(
+				"Selecte to Hide Dangling Nodes");
+		hideDanglingNodesCheckBox.setBounds(6, 114, 242, 23);
+		add(hideDanglingNodesCheckBox);
+
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(
+				"Ontology Root");
+		createsOntologyTree(root);
+		ontologyTree = new JTree(root);
+
+		JScrollPane scrollPane = new JScrollPane(ontologyTree);
+		scrollPane.setBounds(17, 149, 397, 377);
+		add(scrollPane);
+
 		aggregationMethodChoice
 				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MEAN);
 		aggregationMethodChoice
@@ -69,15 +122,9 @@ public class OntologyViewerControlPanel extends JPanel implements
 				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MAX);
 		aggregationMethodChoice
 				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MIN);
-//		aggregationMethodChoice
-//				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_SUM);
 
 		aggregationMethodChoice
 				.select(AggregationMethodUtil.AGGREGATION_METHOD_MEAN);
-
-		AggregationMethodPanel.add(aggregationMethodChoice);
-
-		this.add(AggregationMethodPanel);
 
 		aggregationMethodChoice.addItemListener(new ItemListener() {
 
@@ -88,13 +135,13 @@ public class OntologyViewerControlPanel extends JPanel implements
 					MyApplicationManager appManager = MyApplicationCenter
 							.getInstance().getApplicationManager();
 
-					String aggregationMethod = aggregationMethodChoice
+					String aggregationMethod = (String) aggregationMethodChoice
 							.getSelectedItem();
 
 					CyNetworkView networkView = appManager
 							.getCyApplicationManager().getCurrentNetworkView();
 
-					String aggregationColumn = aggregationColumnChoice
+					String aggregationColumn = (String) aggregationColumnChoice
 							.getSelectedItem();
 
 					if (aggregationColumn == null
@@ -112,38 +159,22 @@ public class OntologyViewerControlPanel extends JPanel implements
 			}
 		});
 
-		JPanel collumnPanel = new JPanel();
-
-		label = new Label("Choose Column to Aggregate");
-		collumnPanel.add(label);
-
-		aggregationColumnChoice = new Choice();
-		collumnPanel.add(aggregationColumnChoice);
-
-		refreshAggregationChoicesButton = new Button(
-				"Populate All Aggregatable Columns");
-		collumnPanel.add(refreshAggregationChoicesButton);
-
 		refreshAggregationChoicesButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				rePopTheAggregationValues();
+				MyApplicationManager appManager = MyApplicationCenter
+						.getInstance().getApplicationManager();
+				UpdateOntologyControlPanelTask.UpdateOntologyControlOptions options = new UpdateOntologyControlPanelTask.UpdateOntologyControlOptions(false, true, false, null);
+				CyNetwork currentNetwork = appManager
+						.getCyApplicationManager().getCurrentNetwork();
+				UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(OntologyControlPanel.this, options);
+				
+				DialogTaskManager taskManager = appManager.getTaskManager();
+				taskManager.execute(updateOntologyControlPanelTaskFactory
+						.createTaskIterator(currentNetwork));
 			}
 		});
-
-		rePopTheAggregationValues();
-		this.add(collumnPanel);
-
-		JPanel interactionPanel = new JPanel();
-
-		label = new Label("Choose Interaction Type");
-		interactionPanel.add(label);
-
-		interactionTypeChoice = new Choice();
-		interactionPanel.add(interactionTypeChoice);
-
-		this.add(interactionPanel);
 
 		interactionTypeChoice.addItemListener(new ItemListener() {
 
@@ -158,7 +189,7 @@ public class OntologyViewerControlPanel extends JPanel implements
 					CyNetwork underlyingNetwork = appManager
 							.getCyApplicationManager().getCurrentNetwork();
 
-					String selectedItem = interactionTypeChoice
+					String selectedItem = (String) interactionTypeChoice
 							.getSelectedItem();
 					PopulateOntologyNetworkTaskFactory populateOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(
 							selectedItem);
@@ -172,12 +203,7 @@ public class OntologyViewerControlPanel extends JPanel implements
 			}
 		});
 
-		rePopTheInteractionType();
-
-		hideDanglingNodesCheckBox = new Checkbox();
-		hideDanglingNodesCheckBox.setLabel("Select to Hide Dangling Nodes");
-		hideDanglingNodesCheckBox.setState(true);
-		this.add(hideDanglingNodesCheckBox);
+		hideDanglingNodesCheckBox.setSelected(true);
 
 		hideDanglingNodesCheckBox.addItemListener(new ItemListener() {
 
@@ -199,12 +225,28 @@ public class OntologyViewerControlPanel extends JPanel implements
 
 				DialogTaskManager taskManager = appManager.getTaskManager();
 				HideOrShowDanglingNodesTaskFactory hideOrShowDanglingNodesTaskFactory = new HideOrShowDanglingNodesTaskFactory(
-						!hideDanglingNodesCheckBox.getState());
+						!hideDanglingNodesCheckBox.isSelected());
 
 				taskManager.execute(hideOrShowDanglingNodesTaskFactory
 						.createTaskIterator(networkView));
 			}
 		});
+
+	}
+	
+	public void setAggregationColumnChoice(Collection<String> columns) {
+		aggregationColumnChoice.removeAll();
+		for (String item : columns) {
+			aggregationColumnChoice.addItem(item);
+		}
+	}
+	
+	public void setInteractionTypeChoice(Collection<String> interactions, String selectedItem) {
+		interactionTypeChoice.removeAll();
+		for (String item : interactions) {
+			interactionTypeChoice.addItem(item);
+		}
+		interactionTypeChoice.select(selectedItem);
 	}
 
 	@Override
@@ -231,64 +273,4 @@ public class OntologyViewerControlPanel extends JPanel implements
 	public String getIdentifier() {
 		return CONTROL_PANEL_TITLE;
 	}
-
-	@Override
-	public void handleEvent(NetworkAddedEvent e) {
-		rePopTheAggregationValues();
-		rePopTheInteractionType();
-	}
-
-	// TODO : should rewrite to task
-	public void rePopTheInteractionType() {
-		interactionTypeChoice.removeAll();
-
-		HashSet<String> allTypes = new HashSet<String>();
-		allTypes.add(OntologyNetworkUtils.INTERACTION_IS_A);
-
-		CyNetwork curNetwork = MyApplicationCenter.getInstance()
-				.getApplicationManager().getCyApplicationManager()
-				.getCurrentNetwork();
-
-		Collection<CyRow> allRows = curNetwork.getDefaultEdgeTable()
-				.getAllRows();
-
-		for (CyRow row : allRows) {
-			String interactionType = row.get(CyEdge.INTERACTION, String.class);
-			allTypes.add(interactionType);
-		}
-
-		for (String interactionType : allTypes) {
-			interactionTypeChoice.add(interactionType);
-		}
-
-		interactionTypeChoice.select(OntologyNetworkUtils.INTERACTION_IS_A);
-	}
-
-	// TODO: make it a task
-	public void rePopTheAggregationValues() {
-
-		aggregationColumnChoice.removeAll();
-
-		CyNetwork curNetwork = MyApplicationCenter.getInstance()
-				.getApplicationManager().getCyApplicationManager()
-				.getCurrentNetwork();
-
-		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
-				curNetwork))
-			return;
-
-		Collection<CyColumn> allColumns = curNetwork.getDefaultNodeTable()
-				.getColumns();
-
-		for (CyColumn column : allColumns) {
-
-			if (column.getType() == Double.class
-					|| column.getType() == Long.class) {
-				if (column.getName() == "SUID")
-					continue;
-				aggregationColumnChoice.add(column.getName());
-			}
-		}
-	}
-
 }

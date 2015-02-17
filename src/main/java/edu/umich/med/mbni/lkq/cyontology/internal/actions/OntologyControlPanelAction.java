@@ -7,17 +7,18 @@ import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyViewerControlPanel;
+
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
 
 public class OntologyControlPanelAction extends AbstractCyAction {
 
 	private static final long serialVersionUID = 1L;
 	private CySwingApplication desktopApp;
 	private final CytoPanel cytoPanelWest;
-	private OntologyViewerControlPanel ontologyViewerControlPanel;
+	private OntologyControlPanel ontologyViewerControlPanel;
 
 	public OntologyControlPanelAction(CySwingApplication swingApplication,
-			OntologyViewerControlPanel ontologyViewerControlPanel) {
+			OntologyControlPanel ontologyViewerControlPanel) {
 		super("Ontology Control Panel");
 
 		setPreferredMenu("Apps.Ontology Viewer");
@@ -40,9 +41,6 @@ public class OntologyControlPanelAction extends AbstractCyAction {
 			return;
 
 		cytoPanelWest.setSelectedIndex(index);
-		
-		ontologyViewerControlPanel.rePopTheAggregationValues();
-
 	}
 
 }
