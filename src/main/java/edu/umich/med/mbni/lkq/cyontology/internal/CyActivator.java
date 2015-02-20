@@ -93,13 +93,15 @@ public class CyActivator extends AbstractCyActivator {
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTask = new ExpandableNodeCollapseTaskFactory();
 		registerService(context, expandableNodeCollapseTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
+		/*
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
 		ExpandableNodeExpandTaskFactory expandableNodeExpandTask = new ExpandableNodeExpandTaskFactory();
 		registerService(context, expandableNodeExpandTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		*/
 		
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term for one level");
+		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
 		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTask = new ExpandableNodeExpandOneLevelTaskFactory();
 		registerService(context, expandableNodeExpandOneLevelTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		

@@ -57,7 +57,9 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 		
 		Collection<Long> allRootNodes = ontologyNetwork.getAllRootNodes();
 		for (Long rootSUID : allRootNodes) {
+			
 			ExpandableNode root = ontologyNetwork.getNode(rootSUID);
+			if (root.getChildNodes().isEmpty()) continue;
 			//String rootName = network.getDefaultNodeTable().getRow(rootSUID).get("name", String.class);
 			DefaultMutableTreeNode ontologyRoot = new DefaultMutableTreeNode(root);
 			populateTree(ontologyRoot, root);
