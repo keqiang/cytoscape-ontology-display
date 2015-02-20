@@ -3,6 +3,8 @@ package edu.umich.med.mbni.lkq.cyontology.internal.task;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -11,6 +13,8 @@ import org.cytoscape.task.AbstractNetworkTask;
 import org.cytoscape.work.TaskMonitor;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
 
 public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
@@ -46,7 +50,32 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	}
 
 	private void rePopOntologyTree() {
-		// TODO Auto-generated method stub
+		OntologyNetwork ontologyNetwork =  MyApplicationCenter.getInstance().getEncapsulatingOntologyNetwork(network);
+		if (ontologyNetwork == null) return;
+		
+		DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode("Ontology Tree");
+		
+		Collection<Long> allRootNodes = ontologyNetwork.getAllRootNodes();
+		for (Long rootSUID : allRootNodes) {
+			ExpandableNode root = ontologyNetwork.getNode(rootSUID);
+			//String rootName = network.getDefaultNodeTable().getRow(rootSUID).get("name", String.class);
+			DefaultMutableTreeNode ontologyRoot = new DefaultMutableTreeNode(root);
+			populateTree(ontologyRoot, root);
+			treeRoot.add(ontologyRoot);
+		}
+		
+		ontologyControlPanel.setOntologyTree(treeRoot, ontologyNetwork);
+	}
+
+	private void populateTree(DefaultMutableTreeNode ontologyRoot,
+			ExpandableNode root) {
+		
+		for (ExpandableNode child : root.getChildNodes()) {
+			//String childName = network.getDefaultNodeTable().getRow(child.getSUID()).get("name", String.class);
+			DefaultMutableTreeNode childOntologyNode = new DefaultMutableTreeNode(child);
+			populateTree(childOntologyNode, child);
+			ontologyRoot.add(childOntologyNode);
+		}
 		
 	}
 

@@ -16,9 +16,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
@@ -28,41 +32,49 @@ import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyTree;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.utils.AggregationMethodUtil;
+import edu.umich.med.mbni.lkq.cyontology.internal.utils.ResourceUtil;
 
-public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 {
+public class OntologyControlPanel extends JPanel implements CytoPanelComponent2, TreeExpansionListener{
 
 	private static final long serialVersionUID = -5561297105387148003L;
 
 	public static final String CONTROL_PANEL_TITLE = "Ontology Control Panel";
+	
+	private final MyApplicationManager appManager;
+	private final DialogTaskManager taskManager;
 
 	Choice aggregationColumnChoice;
 	Choice interactionTypeChoice;
 	Choice aggregationMethodChoice;
 	JCheckBox hideDanglingNodesCheckBox;
+	JCheckBox syncNetworkWithTree;
 
 	JButton refreshAggregationChoicesButton;
 
-	private JTree ontologyTree;
+	private OntologyTree ontologyTree;
 
 	/**
 	 * Create the panel.
 	 */
 	public OntologyControlPanel() {
+		appManager = MyApplicationCenter
+				.getInstance().getApplicationManager();
+		taskManager = appManager.getTaskManager();
+		
 		setUpUI();
 		// rePopTheAggregationValues();
 		// rePopTheInteractionType();
-	}
-
-	private void createsOntologyTree(DefaultMutableTreeNode root) {
-		root.add(new DefaultMutableTreeNode("test 1"));
-		root.add(new DefaultMutableTreeNode("test 2"));
-
 	}
 
 	private void setUpUI() {
@@ -104,15 +116,10 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 				"Selecte to Hide Dangling Nodes");
 		hideDanglingNodesCheckBox.setBounds(6, 114, 242, 23);
 		add(hideDanglingNodesCheckBox);
-
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode(
-				"Ontology Root");
-		createsOntologyTree(root);
-		ontologyTree = new JTree(root);
-
-		JScrollPane scrollPane = new JScrollPane(ontologyTree);
-		scrollPane.setBounds(17, 149, 397, 377);
-		add(scrollPane);
+		
+		syncNetworkWithTree = new JCheckBox("Sync");
+		syncNetworkWithTree.setBounds(286, 114, 128, 23);
+		add(syncNetworkWithTree);
 
 		aggregationMethodChoice
 				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MEAN);
@@ -132,9 +139,6 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 
-					MyApplicationManager appManager = MyApplicationCenter
-							.getInstance().getApplicationManager();
-
 					String aggregationMethod = (String) aggregationMethodChoice
 							.getSelectedItem();
 
@@ -151,7 +155,6 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 					UpdateAggregationTaskFactory updateAggregationTaskFactory = new UpdateAggregationTaskFactory(
 							aggregationMethod, aggregationColumn);
 
-					DialogTaskManager taskManager = appManager.getTaskManager();
 					taskManager.execute(updateAggregationTaskFactory
 							.createTaskIterator(networkView));
 
@@ -163,14 +166,12 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MyApplicationManager appManager = MyApplicationCenter
-						.getInstance().getApplicationManager();
+
 				UpdateOntologyControlPanelTask.UpdateOntologyControlOptions options = new UpdateOntologyControlPanelTask.UpdateOntologyControlOptions(false, true, false, null);
 				CyNetwork currentNetwork = appManager
 						.getCyApplicationManager().getCurrentNetwork();
 				UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(OntologyControlPanel.this, options);
 				
-				DialogTaskManager taskManager = appManager.getTaskManager();
 				taskManager.execute(updateOntologyControlPanelTaskFactory
 						.createTaskIterator(currentNetwork));
 			}
@@ -183,9 +184,6 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 
-					MyApplicationManager appManager = MyApplicationCenter
-							.getInstance().getApplicationManager();
-
 					CyNetwork underlyingNetwork = appManager
 							.getCyApplicationManager().getCurrentNetwork();
 
@@ -194,7 +192,6 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 					PopulateOntologyNetworkTaskFactory populateOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(
 							selectedItem);
 
-					DialogTaskManager taskManager = appManager.getTaskManager();
 					taskManager.execute(populateOntologyNetworkTaskFactory
 							.createTaskIterator(underlyingNetwork));
 
@@ -209,8 +206,6 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				MyApplicationManager appManager = MyApplicationCenter
-						.getInstance().getApplicationManager();
 
 				CyNetwork underlyingNetwork = appManager
 						.getCyApplicationManager().getCurrentNetwork();
@@ -223,7 +218,6 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 
 				CyNetworkView networkView = networkViews.iterator().next();
 
-				DialogTaskManager taskManager = appManager.getTaskManager();
 				HideOrShowDanglingNodesTaskFactory hideOrShowDanglingNodesTaskFactory = new HideOrShowDanglingNodesTaskFactory(
 						!hideDanglingNodesCheckBox.isSelected());
 
@@ -232,6 +226,32 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 			}
 		});
 
+	}
+	
+	public void setOntologyTree(DefaultMutableTreeNode root, OntologyNetwork ontologyNetwork) {
+		
+		if (ontologyTree == null) {
+			ontologyTree = new OntologyTree(root, ontologyNetwork);
+			
+			// TODO Doesn't work for now
+			DefaultTreeCellRenderer renderer = 
+			        new DefaultTreeCellRenderer();
+			
+			renderer.setLeafIcon(ResourceUtil.leafIcon);
+			renderer.setOpenIcon(ResourceUtil.openIcon);
+			renderer.setClosedIcon(ResourceUtil.closedIcon);
+			
+			ontologyTree.setCellRenderer(renderer);
+			
+			ontologyTree.addTreeExpansionListener(this);
+			
+			JScrollPane scrollPane = new JScrollPane(ontologyTree);
+			scrollPane.setBounds(17, 149, 397, 377);
+			add(scrollPane);
+		}
+		
+		DefaultTreeModel model = (DefaultTreeModel)ontologyTree.getModel();
+		model.setRoot(root);
 	}
 	
 	public void setAggregationColumnChoice(Collection<String> columns) {
@@ -272,5 +292,40 @@ public class OntologyControlPanel extends JPanel implements CytoPanelComponent2 
 	@Override
 	public String getIdentifier() {
 		return CONTROL_PANEL_TITLE;
+	}
+
+	@Override
+	public void treeExpanded(TreeExpansionEvent event) {
+		TreePath path = event.getPath();
+		DefaultMutableTreeNode expandedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+		
+		ExpandableNode correspondingNode = (ExpandableNode)expandedNode.getUserObject();
+		
+		CyNetworkView underlyingNetworkView = appManager
+				.getCyApplicationManager().getCurrentNetworkView();
+		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree.getOntologyNetwork();
+		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView.getModel()) return;
+		
+		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
+		
+		taskManager.execute(expandableNodeExpandOneLevelTaskFactory.createTaskIterator(underlyingNetworkView.getNodeView(correspondingNode.getCyNode()), underlyingNetworkView));
+	}
+
+	@Override
+	public void treeCollapsed(TreeExpansionEvent event) {
+		
+		TreePath path = event.getPath();
+		DefaultMutableTreeNode collpasedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+		
+		ExpandableNode correspondingNode = (ExpandableNode)collpasedNode.getUserObject();
+		
+		CyNetworkView underlyingNetworkView = appManager
+				.getCyApplicationManager().getCurrentNetworkView();
+		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree.getOntologyNetwork();
+		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView.getModel()) return;
+		
+		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
+		
+		taskManager.execute(expandableNodeCollapseTaskFactory.createTaskIterator(underlyingNetworkView.getNodeView(correspondingNode.getCyNode()), underlyingNetworkView));
 	}
 }
