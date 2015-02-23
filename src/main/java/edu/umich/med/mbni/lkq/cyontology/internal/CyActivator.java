@@ -26,7 +26,6 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
 

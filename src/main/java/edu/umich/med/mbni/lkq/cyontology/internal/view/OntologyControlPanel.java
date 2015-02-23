@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
-import java.util.Enumeration;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -17,10 +16,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
@@ -28,7 +25,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.cytoscape.application.swing.CytoPanelComponent2;
@@ -67,7 +63,6 @@ public class OntologyControlPanel extends JPanel implements
 	Choice interactionTypeChoice;
 	Choice aggregationMethodChoice;
 	JCheckBox hideDanglingNodesCheckBox;
-	JCheckBox syncNetworkWithTree;
 
 	JButton refreshAggregationChoicesButton;
 
@@ -81,8 +76,6 @@ public class OntologyControlPanel extends JPanel implements
 		taskManager = appManager.getTaskManager();
 
 		setUpUI();
-		// rePopTheAggregationValues();
-		// rePopTheInteractionType();
 	}
 
 	private void setUpUI() {
@@ -124,10 +117,6 @@ public class OntologyControlPanel extends JPanel implements
 				"Selecte to Hide Dangling Nodes");
 		hideDanglingNodesCheckBox.setBounds(6, 114, 242, 23);
 		add(hideDanglingNodesCheckBox);
-
-		syncNetworkWithTree = new JCheckBox("Sync");
-		syncNetworkWithTree.setBounds(286, 114, 128, 23);
-		add(syncNetworkWithTree);
 
 		aggregationMethodChoice
 				.addItem(AggregationMethodUtil.AGGREGATION_METHOD_MEAN);
@@ -252,10 +241,7 @@ public class OntologyControlPanel extends JPanel implements
 			renderer.setClosedIcon(ResourceUtil.closedIcon);
 
 			ontologyTree.setCellRenderer(renderer);
-
-			//ontologyTree.addTreeExpansionListener(this);
 			ontologyTree.addTreeSelectionListener(this);
-			ontologyTree.addTreeWillExpandListener(this);
 
 			JScrollPane scrollPane = new JScrollPane(ontologyTree);
 			scrollPane.setBounds(17, 149, 397, 450);
@@ -264,6 +250,18 @@ public class OntologyControlPanel extends JPanel implements
 
 		DefaultTreeModel model = (DefaultTreeModel) ontologyTree.getModel();
 		model.setRoot(root);
+
+		ontologyTree.removeTreeWillExpandListener(this);
+
+		// expand the tree to level 1 to match the Ontology Network displayed on
+		// the canvas
+		for (int i = 0; i < root.getChildCount(); i++) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) root
+					.getChildAt(i);
+			ontologyTree.expandPath(new TreePath(child.getPath()));
+		}
+
+		ontologyTree.addTreeWillExpandListener(this);
 	}
 
 	public void setAggregationColumnChoice(Collection<String> columns) {
@@ -307,57 +305,6 @@ public class OntologyControlPanel extends JPanel implements
 		return CONTROL_PANEL_TITLE;
 	}
 
-//	@Override
-//	public void treeExpanded(TreeExpansionEvent event) {
-//		TreePath path = event.getPath();
-//		DefaultMutableTreeNode expandedNode = (DefaultMutableTreeNode) path
-//				.getLastPathComponent();
-//
-//		ExpandableNode correspondingNode = (ExpandableNode) expandedNode
-//				.getUserObject();
-//
-//		CyNetworkView underlyingNetworkView = appManager
-//				.getCyApplicationManager().getCurrentNetworkView();
-//		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
-//				.getOntologyNetwork();
-//		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
-//				.getModel())
-//			return;
-//
-//		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
-//
-//		taskManager.execute(expandableNodeExpandOneLevelTaskFactory
-//				.createTaskIterator(underlyingNetworkView
-//						.getNodeView(correspondingNode.getCyNode()),
-//						underlyingNetworkView));
-//	}
-//
-//	@Override
-//	public void treeCollapsed(TreeExpansionEvent event) {
-//
-//		TreePath path = event.getPath();
-//		DefaultMutableTreeNode collpasedNode = (DefaultMutableTreeNode) path
-//				.getLastPathComponent();
-//
-//		ExpandableNode correspondingNode = (ExpandableNode) collpasedNode
-//				.getUserObject();
-//
-//		CyNetworkView underlyingNetworkView = appManager
-//				.getCyApplicationManager().getCurrentNetworkView();
-//		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
-//				.getOntologyNetwork();
-//		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
-//				.getModel())
-//			return;
-//
-//		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
-//
-//		taskManager.execute(expandableNodeCollapseTaskFactory
-//				.createTaskIterator(underlyingNetworkView
-//						.getNodeView(correspondingNode.getCyNode()),
-//						underlyingNetworkView));
-//	}
-
 	@Override
 	public void valueChanged(TreeSelectionEvent event) {
 
@@ -365,20 +312,21 @@ public class OntologyControlPanel extends JPanel implements
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
-		
+
 		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
 				.getModel())
 			return;
-		
+
 		for (TreePath path : event.getPaths()) {
-	
+
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path
 					.getLastPathComponent();
-	
+
 			ExpandableNode correspondingNode = (ExpandableNode) selectedNode
 					.getUserObject();
-	
-			if (underlyingNetworkView.getNodeView(correspondingNode.getCyNode())
+
+			if (underlyingNetworkView
+					.getNodeView(correspondingNode.getCyNode())
 					.getVisualProperty(BasicVisualLexicon.NODE_VISIBLE)) {
 				if (event.isAddedPath(path)) {
 					underlyingNetworkView.getModel()
@@ -397,35 +345,73 @@ public class OntologyControlPanel extends JPanel implements
 	@Override
 	public void treeWillExpand(TreeExpansionEvent event)
 			throws ExpandVetoException {
+		TreePath path = event.getPath();
+		DefaultMutableTreeNode expandingNode = (DefaultMutableTreeNode) path
+				.getLastPathComponent();
+
+		ExpandableNode correspondingNode = (ExpandableNode) expandingNode
+				.getUserObject();
+
+		CyNetworkView underlyingNetworkView = appManager
+				.getCyApplicationManager().getCurrentNetworkView();
+		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
+				.getOntologyNetwork();
+		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
+				.getModel())
+			return;
+
+		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
+
+		taskManager.execute(expandableNodeExpandOneLevelTaskFactory
+				.createTaskIterator(underlyingNetworkView
+						.getNodeView(correspondingNode.getCyNode()),
+						underlyingNetworkView));
 	}
 
 	@Override
 	public void treeWillCollapse(TreeExpansionEvent event)
 			throws ExpandVetoException {
+
+		// remove the listener to avoid triggering of the event on child nodes
+		// again
+		ontologyTree.removeTreeWillExpandListener(this);
+
 		TreePath path = event.getPath();
 		DefaultMutableTreeNode collpasingNode = (DefaultMutableTreeNode) path
 				.getLastPathComponent();
-		setTreeState(ontologyTree, new TreePath(collpasingNode), false);
+
+		collpaseNodeCompletely(collpasingNode);
+
+		ontologyTree.addTreeWillExpandListener(this);
+
+		ExpandableNode correspondingNode = (ExpandableNode) collpasingNode
+				.getUserObject();
+
+		CyNetworkView underlyingNetworkView = appManager
+				.getCyApplicationManager().getCurrentNetworkView();
+		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
+				.getOntologyNetwork();
+		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
+				.getModel())
+			return;
+
+		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
+
+		taskManager.execute(expandableNodeCollapseTaskFactory
+				.createTaskIterator(underlyingNetworkView
+						.getNodeView(correspondingNode.getCyNode()),
+						underlyingNetworkView));
+
+		// veto the default collapsing of the tree
 		throw new ExpandVetoException(event);
 	}
-	
-	public static void setTreeState(JTree tree, boolean expanded) {
-	    Object root = tree.getModel().getRoot();
-	    setTreeState(tree, new TreePath(root),expanded);
-	  }
-	  
-	  public static void setTreeState(JTree tree, TreePath path, boolean expanded) {
-	    Object lastNode = path.getLastPathComponent();
-	    for (int i = 0; i < tree.getModel().getChildCount(lastNode); i++) {
-	      Object child = tree.getModel().getChild(lastNode,i);
-	      TreePath pathToChild = path.pathByAddingChild(child);
-	      setTreeState(tree,pathToChild,expanded);
-	    }
-	    if (expanded) 
-	      tree.expandPath(path);
-	    else
-	      tree.collapsePath(path);
-	      
-	    
-	  }
+
+	private void collpaseNodeCompletely(DefaultMutableTreeNode node) {
+		for (int i = 0; i < node.getChildCount(); ++i) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) node
+					.getChildAt(i);
+			collpaseNodeCompletely(child);
+		}
+		ontologyTree.collapsePath(new TreePath(node.getPath()));
+	}
 }
