@@ -6,7 +6,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 
 public class ExpandableNode {
-
+	private String displayName;
 	private int referCount = 0;
 	private CyNode node;
 
@@ -14,10 +14,15 @@ public class ExpandableNode {
 
 	private HashMap<Long, ExpandableNode> childNodes;
 
-	public ExpandableNode(CyNode node) {
+	public ExpandableNode(CyNode node, String displayName) {
 		this.node = node;
 		childNodes = new HashMap<>();
 		isCollapsed = false;
+		this.displayName = displayName;
+	}
+	
+	public String getDisplayName() {
+		return displayName;
 	}
 
 	public Collection<ExpandableNode> getChildNodes() {
@@ -105,6 +110,10 @@ public class ExpandableNode {
 
 	public boolean hasChild(ExpandableNode targetExpandableNode) {
 		return childNodes.containsKey(targetExpandableNode.getSUID());
+	}
+	
+	@Override public String toString() {
+		return displayName;
 	}
 
 }

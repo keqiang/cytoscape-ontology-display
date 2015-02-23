@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -32,6 +33,8 @@ import javax.swing.tree.TreePath;
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.model.events.RowSetRecord;
 import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
@@ -44,7 +47,6 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNodeExpansionListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyTree;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
@@ -328,6 +330,8 @@ public class OntologyControlPanel extends JPanel implements
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path
 					.getLastPathComponent();
 
+			if (selectedNode.equals(ontologyTree.getModel().getRoot())) continue;
+			
 			ExpandableNode correspondingNode = (ExpandableNode) selectedNode
 					.getUserObject();
 
@@ -444,10 +448,15 @@ public class OntologyControlPanel extends JPanel implements
 
 	@Override
 	public void handleEvent(RowsSetEvent e) {
-		ontologyTree.removeTreeSelectionListener(this);
 
-		// get all the selected items in the network
+		if (ontologyTree == null)
+			return;
+
+		// get all the selected items in the network, check if having selected
+		// nodes
 		Collection<RowSetRecord> rowSetRecords = e.getColumnRecords("selected");
+		if (rowSetRecords.isEmpty())
+			return;
 
 		LinkedList<TreePath> treePathsShouldBeSelected = new LinkedList<>();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) ontologyTree
@@ -455,32 +464,34 @@ public class OntologyControlPanel extends JPanel implements
 		if (root == null)
 			return;
 
-		for (RowSetRecord record : rowSetRecords) {
-			Object value = record.getValue();
-			if (value instanceof Boolean && (boolean) value) {
-				Long suid = record.getRow().get("SUID", Long.class);
-				ExpandableNode userNode = ontologyTree.getOntologyNetwork()
-						.getNode(suid);
+		List<CyNode> nodes = CyTableUtil.getNodesInState(ontologyTree
+				.getOntologyNetwork().getUnderlyingNetwork(), "selected", true);
 
-				DefaultMutableTreeNode nodeFound = searchNodeInTree(userNode,
-						ontologyTree);
-				if (nodeFound != null) {
-					DefaultMutableTreeNode parent = (DefaultMutableTreeNode) nodeFound
-							.getParent();
+		for (CyNode node : nodes) {
 
-					// to prevent selection of an invisible node, which causes a
-					// expansion
-					if (!ontologyTree
-							.isExpanded(new TreePath(parent.getPath())))
-						break;
+			ExpandableNode userNode = ontologyTree.getOntologyNetwork()
+					.getNode(node);
 
+			if (userNode == null)
+				continue;
+
+			DefaultMutableTreeNode nodeFound = searchNodeInTree(userNode,
+					ontologyTree);
+			if (nodeFound != null) {
+				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) nodeFound
+						.getParent();
+
+				// to prevent selection of an invisible node, which causes a
+				// expansion
+				if (ontologyTree.isExpanded(new TreePath(parent.getPath()))) {
 					treePathsShouldBeSelected.add(new TreePath(nodeFound
 							.getPath()));
 				}
-
 			}
+
 		}
 
+		ontologyTree.removeTreeSelectionListener(this);
 		ontologyTree.setSelectionPaths(treePathsShouldBeSelected
 				.toArray(new TreePath[treePathsShouldBeSelected.size()]));
 		ontologyTree.addTreeSelectionListener(this);

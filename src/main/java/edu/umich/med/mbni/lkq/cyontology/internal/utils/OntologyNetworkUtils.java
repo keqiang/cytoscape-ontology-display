@@ -60,7 +60,9 @@ public class OntologyNetworkUtils {
 		HashSet<Long> allRootNodes = new HashSet<Long>();
 		
 		for (CyNode node : allNodes) {
-			ExpandableNode expandableNode = new ExpandableNode(node);
+			String nodeName = underlyingNetwork.getRow(node).get(
+					CyNetwork.NAME, String.class);
+			ExpandableNode expandableNode = new ExpandableNode(node, nodeName);
 			allRootNodes.add(node.getSUID());
 			createdNodes.put(node.getSUID(), expandableNode);
 		}
