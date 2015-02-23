@@ -10,6 +10,7 @@ import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
+import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.task.NodeViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -112,8 +113,12 @@ public class CyActivator extends AbstractCyActivator {
 		OntologyControlPanel controlPanel = new OntologyControlPanel();
 		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());
 		
+		registerService(context, controlPanel, RowsSetListener.class, new Properties());
+		
 		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, controlPanel);
 		registerService(context, controlPanelAction, CyAction.class, new Properties());
+		
+		
 
 	}
 

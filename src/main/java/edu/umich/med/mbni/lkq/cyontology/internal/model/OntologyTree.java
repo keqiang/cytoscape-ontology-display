@@ -2,6 +2,7 @@ package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import org.cytoscape.model.CyNetwork;
 
@@ -37,6 +38,21 @@ public class OntologyTree extends JTree {
 	
 	public OntologyNetwork getOntologyNetwork() {
 		return bindedOntologyNetwork;
+	}
+	
+	public void collpaseNodeCompletely(DefaultMutableTreeNode node) {
+		for (int i = 0; i < node.getChildCount(); ++i) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) node
+					.getChildAt(i);
+			if (this.isExpanded(new TreePath(child.getPath()))) {
+				collpaseNodeCompletely(child);
+			}
+		}
+		this.collapsePath(new TreePath(node.getPath()));
+	}
+
+	public void expandNode(DefaultMutableTreeNode node) {
+		this.expandPath(new TreePath(node.getPath()));
 	}
 
 }
