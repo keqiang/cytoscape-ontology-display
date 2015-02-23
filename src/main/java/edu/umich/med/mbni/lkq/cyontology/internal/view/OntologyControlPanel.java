@@ -9,6 +9,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.EventObject;
 import java.util.LinkedList;
 
 import javax.swing.Icon;
@@ -17,6 +18,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -39,6 +41,7 @@ import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNodeExpansionListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyTree;
@@ -54,7 +57,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.utils.ResourceUtil;
 
 public class OntologyControlPanel extends JPanel implements
 		CytoPanelComponent2, TreeWillExpandListener, TreeSelectionListener,
-		RowsSetListener {
+		RowsSetListener, OntologyNodeExpansionListener {
 
 	private static final long serialVersionUID = -5561297105387148003L;
 
@@ -244,6 +247,7 @@ public class OntologyControlPanel extends JPanel implements
 
 			ontologyTree.setCellRenderer(renderer);
 			ontologyTree.addTreeSelectionListener(this);
+			ontologyTree.getOntologyNetwork().addNodeExpansionListener(this);
 
 			JScrollPane scrollPane = new JScrollPane(ontologyTree);
 			scrollPane.setBounds(17, 149, 397, 700);
@@ -421,6 +425,23 @@ public class OntologyControlPanel extends JPanel implements
 		throw new ExpandVetoException(event);
 	}
 
+	private DefaultMutableTreeNode searchNodeInTree(Object userNode, JTree tree) {
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel()
+				.getRoot();
+
+		for (Enumeration<?> enumeration = root.breadthFirstEnumeration(); enumeration
+				.hasMoreElements();) {
+			DefaultMutableTreeNode current = (DefaultMutableTreeNode) enumeration
+					.nextElement();
+
+			if (userNode.equals(current.getUserObject())) {
+				return current;
+			}
+		}
+
+		return null;
+	}
+
 	@Override
 	public void handleEvent(RowsSetEvent e) {
 		ontologyTree.removeTreeSelectionListener(this);
@@ -431,7 +452,8 @@ public class OntologyControlPanel extends JPanel implements
 		LinkedList<TreePath> treePathsShouldBeSelected = new LinkedList<>();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) ontologyTree
 				.getModel().getRoot();
-		if (root == null) return;
+		if (root == null)
+			return;
 
 		for (RowSetRecord record : rowSetRecords) {
 			Object value = record.getValue();
@@ -440,22 +462,20 @@ public class OntologyControlPanel extends JPanel implements
 				ExpandableNode userNode = ontologyTree.getOntologyNetwork()
 						.getNode(suid);
 
-				for (Enumeration<?> enumeration = root
-						.breadthFirstEnumeration(); enumeration
-						.hasMoreElements();) {
-					DefaultMutableTreeNode current = (DefaultMutableTreeNode) enumeration
-							.nextElement();
+				DefaultMutableTreeNode nodeFound = searchNodeInTree(userNode,
+						ontologyTree);
+				if (nodeFound != null) {
+					DefaultMutableTreeNode parent = (DefaultMutableTreeNode) nodeFound
+							.getParent();
 
-					if (userNode.equals(current.getUserObject())) {
-						DefaultMutableTreeNode parent = (DefaultMutableTreeNode) current.getParent();
-						
-						// to prevent selection of an invisible node, which causes a expansion
-						if (!ontologyTree.isExpanded(new TreePath(parent.getPath()))) break;
-						
-						treePathsShouldBeSelected.add(new TreePath(current
-								.getPath()));
+					// to prevent selection of an invisible node, which causes a
+					// expansion
+					if (!ontologyTree
+							.isExpanded(new TreePath(parent.getPath())))
 						break;
-					}
+
+					treePathsShouldBeSelected.add(new TreePath(nodeFound
+							.getPath()));
 				}
 
 			}
@@ -464,6 +484,23 @@ public class OntologyControlPanel extends JPanel implements
 		ontologyTree.setSelectionPaths(treePathsShouldBeSelected
 				.toArray(new TreePath[treePathsShouldBeSelected.size()]));
 		ontologyTree.addTreeSelectionListener(this);
+
+	}
+
+	@Override
+	public void expansionPerformed(EventObject event) {
+
+		ExpandableNode expandableNode = (ExpandableNode) event.getSource();
+		DefaultMutableTreeNode nodeFound = searchNodeInTree(expandableNode,
+				ontologyTree);
+		if (nodeFound == null)
+			return;
+
+		if (expandableNode.isCollapsed()) {
+			setOntologyTreeNodeCollpased(nodeFound, true);
+		} else {
+			setOntologyTreeNodeCollpased(nodeFound, false);
+		}
 
 	}
 

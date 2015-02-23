@@ -41,6 +41,8 @@ public class ExpandableNodeCollapseTask extends AbstractNodeViewTask {
 		
 		netView.updateView();
 		taskMonitor.setProgress(1.0);
+		
+		ontologyNetwork.fireNodeExpansionEvent(expandableNode);
 	}
 
 }
