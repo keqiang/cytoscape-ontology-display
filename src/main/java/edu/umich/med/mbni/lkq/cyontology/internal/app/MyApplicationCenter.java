@@ -21,6 +21,8 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 	private static MyApplicationCenter instance = null;
 	private static MyApplicationManager appManager;
 	private HashMap<Long, OntologyNetwork> allOntologyNetwork;
+	
+	private String globalLayoutAlgorithm;
 
 	public static MyApplicationCenter getInstance() {
 
@@ -32,6 +34,15 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 
 	private MyApplicationCenter() {
 		this.allOntologyNetwork = new HashMap<Long, OntologyNetwork>();
+		this.globalLayoutAlgorithm = "hierarchical";
+	}
+	
+	public String getLayoutAlgorithmName() {
+		return globalLayoutAlgorithm;
+	}
+	
+	public void setLayoutAlgorithmName(String name) {
+		this.globalLayoutAlgorithm = name;
 	}
 
 	public MyApplicationManager getApplicationManager() {

@@ -41,7 +41,7 @@ public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 			}
 		}
 		
-		ViewOperationUtils.reLayoutNetwork(appManager.getCyLayoutAlgorithmManager(), view, "hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
+		ViewOperationUtils.reLayoutNetwork(appManager.getCyLayoutAlgorithmManager(), view, MyApplicationCenter.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		view.updateView();
 	}
 

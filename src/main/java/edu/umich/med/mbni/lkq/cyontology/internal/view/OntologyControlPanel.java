@@ -330,8 +330,9 @@ public class OntologyControlPanel extends JPanel implements
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path
 					.getLastPathComponent();
 
-			if (selectedNode.equals(ontologyTree.getModel().getRoot())) continue;
-			
+			if (selectedNode.equals(ontologyTree.getModel().getRoot()))
+				continue;
+
 			ExpandableNode correspondingNode = (ExpandableNode) selectedNode
 					.getUserObject();
 
@@ -429,7 +430,9 @@ public class OntologyControlPanel extends JPanel implements
 		throw new ExpandVetoException(event);
 	}
 
-	private DefaultMutableTreeNode searchNodeInTree(Object userNode, JTree tree) {
+	private List<DefaultMutableTreeNode> searchNodeInTree(Object userNode,
+			JTree tree) {
+		LinkedList<DefaultMutableTreeNode> nodesFound = new LinkedList<DefaultMutableTreeNode>();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel()
 				.getRoot();
 
@@ -439,11 +442,11 @@ public class OntologyControlPanel extends JPanel implements
 					.nextElement();
 
 			if (userNode.equals(current.getUserObject())) {
-				return current;
+				nodesFound.add(current);
 			}
 		}
 
-		return null;
+		return nodesFound;
 	}
 
 	@Override
@@ -475,17 +478,19 @@ public class OntologyControlPanel extends JPanel implements
 			if (userNode == null)
 				continue;
 
-			DefaultMutableTreeNode nodeFound = searchNodeInTree(userNode,
-					ontologyTree);
-			if (nodeFound != null) {
-				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) nodeFound
-						.getParent();
+			List<DefaultMutableTreeNode> nodesFound = searchNodeInTree(
+					userNode, ontologyTree);
+			if (!nodesFound.isEmpty()) {
+				for (DefaultMutableTreeNode nodeFound : nodesFound) {
+					DefaultMutableTreeNode parent = (DefaultMutableTreeNode) nodeFound
+							.getParent();
 
-				// to prevent selection of an invisible node, which causes a
-				// expansion
-				if (ontologyTree.isExpanded(new TreePath(parent.getPath()))) {
-					treePathsShouldBeSelected.add(new TreePath(nodeFound
-							.getPath()));
+					// to prevent selection of an invisible node, which causes a
+					// expansion
+					if (ontologyTree.isExpanded(new TreePath(parent.getPath()))) {
+						treePathsShouldBeSelected.add(new TreePath(nodeFound
+								.getPath()));
+					}
 				}
 			}
 
@@ -494,6 +499,7 @@ public class OntologyControlPanel extends JPanel implements
 		ontologyTree.removeTreeSelectionListener(this);
 		ontologyTree.setSelectionPaths(treePathsShouldBeSelected
 				.toArray(new TreePath[treePathsShouldBeSelected.size()]));
+		ontologyTree.scrollPathToVisible(treePathsShouldBeSelected.getFirst());
 		ontologyTree.addTreeSelectionListener(this);
 
 	}
@@ -502,15 +508,18 @@ public class OntologyControlPanel extends JPanel implements
 	public void expansionPerformed(EventObject event) {
 
 		ExpandableNode expandableNode = (ExpandableNode) event.getSource();
-		DefaultMutableTreeNode nodeFound = searchNodeInTree(expandableNode,
-				ontologyTree);
-		if (nodeFound == null)
+		List<DefaultMutableTreeNode> nodesFound = searchNodeInTree(
+				expandableNode, ontologyTree);
+
+		if (nodesFound.isEmpty())
 			return;
 
-		if (expandableNode.isCollapsed()) {
-			setOntologyTreeNodeCollpased(nodeFound, true);
-		} else {
-			setOntologyTreeNodeCollpased(nodeFound, false);
+		for (DefaultMutableTreeNode nodeFound : nodesFound) {
+			if (expandableNode.isCollapsed()) {
+				setOntologyTreeNodeCollpased(nodeFound, true);
+			} else {
+				setOntologyTreeNodeCollpased(nodeFound, false);
+			}
 		}
 
 	}

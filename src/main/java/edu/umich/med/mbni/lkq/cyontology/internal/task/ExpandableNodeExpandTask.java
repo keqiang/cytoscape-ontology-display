@@ -42,7 +42,7 @@ public class ExpandableNodeExpandTask extends AbstractNodeViewTask {
 		MyApplicationManager appManager = MyApplicationCenter.getInstance().getApplicationManager();
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), netView,
-				"hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
+				MyApplicationCenter.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		
 		netView.updateView();
 		taskMonitor.setProgress(1.0);

@@ -130,7 +130,7 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 
 		ViewOperationUtils.reLayoutNetwork(
 				appManager.getCyLayoutAlgorithmManager(), networkView,
-				"hierarchical", nodesToLayout);
+				MyApplicationCenter.getInstance().getLayoutAlgorithmName(), nodesToLayout);
 
 		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance()
 				.getApplicationManager().getCyDesktopService()

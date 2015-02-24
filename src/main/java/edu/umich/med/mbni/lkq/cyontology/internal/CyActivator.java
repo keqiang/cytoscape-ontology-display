@@ -79,7 +79,7 @@ public class CyActivator extends AbstractCyActivator {
 		MyApplicationCenter appCenter = MyApplicationCenter.getInstance();
 		MyApplicationCenter.registerApplicationManager(myApplicationManager);
 
-
+		appCenter.setLayoutAlgorithmName("hierarchical");
 		/*
 		 *  register all the services this App provides
 		 */

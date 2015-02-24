@@ -46,7 +46,7 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 		if (!expandableNode.getChildNodes().isEmpty()) {
 			ViewOperationUtils.reLayoutNetwork(
 					appManager.getCyLayoutAlgorithmManager(), netView,
-					"hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
+					MyApplicationCenter.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		}
 		
 		taskMonitor.setProgress(0.8);

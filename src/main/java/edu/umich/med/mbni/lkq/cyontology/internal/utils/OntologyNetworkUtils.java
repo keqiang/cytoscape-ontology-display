@@ -164,12 +164,12 @@ public class OntologyNetworkUtils {
 				NodeShapeVisualProperty.ELLIPSE, true);
 		vizProps.add(vizProp);
 		
-		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SIZE, 150.0,
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SIZE, 120.0,
 				true);
 		vizProps.add(vizProp);
 		
 		vizProp = new DelayedVizProp(node,
-				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 20, true);
+				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 18, true);
 		vizProps.add(vizProp);
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_FILL_COLOR,
 				Color.WHITE, true);
