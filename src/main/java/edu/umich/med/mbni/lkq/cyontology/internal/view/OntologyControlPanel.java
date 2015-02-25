@@ -524,6 +524,9 @@ public class OntologyControlPanel extends JPanel implements
 			return;
 
 		for (DefaultMutableTreeNode nodeFound : nodesFound) {
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) nodeFound.getParent();
+			// if the node is invisible in the tree now, just skip it.
+			if (ontologyTree.isCollapsed(new TreePath(parent.getPath()))) continue;
 			if (expandableNode.isCollapsed()) {
 				setOntologyTreeNodeCollpased(nodeFound, true);
 			} else {
