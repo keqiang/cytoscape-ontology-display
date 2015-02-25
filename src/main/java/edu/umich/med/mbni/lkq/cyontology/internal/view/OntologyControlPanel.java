@@ -501,7 +501,7 @@ public class OntologyControlPanel extends JPanel implements
 		try {
 			ontologyTree.setSelectionPaths(treePathsShouldBeSelected
 					.toArray(new TreePath[treePathsShouldBeSelected.size()]));
-			if (!treePathsShouldBeSelected.isEmpty()) {
+			if (treePathsShouldBeSelected.size() == 1) {
 				ontologyTree.scrollPathToVisible(treePathsShouldBeSelected
 						.getFirst());
 			}
