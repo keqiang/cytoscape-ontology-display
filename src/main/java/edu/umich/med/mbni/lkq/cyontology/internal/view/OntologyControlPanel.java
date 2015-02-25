@@ -497,10 +497,19 @@ public class OntologyControlPanel extends JPanel implements
 		}
 
 		ontologyTree.removeTreeSelectionListener(this);
-		ontologyTree.setSelectionPaths(treePathsShouldBeSelected
-				.toArray(new TreePath[treePathsShouldBeSelected.size()]));
-		ontologyTree.scrollPathToVisible(treePathsShouldBeSelected.getFirst());
-		ontologyTree.addTreeSelectionListener(this);
+
+		try {
+			ontologyTree.setSelectionPaths(treePathsShouldBeSelected
+					.toArray(new TreePath[treePathsShouldBeSelected.size()]));
+			if (!treePathsShouldBeSelected.isEmpty()) {
+				ontologyTree.scrollPathToVisible(treePathsShouldBeSelected
+						.getFirst());
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		} finally {
+			ontologyTree.addTreeSelectionListener(this);
+		}
 
 	}
 

@@ -64,10 +64,16 @@ public class DelayedVizProp {
 				view = netView.getEdgeView(edge);
 			}
 
-			if (delayedProp.isLocked) {
-				view.setLockedValue(delayedProp.prop, value);
-			} else {
-				view.setVisualProperty(delayedProp.prop, value);
+			try {
+				if (delayedProp.isLocked) {
+					view.setLockedValue(delayedProp.prop, value);
+				} else {
+					view.setVisualProperty(delayedProp.prop, value);
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.out.println(delayedProp);
+				continue;
 			}
 		}
 	}
