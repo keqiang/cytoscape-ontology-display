@@ -112,8 +112,19 @@ public class ExpandableNode {
 		return childNodes.containsKey(targetExpandableNode.getSUID());
 	}
 	
-	@Override public String toString() {
+	@Override 
+	public String toString() {
 		return displayName;
+	}
+	
+	@Override
+	public boolean equals(Object otherNode) {
+		if (otherNode instanceof ExpandableNode) {
+			ExpandableNode other = (ExpandableNode)otherNode;
+			return this.displayName.equals(other.displayName);
+		}
+		return false;
+			
 	}
 
 }

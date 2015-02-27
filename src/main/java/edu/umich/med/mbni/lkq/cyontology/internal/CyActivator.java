@@ -16,6 +16,7 @@ import org.cytoscape.task.NodeViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
@@ -120,6 +121,9 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());
 		
 		registerService(context, controlPanel, RowsSetListener.class, new Properties());
+		
+		registerService(context, controlPanel, NetworkAboutToBeDestroyedListener.class, new Properties());
+		registerService(context, controlPanel, NetworkViewAboutToBeDestroyedListener.class, new Properties());
 		
 		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, controlPanel);
 		registerService(context, controlPanelAction, CyAction.class, new Properties());

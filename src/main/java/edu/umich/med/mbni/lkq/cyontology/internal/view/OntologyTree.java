@@ -11,15 +11,19 @@ public class OntologyTree extends JTree {
 	 * 
 	 */
 	private static final long serialVersionUID = 3795237605090672068L;
-	private final OntologyNetwork bindedOntologyNetwork;
+	private OntologyNetwork bindedOntologyNetwork;
 	
-	public OntologyTree(DefaultMutableTreeNode root, final OntologyNetwork bindedOntologyNetwork) {
+	public OntologyTree(DefaultMutableTreeNode root, OntologyNetwork bindedOntologyNetwork) {
 		super(root);
 		this.bindedOntologyNetwork = bindedOntologyNetwork;
 	}
 	
 	public OntologyNetwork getOntologyNetwork() {
 		return bindedOntologyNetwork;
+	}
+	
+	public void setOntologyNetwork(OntologyNetwork ontologyNetwork) {
+		this.bindedOntologyNetwork = ontologyNetwork;
 	}
 	
 	public void collpaseNodeCompletely(DefaultMutableTreeNode node) {

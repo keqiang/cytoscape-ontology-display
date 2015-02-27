@@ -35,10 +35,14 @@ import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyTableUtil;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.RowSetRecord;
 import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedEvent;
+import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.swing.DialogTaskManager;
 
@@ -59,7 +63,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.utils.ResourceUtil;
 
 public class OntologyControlPanel extends JPanel implements
 		CytoPanelComponent2, TreeWillExpandListener, TreeSelectionListener,
-		RowsSetListener, OntologyNodeExpansionListener {
+		RowsSetListener, OntologyNodeExpansionListener, NetworkAboutToBeDestroyedListener, NetworkViewAboutToBeDestroyedListener {
 
 	private static final long serialVersionUID = -5561297105387148003L;
 
@@ -121,7 +125,7 @@ public class OntologyControlPanel extends JPanel implements
 		add(interactionTypeChoice);
 
 		hideDanglingNodesCheckBox = new JCheckBox(
-				"Selecte to Hide Dangling Nodes");
+				"Select to Hide Dangling Nodes");
 		hideDanglingNodesCheckBox.setBounds(6, 114, 242, 23);
 		add(hideDanglingNodesCheckBox);
 
@@ -175,6 +179,7 @@ public class OntologyControlPanel extends JPanel implements
 						false, true, false, null);
 				CyNetwork currentNetwork = appManager.getCyApplicationManager()
 						.getCurrentNetwork();
+				if (currentNetwork == null) return;
 				UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(
 						OntologyControlPanel.this, options);
 
@@ -249,12 +254,15 @@ public class OntologyControlPanel extends JPanel implements
 
 			ontologyTree.setCellRenderer(renderer);
 			ontologyTree.addTreeSelectionListener(this);
-			ontologyTree.getOntologyNetwork().addNodeExpansionListener(this);
 
 			JScrollPane scrollPane = new JScrollPane(ontologyTree);
 			scrollPane.setBounds(17, 149, 397, 700);
 			add(scrollPane);
+		} else {
+			ontologyTree.setOntologyNetwork(ontologyNetwork);
 		}
+		
+		ontologyTree.getOntologyNetwork().addNodeExpansionListener(this);
 
 		DefaultTreeModel model = (DefaultTreeModel) ontologyTree.getModel();
 		model.setRoot(root);
@@ -320,6 +328,7 @@ public class OntologyControlPanel extends JPanel implements
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
+		if (underlyingNetworkView == null || encapsulatingOntologyNetwork == null) return;
 
 		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
 				.getModel())
@@ -534,6 +543,27 @@ public class OntologyControlPanel extends JPanel implements
 			}
 		}
 
+	}
+
+	@Override
+	public void handleEvent(NetworkViewAboutToBeDestroyedEvent e) {
+		cleanUpView();
+	}
+
+	@Override
+	public void handleEvent(NetworkAboutToBeDestroyedEvent e) {
+		cleanUpView();
+	}
+	
+	public void cleanUpView() {
+		aggregationColumnChoice.removeAll();
+		interactionTypeChoice.removeAll();
+
+		DefaultTreeModel model = (DefaultTreeModel) ontologyTree.getModel();
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Ontology Tree");
+		model.setRoot(root);
+		
+		ontologyTree.setOntologyNetwork(null);
 	}
 
 }
