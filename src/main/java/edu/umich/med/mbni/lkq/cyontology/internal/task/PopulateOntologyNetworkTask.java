@@ -24,10 +24,10 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask.UpdateOntologyControlOptions;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.DelayedVizProp;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.DelayedVizProp;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
 public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 
@@ -141,12 +141,12 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		}
 
 		int index = cytoPanelWest
-				.indexOfComponent(OntologyControlPanel.CONTROL_PANEL_TITLE);
+				.indexOfComponent(OntologyPluginPanel.ONTOLOGY_PANEL_TITLE);
 
 		if (index == -1)
 			return;
 
-		OntologyControlPanel ontologyViewerControlPanel = (OntologyControlPanel) cytoPanelWest
+		OntologyPluginPanel ontologyViewerControlPanel = (OntologyPluginPanel) cytoPanelWest
 				.getComponentAt(index);
 
 		cytoPanelWest.setSelectedIndex(index);

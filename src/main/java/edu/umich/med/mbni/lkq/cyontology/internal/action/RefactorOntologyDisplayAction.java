@@ -1,4 +1,4 @@
-package edu.umich.med.mbni.lkq.cyontology.internal.actions;
+package edu.umich.med.mbni.lkq.cyontology.internal.action;
 
 import java.awt.event.ActionEvent;
 
@@ -9,7 +9,7 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.OntologyNetworkUtils;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 
 public class RefactorOntologyDisplayAction extends AbstractCyAction {
 

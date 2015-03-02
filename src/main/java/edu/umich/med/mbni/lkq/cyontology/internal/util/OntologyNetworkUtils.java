@@ -1,4 +1,4 @@
-package edu.umich.med.mbni.lkq.cyontology.internal.utils;
+package edu.umich.med.mbni.lkq.cyontology.internal.util;
 
 import java.awt.Color;
 import java.util.HashMap;

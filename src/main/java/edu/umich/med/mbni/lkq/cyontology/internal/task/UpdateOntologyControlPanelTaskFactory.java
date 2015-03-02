@@ -4,13 +4,13 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.task.AbstractNetworkTaskFactory;
 import org.cytoscape.work.TaskIterator;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
 public class UpdateOntologyControlPanelTaskFactory extends AbstractNetworkTaskFactory {
-	private final OntologyControlPanel ontologyControlPanel;
+	private final OntologyPluginPanel ontologyControlPanel;
 	private final UpdateOntologyControlPanelTask.UpdateOntologyControlOptions options;
 	
-	public UpdateOntologyControlPanelTaskFactory(final OntologyControlPanel ontologyControlPanel, final UpdateOntologyControlPanelTask.UpdateOntologyControlOptions options) {
+	public UpdateOntologyControlPanelTaskFactory(final OntologyPluginPanel ontologyControlPanel, final UpdateOntologyControlPanelTask.UpdateOntologyControlOptions options) {
 		this.ontologyControlPanel = ontologyControlPanel;
 		this.options = options;
 	}

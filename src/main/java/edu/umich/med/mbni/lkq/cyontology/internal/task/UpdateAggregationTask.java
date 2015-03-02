@@ -13,8 +13,8 @@ import org.cytoscape.work.TaskMonitor;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.AggregationMethodUtil;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.ValueToColorUtil;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.AggregationMethodUtil;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.ValueToColorUtil;
 
 public class UpdateAggregationTask extends AbstractNetworkViewTask {
 	private final String aggregationType;

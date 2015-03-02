@@ -22,16 +22,17 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.actions.OntologyControlPanelAction;
-import edu.umich.med.mbni.lkq.cyontology.internal.actions.RefactorOntologyDisplayAction;
+import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
+import edu.umich.med.mbni.lkq.cyontology.internal.action.RefactorOntologyDisplayAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.FindCommonChildNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectDirectChildNodeTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -117,15 +118,17 @@ public class CyActivator extends AbstractCyActivator {
 		SelectDirectChildNodeTaskFactory selectDirectChildNodeTaskFactory = new SelectDirectChildNodeTaskFactory();
 		registerService(context, selectDirectChildNodeTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
-		OntologyControlPanel controlPanel = new OntologyControlPanel();
-		registerService(context, controlPanel, CytoPanelComponent.class, new Properties());
+		OntologyPluginPanel ontologyPluginPanel = new OntologyPluginPanel();
+		registerService(context, ontologyPluginPanel, CytoPanelComponent.class, new Properties());
+		OntologyPanelController ontologyPanelController = new OntologyPanelController(ontologyPluginPanel);
+		MyApplicationCenter.getInstance().setOntologyPluginPanelController(ontologyPanelController);
 		
-		registerService(context, controlPanel, RowsSetListener.class, new Properties());
+		registerService(context, ontologyPanelController, RowsSetListener.class, new Properties());
 		
-		registerService(context, controlPanel, NetworkAboutToBeDestroyedListener.class, new Properties());
-		registerService(context, controlPanel, NetworkViewAboutToBeDestroyedListener.class, new Properties());
+		registerService(context, ontologyPanelController, NetworkAboutToBeDestroyedListener.class, new Properties());
+		registerService(context, ontologyPanelController, NetworkViewAboutToBeDestroyedListener.class, new Properties());
 		
-		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, controlPanel);
+		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, ontologyPluginPanel);
 		registerService(context, controlPanelAction, CyAction.class, new Properties());
 		
 		

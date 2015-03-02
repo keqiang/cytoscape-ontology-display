@@ -1,4 +1,4 @@
-package edu.umich.med.mbni.lkq.cyontology.internal.utils;
+package edu.umich.med.mbni.lkq.cyontology.internal.util;
 
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyEdge;

@@ -12,7 +12,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
 
 public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 

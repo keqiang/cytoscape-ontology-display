@@ -11,16 +11,16 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.utils.ViewOperationUtils;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
 
 public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 
-	private boolean isShowing;
+	private boolean isHiding;
 	private MyApplicationManager appManager;
 
-	public HideOrShowDanglingNodesTask(CyNetworkView view, boolean isShowing) {
+	public HideOrShowDanglingNodesTask(CyNetworkView view, boolean isHiding) {
 		super(view);
-		this.isShowing = isShowing;
+		this.isHiding = isHiding;
 		appManager = MyApplicationCenter.getInstance().getApplicationManager();
 	}
 
@@ -37,7 +37,7 @@ public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 			ExpandableNode node = encapsulatingNetwork.getNode(nodeSUID);
 			if (node.getDirectChildNodes().isEmpty()) {
 				view.getNodeView(node.getCyNode()).setVisualProperty(
-						BasicVisualLexicon.NODE_VISIBLE, isShowing);
+						BasicVisualLexicon.NODE_VISIBLE, !isHiding);
 			}
 		}
 		

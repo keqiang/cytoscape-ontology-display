@@ -9,6 +9,7 @@ import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedEvent;
 import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
@@ -17,6 +18,7 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 	private static MyApplicationCenter instance = null;
 	private static MyApplicationManager appManager;
 	private HashMap<Long, OntologyNetwork> allOntologyNetwork;
+	private OntologyPanelController ontologyPanelController;
 	
 	private String globalLayoutAlgorithm;
 
@@ -79,6 +81,10 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 		appManager = myApplicationManager;
 
 	}
+	
+	public void setOntologyPluginPanelController(OntologyPanelController controller) {
+		this.ontologyPanelController = controller;
+	}
 
 	@Override
 	public void handleEvent(NetworkViewAboutToBeDestroyedEvent e) {
@@ -93,6 +99,10 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 						.getUnderlyingNetwork().getSUID());
 			}
 		}
+	}
+	
+	public OntologyPanelController getOntologyPanelController() {
+		return ontologyPanelController;
 	}
 	
 	

@@ -1,4 +1,4 @@
-package edu.umich.med.mbni.lkq.cyontology.internal.actions;
+package edu.umich.med.mbni.lkq.cyontology.internal.action;
 
 import java.awt.event.ActionEvent;
 
@@ -8,17 +8,17 @@ import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
+import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
 public class OntologyControlPanelAction extends AbstractCyAction {
 
 	private static final long serialVersionUID = 1L;
 	private CySwingApplication desktopApp;
 	private final CytoPanel cytoPanelWest;
-	private OntologyControlPanel ontologyViewerControlPanel;
+	private OntologyPluginPanel ontologyViewerControlPanel;
 
 	public OntologyControlPanelAction(CySwingApplication swingApplication,
-			OntologyControlPanel ontologyViewerControlPanel) {
+			OntologyPluginPanel ontologyViewerControlPanel) {
 		super("Ontology Control Panel");
 
 		setPreferredMenu("Apps.Ontology Viewer");
