@@ -435,7 +435,7 @@ public class OntologyControlPanel extends JPanel implements
 						.getNodeView(correspondingNode.getCyNode()),
 						underlyingNetworkView));
 
-		// veto the default collapsing of the tree
+		// veto the default collapsing of the tree which won't collapse the child nodes of the collapsing nodes
 		throw new ExpandVetoException(event);
 	}
 

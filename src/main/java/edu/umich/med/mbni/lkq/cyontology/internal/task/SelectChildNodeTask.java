@@ -1,6 +1,6 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.task;
 
-import java.util.LinkedList;
+import java.util.Set;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -25,38 +25,33 @@ public class SelectChildNodeTask extends AbstractNodeViewTask {
 		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
 				netView.getModel()))
 			return;
-		
+
 		taskMonitor.setProgress(0.0);
-		
+
 		CyNetwork underlyingNetwork = netView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
 				.getEncapsulatingOntologyNetwork(underlyingNetwork);
-		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
+		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView
+				.getModel());
 
-		LinkedList<ExpandableNode> allChildNodes = new LinkedList<ExpandableNode>();
-		LinkedList<ExpandableNode> queue = new LinkedList<ExpandableNode>();
-		queue.add(expandableNode);
-		
-		allChildNodes.add(expandableNode);
-		while (!queue.isEmpty()) {
-			ExpandableNode currentRoot = queue.poll();
-			allChildNodes.addAll(currentRoot.getChildNodes());
-			queue.addAll(currentRoot.getChildNodes());
-		}
-		
+		Set<ExpandableNode> allChildNodes = expandableNode.getAllChildNodes();
+
 		taskMonitor.setProgress(0.3);
-		
+
 		for (ExpandableNode node : allChildNodes) {
-			if (netView.getNodeView(node.getCyNode()).getVisualProperty(BasicVisualLexicon.NODE_VISIBLE)) {
-				netView.getModel().getRow(node.getCyNode()).set("selected", true);
+			if (netView.getNodeView(node.getCyNode()).getVisualProperty(
+					BasicVisualLexicon.NODE_VISIBLE)) {
+				netView.getModel().getRow(node.getCyNode())
+						.set("selected", true);
 			}
 		}
+
 		taskMonitor.setProgress(0.8);
-		
+
 		netView.updateView();
 		taskMonitor.setProgress(1.0);
-		
+
 	}
 
 }

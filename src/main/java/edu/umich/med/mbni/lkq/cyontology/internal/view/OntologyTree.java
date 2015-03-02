@@ -40,5 +40,4 @@ public class OntologyTree extends JTree {
 	public void expandNode(DefaultMutableTreeNode node) {
 		this.expandPath(new TreePath(node.getPath()));
 	}
-
 }

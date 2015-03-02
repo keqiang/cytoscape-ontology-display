@@ -2,7 +2,9 @@ package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
 import java.util.Collection;
 import java.util.EventObject;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,5 +64,33 @@ public class OntologyNetwork {
 	
 	public Collection<Long> getAllRootNodes() {
 		return allRootNodes;
+	}
+
+	public Collection<ExpandableNode> findCommonNodes(ExpandableNode node1, ExpandableNode node2) {
+		Set<ExpandableNode> childNodes1 = node1.getAllChildNodes();
+		Set<ExpandableNode> childNodes2 = node2.getAllChildNodes();
+		
+		childNodes1.retainAll(childNodes2);
+		return childNodes1;
+	}
+	
+	public Collection<ExpandableNode> findCommonNodes(List<ExpandableNode> nodes) {
+		if (nodes.isEmpty()) return new HashSet<ExpandableNode>();
+		
+		Set<ExpandableNode> result = nodes.get(0).getAllChildNodes();
+		for (int i = 1; i < nodes.size(); ++i) {
+			Set<ExpandableNode> childNodes = nodes.get(i).getAllChildNodes();
+			result.retainAll(childNodes);
+		}
+		
+		return result;
+	}
+	
+	public List<ExpandableNode> getCorrespondingExpandableNodes(List<CyNode> nodes) {
+		List<ExpandableNode> correspondingExpandableNodes = new LinkedList<ExpandableNode>();
+		for (CyNode node : nodes) {
+			correspondingExpandableNodes.add(getNode(node));
+		}
+		return correspondingExpandableNodes;
 	}
 }

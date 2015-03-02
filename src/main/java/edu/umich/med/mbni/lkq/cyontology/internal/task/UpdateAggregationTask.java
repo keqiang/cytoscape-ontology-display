@@ -75,14 +75,14 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 	public Double popTreeAggregationValue(ExpandableNode root, CyNetwork network) {
 		Double rootValue = null;
 
-		if (root.getChildNodes().isEmpty()) {
+		if (root.getDirectChildNodes().isEmpty()) {
 			if (network.getRow(root.getCyNode()).isSet(columnName)) {
 				rootValue = network.getRow(root.getCyNode()).get(columnName,
 						Double.class);
 			}
 		} else {
 			LinkedList<Double> allChildValues = new LinkedList<Double>();
-			for (ExpandableNode child : root.getChildNodes()) {
+			for (ExpandableNode child : root.getDirectChildNodes()) {
 				Double value = popTreeAggregationValue(child, network);
 				if (value != null) {
 					allChildValues.add(value);

@@ -108,11 +108,11 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 					.getNode(nodeSUID);
 			expandableNode.collapse();
 			ViewOperationUtils.hideSubTree(expandableNode, networkView);
-			if (!expandableNode.getChildNodes().isEmpty()) {
+			if (!expandableNode.getDirectChildNodes().isEmpty()) {
 				expandableNode.expandOneLevel();
 				nodesToLayout.add(networkView.getNodeView(expandableNode
 						.getCyNode()));
-				for (ExpandableNode childNode : expandableNode.getChildNodes()) {
+				for (ExpandableNode childNode : expandableNode.getDirectChildNodes()) {
 					View<CyNode> nodeView = networkView.getNodeView(childNode
 							.getCyNode());
 					nodesToLayout.add(nodeView);

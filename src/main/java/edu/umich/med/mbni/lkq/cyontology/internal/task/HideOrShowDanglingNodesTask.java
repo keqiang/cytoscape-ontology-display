@@ -35,7 +35,7 @@ public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 
 		for (Long nodeSUID : encapsulatingNetwork.getAllRootNodes()) {
 			ExpandableNode node = encapsulatingNetwork.getNode(nodeSUID);
-			if (node.getChildNodes().isEmpty()) {
+			if (node.getDirectChildNodes().isEmpty()) {
 				view.getNodeView(node.getCyNode()).setVisualProperty(
 						BasicVisualLexicon.NODE_VISIBLE, isShowing);
 			}

@@ -6,10 +6,13 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
+import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedEvent;
+import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
+
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
-public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
+public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, NetworkViewAboutToBeDestroyedListener {
 
 	private static MyApplicationCenter instance = null;
 	private static MyApplicationManager appManager;
@@ -68,12 +71,7 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 	@Override
 	public void handleEvent(NetworkAboutToBeDestroyedEvent e) {
 		Long networkSUID = e.getNetwork().getSUID();
-		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
-			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID) {
-				allOntologyNetwork.remove(ontologyNetwork
-						.getUnderlyingNetwork().getSUID());
-			}
-		}
+		removeNetwork(networkSUID);
 	}
 
 	public static void registerApplicationManager(
@@ -81,4 +79,21 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener {
 		appManager = myApplicationManager;
 
 	}
+
+	@Override
+	public void handleEvent(NetworkViewAboutToBeDestroyedEvent e) {
+		Long networkSUID = e.getNetworkView().getModel().getSUID();
+		removeNetwork(networkSUID);
+	}
+
+	private void removeNetwork(Long networkSUID) {
+		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
+			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID) {
+				allOntologyNetwork.remove(ontologyNetwork
+						.getUnderlyingNetwork().getSUID());
+			}
+		}
+	}
+	
+	
 }

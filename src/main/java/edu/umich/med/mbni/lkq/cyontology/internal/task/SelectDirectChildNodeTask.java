@@ -26,29 +26,34 @@ public class SelectDirectChildNodeTask extends AbstractNodeViewTask {
 		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
 				netView.getModel()))
 			return;
-		
+
 		taskMonitor.setProgress(0.0);
-		
+
 		CyNetwork underlyingNetwork = netView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
 				.getEncapsulatingOntologyNetwork(underlyingNetwork);
-		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
+		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView
+				.getModel());
 
-		Collection<ExpandableNode> allChildNodes = expandableNode.getChildNodes();
-		
+		Collection<ExpandableNode> allChildNodes = expandableNode
+				.getDirectChildNodes();
+
 		taskMonitor.setProgress(0.3);
-		
+
 		for (ExpandableNode node : allChildNodes) {
-			if (netView.getNodeView(node.getCyNode()).getVisualProperty(BasicVisualLexicon.NODE_VISIBLE)) {
-				netView.getModel().getRow(node.getCyNode()).set("selected", true);
+			if (netView.getNodeView(node.getCyNode()).getVisualProperty(
+					BasicVisualLexicon.NODE_VISIBLE)) {
+				netView.getModel().getRow(node.getCyNode())
+						.set("selected", true);
 			}
 		}
+
 		taskMonitor.setProgress(0.8);
-		
+
 		netView.updateView();
 		taskMonitor.setProgress(1.0);
-		
+
 	}
 
 }

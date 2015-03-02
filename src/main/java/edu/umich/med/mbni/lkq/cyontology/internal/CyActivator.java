@@ -28,6 +28,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.FindCommonChildNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectDirectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyControlPanel;
@@ -92,20 +93,19 @@ public class CyActivator extends AbstractCyActivator {
 		
 		Properties myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty("title","Collpase this ontology term");
-		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTask = new ExpandableNodeCollapseTaskFactory();
-		registerService(context, expandableNodeCollapseTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
+		registerService(context, expandableNodeCollapseTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
-		/*
-		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
-		ExpandableNodeExpandTaskFactory expandableNodeExpandTask = new ExpandableNodeExpandTaskFactory();
-		registerService(context, expandableNodeExpandTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		*/
 		
 		myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty("title","Select child nodes in common");
+		FindCommonChildNodesTaskFactory findCommonChildNodesTaskFactory = new FindCommonChildNodesTaskFactory();
+		registerService(context, findCommonChildNodesTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		
+		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
-		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTask = new ExpandableNodeExpandOneLevelTaskFactory();
-		registerService(context, expandableNodeExpandOneLevelTask, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
+		registerService(context, expandableNodeExpandOneLevelTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 		
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty("title","Select all children ontology items");

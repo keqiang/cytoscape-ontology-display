@@ -49,7 +49,7 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 		
 		MyApplicationManager appManager = MyApplicationCenter.getInstance().getApplicationManager();
 		
-		if (!expandableNode.getChildNodes().isEmpty()) {
+		if (!expandableNode.getDirectChildNodes().isEmpty()) {
 			ViewOperationUtils.reLayoutNetwork(
 					appManager.getCyLayoutAlgorithmManager(), netView,
 					MyApplicationCenter.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);

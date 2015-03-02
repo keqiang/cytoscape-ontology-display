@@ -46,7 +46,7 @@ public class ExpandOneLevelEdit extends AbstractCyEdit {
 //			nodesToLayout.add(nodeView);
 //		}
 		
-		if (!expandableNode.getChildNodes().isEmpty()) {
+		if (!expandableNode.getDirectChildNodes().isEmpty()) {
 			ViewOperationUtils.reLayoutNetwork(
 					appManager.getCyLayoutAlgorithmManager(), networkView,
 					"hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);

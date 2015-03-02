@@ -2,6 +2,10 @@ package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 
@@ -12,11 +16,11 @@ public class ExpandableNode {
 
 	private boolean isCollapsed;
 
-	private HashMap<Long, ExpandableNode> childNodes;
+	private HashMap<Long, ExpandableNode> directChildNodes;
 
 	public ExpandableNode(CyNode node, String displayName) {
 		this.node = node;
-		childNodes = new HashMap<>();
+		directChildNodes = new HashMap<>();
 		isCollapsed = false;
 		this.displayName = displayName;
 	}
@@ -25,8 +29,8 @@ public class ExpandableNode {
 		return displayName;
 	}
 
-	public Collection<ExpandableNode> getChildNodes() {
-		return childNodes.values();
+	public Collection<ExpandableNode> getDirectChildNodes() {
+		return directChildNodes.values();
 	}
 	
 	public boolean isReferred() {
@@ -46,7 +50,7 @@ public class ExpandableNode {
 	}
 
 	public void addChildNode(ExpandableNode otherNode) {
-		childNodes.put(otherNode.getSUID(), otherNode);
+		directChildNodes.put(otherNode.getSUID(), otherNode);
 		otherNode.increaseReferenceCount();
 	}
 
@@ -56,7 +60,7 @@ public class ExpandableNode {
 
 	public void expand() {
 
-		for (ExpandableNode childNode : childNodes.values()) {
+		for (ExpandableNode childNode : directChildNodes.values()) {
 
 			if (isCollapsed) {
 				childNode.increaseReferenceCount();
@@ -70,7 +74,7 @@ public class ExpandableNode {
 	
 	public void expandOneLevel() {
 
-		for (ExpandableNode childNode : childNodes.values()) {
+		for (ExpandableNode childNode : directChildNodes.values()) {
 			if (isCollapsed) {
 				childNode.increaseReferenceCount();
 			}
@@ -83,7 +87,7 @@ public class ExpandableNode {
 		if (isCollapsed)
 			return;
 
-		for (ExpandableNode childNode : childNodes.values()) {
+		for (ExpandableNode childNode : directChildNodes.values()) {
 
 			if (!childNode.isCollapsed) {
 				childNode.collapse();
@@ -109,7 +113,7 @@ public class ExpandableNode {
 	}
 
 	public boolean hasChild(ExpandableNode targetExpandableNode) {
-		return childNodes.containsKey(targetExpandableNode.getSUID());
+		return directChildNodes.containsKey(targetExpandableNode.getSUID());
 	}
 	
 	@Override 
@@ -125,6 +129,20 @@ public class ExpandableNode {
 		}
 		return false;
 			
+	}
+	
+	public Set<ExpandableNode> getAllChildNodes() {
+		Set<ExpandableNode> allChildNodes = new HashSet<ExpandableNode>();
+		LinkedList<ExpandableNode> queue = new LinkedList<ExpandableNode>();
+		queue.add(this);
+		
+		allChildNodes.add(this);
+		while (!queue.isEmpty()) {
+			ExpandableNode currentRoot = queue.poll();
+			allChildNodes.addAll(currentRoot.getDirectChildNodes());
+			queue.addAll(currentRoot.getDirectChildNodes());
+		}
+		return allChildNodes;
 	}
 
 }

@@ -26,7 +26,7 @@ public class ViewOperationUtils {
 
 	public static void showSubTree(ExpandableNode rootNode,
 			CyNetworkView networkView) {
-		for (ExpandableNode childNode : rootNode.getChildNodes()) {
+		for (ExpandableNode childNode : rootNode.getDirectChildNodes()) {
 			try {
 				networkView.getNodeView(childNode.getCyNode()).setVisualProperty(
 						BasicVisualLexicon.NODE_VISIBLE, true);
@@ -40,7 +40,7 @@ public class ViewOperationUtils {
 
 	public static void hideSubTree(ExpandableNode rootNode,
 			CyNetworkView networkView) {
-		for (ExpandableNode childNode : rootNode.getChildNodes()) {
+		for (ExpandableNode childNode : rootNode.getDirectChildNodes()) {
 			if (!childNode.isReferred()) {
 				networkView.getNodeView(childNode.getCyNode())
 						.setVisualProperty(BasicVisualLexicon.NODE_VISIBLE,
@@ -54,7 +54,7 @@ public class ViewOperationUtils {
 
 	public static void showOneLevel(ExpandableNode rootNode,
 			CyNetworkView networkView) {
-		for (ExpandableNode childNode : rootNode.getChildNodes()) {
+		for (ExpandableNode childNode : rootNode.getDirectChildNodes()) {
 			try {
 				boolean visible = networkView.getNodeView(childNode.getCyNode()).getVisualProperty(BasicVisualLexicon.NODE_VISIBLE);
 				if (!visible) {
