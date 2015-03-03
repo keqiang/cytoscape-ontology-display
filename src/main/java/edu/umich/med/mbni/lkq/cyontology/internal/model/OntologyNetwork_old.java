@@ -2,7 +2,6 @@ package edu.umich.med.mbni.lkq.cyontology.internal.model;
 
 import java.util.Collection;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,43 +13,26 @@ import org.cytoscape.model.CyNode;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNodeExpansionListener;
 
-public class OntologyNetwork {
+public class OntologyNetwork_old {
 	
 	private final String interactionType;
-	
-	// the original network based on which the ontology network has been generated
-	private final CyNetwork originalCyNetwork;
-	
-	// the network newly generated to represent the ontology network
-	private final CyNetwork underlyingCyNetwork;
-	
-	private final Map<Long, ExpandableNode> originalNodeToExpandableNode;
-	
-	private Map<Long, ExpandableNode> underlyingNodeToExpandableNode;
-	
-	private final Set<ExpandableNode> allRootNodes;
+	private final CyNetwork underlyingNetwork;
+	private final CyNetwork encapsulatingNetwork;
+	private final Map<Long, ExpandableNode> allExpandableNodes;
+	private final Set<Long> allRootNodes;
 	
 	private LinkedList<OntologyNodeExpansionListener> expansionListeners = new LinkedList<OntologyNodeExpansionListener>();
 	
-	public OntologyNetwork(CyNetwork originalCyNetwork, CyNetwork underlyingCyNetwork, Map<Long, ExpandableNode> originalNodeToExpandableNode, Set<ExpandableNode> allRootNodes, String interactionType) {
-		this.originalCyNetwork = originalCyNetwork;
-		this.underlyingCyNetwork = underlyingCyNetwork;
-		this.originalNodeToExpandableNode = originalNodeToExpandableNode;
+	public OntologyNetwork_old(CyNetwork underlyingNetwork, CyNetwork encapsulatingNetwork, Map<Long, ExpandableNode> allExpandableNodes, Set<Long> allRootNodes, String interactionType) {
+		this.underlyingNetwork = underlyingNetwork;
+		this.encapsulatingNetwork = encapsulatingNetwork;
+		this.allExpandableNodes = allExpandableNodes;
 		this.allRootNodes = allRootNodes;
 		this.interactionType = interactionType;
-		
-		linkNodes();
 	}
 	
-	private void linkNodes() {
-		underlyingNodeToExpandableNode = new HashMap<Long, ExpandableNode>();
-		for (ExpandableNode expandableNode : getAllNodes()) {
-			underlyingNodeToExpandableNode.put(expandableNode.getSUID(), expandableNode);
-		}
-	}
-	
-	public CyNetwork getOriginalCyNetwork () {
-		return originalCyNetwork;
+	public CyNetwork getEncapsulatingNetwork () {
+		return encapsulatingNetwork;
 	}
 	
 	public void addNodeExpansionListener(OntologyNodeExpansionListener newListener) {
@@ -68,23 +50,27 @@ public class OntologyNetwork {
 		}
 	}
 	
-	public CyNetwork getUnderlyingCyNetwork() {
-		return underlyingCyNetwork;
+	public CyNetwork getUnderlyingNetwork() {
+		return underlyingNetwork;
 	}
 	
 	public ExpandableNode getNode(CyNode node) {
-		return underlyingNodeToExpandableNode.get(node.getSUID());
+		return allExpandableNodes.get(node.getSUID());
 	}
 	
 	public ExpandableNode getNode(Long nodeSUID) {
-		return underlyingNodeToExpandableNode.get(nodeSUID);
+		return allExpandableNodes.get(nodeSUID);
 	}
 	
 	public Collection<ExpandableNode> getAllNodes() {
-		return originalNodeToExpandableNode.values();
+		return allExpandableNodes.values();
 	}
 	
-	public Collection<ExpandableNode> getAllRootNodes() {
+	public Map<Long, ExpandableNode> getNodeMap() {
+		return allExpandableNodes;
+	}
+	
+	public Collection<Long> getAllRootNodes() {
 		return allRootNodes;
 	}
 

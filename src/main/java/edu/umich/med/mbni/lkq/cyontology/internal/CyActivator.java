@@ -22,8 +22,9 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkWithOneInteractionAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
-import edu.umich.med.mbni.lkq.cyontology.internal.action.RefactorOntologyDisplayAction;
+import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
@@ -87,8 +88,11 @@ public class CyActivator extends AbstractCyActivator {
 		/*
 		 *  register all the services this App provides
 		 */
-		RefactorOntologyDisplayAction action = new RefactorOntologyDisplayAction();
-		registerService(context, action, CyAction.class, new Properties());
+		GenerateOntologyNetworkAction generateOntologyNetworkAction = new GenerateOntologyNetworkAction("Create collapsable and expandable ontology network");
+		registerService(context, generateOntologyNetworkAction, CyAction.class, new Properties());
+		
+		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkWithOneInteractionAction("create ontology network with one interaction");
+		registerService(context, generateOntologyNetworkWithOneInteractionAction, CyAction.class, new Properties());
 		
 		registerService(context, appCenter, NetworkAboutToBeDestroyedListener.class, new Properties());
 		

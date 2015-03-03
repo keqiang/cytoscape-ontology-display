@@ -27,14 +27,16 @@ public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 	@Override
 	public void run(TaskMonitor taskMonitor) {
 		CyNetwork underlyingNetwork = view.getModel();
-		OntologyNetwork encapsulatingNetwork = MyApplicationCenter
-				.getInstance().getEncapsulatingOntologyNetwork(
-						underlyingNetwork);
-		if (encapsulatingNetwork == null)
+		
+		if (!MyApplicationCenter
+				.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork))
 			return;
+		
+		OntologyNetwork ontologyNetwork = MyApplicationCenter
+				.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(
+						underlyingNetwork);
 
-		for (Long nodeSUID : encapsulatingNetwork.getAllRootNodes()) {
-			ExpandableNode node = encapsulatingNetwork.getNode(nodeSUID);
+		for (ExpandableNode node : ontologyNetwork.getAllRootNodes()) {
 			if (node.getDirectChildNodes().isEmpty()) {
 				view.getNodeView(node.getCyNode()).setVisualProperty(
 						BasicVisualLexicon.NODE_VISIBLE, !isHiding);

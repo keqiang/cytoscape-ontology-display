@@ -22,7 +22,7 @@ public class SelectChildNodeTask extends AbstractNodeViewTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
+		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				netView.getModel()))
 			return;
 
@@ -31,7 +31,7 @@ public class SelectChildNodeTask extends AbstractNodeViewTask {
 		CyNetwork underlyingNetwork = netView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
-				.getEncapsulatingOntologyNetwork(underlyingNetwork);
+				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView
 				.getModel());
 

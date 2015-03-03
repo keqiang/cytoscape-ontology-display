@@ -37,7 +37,7 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 		CyNetwork network = view.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
-				.getEncapsulatingOntologyNetwork(network);
+				.getOntologyNetworkFromUnderlyingCyNetwork(network);
 		if (ontologyNetwork == null)
 			return;
 
@@ -63,9 +63,7 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 
 		convertUtil = new ValueToColorUtil(min, max);
 
-		for (Long rootSUID : ontologyNetwork.getAllRootNodes()) {
-			ExpandableNode root = ontologyNetwork.getNode(rootSUID);
-
+		for (ExpandableNode root : ontologyNetwork.getAllRootNodes()) {
 			popTreeAggregationValue(root, network);
 		}
 

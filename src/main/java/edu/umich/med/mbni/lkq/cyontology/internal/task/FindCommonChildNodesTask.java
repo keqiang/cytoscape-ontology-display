@@ -25,7 +25,7 @@ public class FindCommonChildNodesTask extends AbstractNodeViewTask {
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		List<CyNode> nodes = CyTableUtil.getNodesInState(netView.getModel(), "selected", true);
 		
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance().getEncapsulatingOntologyNetwork(netView.getModel());
+		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(netView.getModel());
 		if (ontologyNetwork == null) return;
 		
 		List<ExpandableNode> correspondingExpandableNodes = ontologyNetwork.getCorrespondingExpandableNodes(nodes);

@@ -8,28 +8,33 @@ import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 
-public class RefactorOntologyDisplayAction extends AbstractCyAction {
+public class GenerateOntologyNetworkWithOneInteractionAction extends AbstractCyAction {
 
-	private static final long serialVersionUID = 7170161875226705765L;
-	private MyApplicationManager appManager;
+	private final MyApplicationManager appManager;
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5430469897020869631L;
 
-	public RefactorOntologyDisplayAction() {
-		super("Create collapsable and expandable ontology network");
+	public GenerateOntologyNetworkWithOneInteractionAction(String name) {
+		super(name);
 		appManager = MyApplicationCenter.getInstance().getApplicationManager();
 		setPreferredMenu("Apps.Ontology Viewer");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		
 		DialogTaskManager taskManager = appManager.getTaskManager();
 		
 		CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
 				.getCurrentNetwork();
-		PopulateOntologyNetworkTaskFactory populateOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(OntologyNetworkUtils.INTERACTION_IS_A);
+		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(OntologyNetworkUtils.INTERACTION_IS_A);
 		
-		taskManager.execute(populateOntologyNetworkTaskFactory.createTaskIterator(underlyingNetwork));
+		taskManager.execute(populateNewOntologyNetworkTaskFactory.createTaskIterator(underlyingNetwork));
 	}
+
 }

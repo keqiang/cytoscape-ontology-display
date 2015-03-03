@@ -17,7 +17,8 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 
 	private static MyApplicationCenter instance = null;
 	private static MyApplicationManager appManager;
-	private HashMap<Long, OntologyNetwork> allOntologyNetwork;
+	private HashMap<Long, OntologyNetwork> originalNetworkToOntologyNetwork;
+	private HashMap<Long, OntologyNetwork> underlyingNetworkToOntologyNetwork;
 	private OntologyPanelController ontologyPanelController;
 	
 	private String globalLayoutAlgorithm;
@@ -31,7 +32,8 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 	}
 
 	private MyApplicationCenter() {
-		this.allOntologyNetwork = new HashMap<Long, OntologyNetwork>();
+		this.originalNetworkToOntologyNetwork = new HashMap<Long, OntologyNetwork>();
+		this.underlyingNetworkToOntologyNetwork = new HashMap<Long, OntologyNetwork>();
 		this.globalLayoutAlgorithm = "hierarchical";
 	}
 	
@@ -47,22 +49,33 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 		return appManager;
 	}
 
-	public void addOntologyNetwork(OntologyNetwork network) {
-		allOntologyNetwork.put(network.getUnderlyingNetwork().getSUID(),
-				network);
+	public void addOntologyNetwork(OntologyNetwork ontologyNetwork) {
+		originalNetworkToOntologyNetwork.put(ontologyNetwork.getOriginalCyNetwork().getSUID(),
+				ontologyNetwork);
+		underlyingNetworkToOntologyNetwork.put(ontologyNetwork.getUnderlyingCyNetwork().getSUID(), ontologyNetwork);
 	}
 	
-	public void removeOntologyNetwork(CyNetwork network) {
-		allOntologyNetwork.remove(network.getSUID());
+	public void removeOntologyNetworkByOriginalNetwork(CyNetwork network) {
+		OntologyNetwork removedNetwork = originalNetworkToOntologyNetwork.remove(network.getSUID());
+		underlyingNetworkToOntologyNetwork.remove(removedNetwork.getUnderlyingCyNetwork().getSUID());
 	}
 
-	public OntologyNetwork getEncapsulatingOntologyNetwork(CyNetwork network) {
+	public OntologyNetwork getOntologyNetworkFromOriginalCyNetwork(CyNetwork network) {
 		Long networkSUID = network.getSUID();
-		return allOntologyNetwork.get(networkSUID);
+		return originalNetworkToOntologyNetwork.get(networkSUID);
+	}
+	
+	public OntologyNetwork getOntologyNetworkFromUnderlyingCyNetwork(CyNetwork network) {
+		Long networkSUID = network.getSUID();
+		return underlyingNetworkToOntologyNetwork.get(networkSUID);
 	}
 
-	public boolean hasEncapsulatingOntologyNetwork(CyNetwork network) {
-		return allOntologyNetwork.containsKey(network.getSUID());
+	public boolean hasOntologyNetworkFromOriginalCyNetwork(CyNetwork network) {
+		return originalNetworkToOntologyNetwork.containsKey(network.getSUID());
+	}
+	
+	public boolean hasOntologyNetworkFromUnderlyingCyNetwork(CyNetwork network) {
+		return underlyingNetworkToOntologyNetwork.containsKey(network.getSUID());
 	}
 
 	public ExpandableNode getExpandableNode(OntologyNetwork ontologyNetwork,
@@ -93,12 +106,8 @@ public class MyApplicationCenter implements NetworkAboutToBeDestroyedListener, N
 	}
 
 	private void removeNetwork(Long networkSUID) {
-		for (OntologyNetwork ontologyNetwork : allOntologyNetwork.values()) {
-			if (ontologyNetwork.getUnderlyingNetwork().getSUID() == networkSUID) {
-				allOntologyNetwork.remove(ontologyNetwork
-						.getUnderlyingNetwork().getSUID());
-			}
-		}
+		OntologyNetwork removedNetwork = underlyingNetworkToOntologyNetwork.remove(networkSUID);
+		originalNetworkToOntologyNetwork.remove(removedNetwork.getOriginalCyNetwork().getSUID());
 	}
 	
 	public OntologyPanelController getOntologyPanelController() {

@@ -7,105 +7,91 @@ import java.util.LinkedList;
 import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
-import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.task.AbstractNetworkTask;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
-import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
-import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
-import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork_old;
+import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask.UpdateOntologyControlOptions;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.DelayedVizProp;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
-public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
+public class PopulateNewOntologyNetworkTask extends AbstractNetworkTask  {
+	
+	// what type of interaction to retain
+	private final String interactionType;
 
-	private String interactionType;
-
-	public PopulateOntologyNetworkTask(CyNetwork network, String interactionType) {
+	public PopulateNewOntologyNetworkTask(final CyNetwork network, String interactionType) {
 		super(network);
 		this.interactionType = interactionType;
 	}
 
 	@Override
-	public void run(TaskMonitor taskMonitor) {
-
+	public void run(TaskMonitor taskMonitor) throws Exception {
+		
 		taskMonitor.setTitle("Generating Ontology Network");
-		taskMonitor.setStatusMessage("cleaning up old ontology network");
-
+		
 		MyApplicationManager appManager = MyApplicationCenter.getInstance()
 				.getApplicationManager();
+		
+		Collection<CyNetworkView> networkViews = appManager
+				.getCyNetworkViewManager().getNetworkViews(network);
 
 		if (MyApplicationCenter.getInstance().hasOntologyNetworkFromOriginalCyNetwork(
 				network)) {
-			MyApplicationCenter.getInstance().removeOntologyNetworkByOriginalNetwork(
-					network);
+			OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromOriginalCyNetwork(network);
+			if (interactionType.equals(ontologyNetwork.getInteractionType())) {
+				if (!networkViews.isEmpty()) {
+					return;
+				}
+				return; // view has been generated or already existed
+			}
+			else {
+				MyApplicationCenter.getInstance().removeOntologyNetworkByOriginalNetwork(network);
+			}			
 		}
+		
 
-		LinkedList<DelayedVizProp> edgeVizProps = new LinkedList<DelayedVizProp>();
-
-		for (CyEdge edge : network.getEdgeList()) {
-			DelayedVizProp vizProp = new DelayedVizProp(edge,
-					BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
-					ArrowShapeVisualProperty.NONE, true);
-			edgeVizProps.add(vizProp);
-			vizProp = new DelayedVizProp(edge, BasicVisualLexicon.EDGE_WIDTH,
-					1.0, true);
-			edgeVizProps.add(vizProp);
-			vizProp = new DelayedVizProp(edge,
-					BasicVisualLexicon.EDGE_LINE_TYPE,
-					LineTypeVisualProperty.LONG_DASH, true);
-			edgeVizProps.add(vizProp);
-			vizProp = new DelayedVizProp(edge,
-					BasicVisualLexicon.EDGE_TRANSPARENCY, 120, true);
-			edgeVizProps.add(vizProp);
-		}
+		// generate a new ontology network and view based on the underlying network and interaction type
 		
 		LinkedList<DelayedVizProp> otherVizProps = new LinkedList<DelayedVizProp>();
 		
 		taskMonitor.setStatusMessage("populating all ontology items");
 		
-		OntologyNetwork_old generatedOntologyNetwork = OntologyNetworkUtils
-				.convertNetworkToOntology(appManager.getCyApplicationManager()
-						.getCurrentNetwork(), otherVizProps, interactionType);
+		OntologyNetwork generatedOntologyNetwork = OntologyNetworkUtils
+				.generateNewOntologyNetwork(network, otherVizProps, interactionType);
 
-		//MyApplicationCenter.getInstance().addOntologyNetwork(
-			//	generatedOntologyNetwork);
+		MyApplicationCenter.getInstance().addOntologyNetwork(
+				generatedOntologyNetwork);
 		
-		Collection<CyNetworkView> networkViews = appManager
-				.getCyNetworkViewManager().getNetworkViews(network);
-		CyNetworkView networkView;
-
-		if (networkViews.isEmpty()) {
-			networkView = appManager.getCyNetworkViewFactory()
-					.createNetworkView(network);
-			appManager.getCyNetworkViewManager().addNetworkView(networkView);
-		} else {
-			networkView = networkViews.iterator().next();
-		}
-
+		taskMonitor.setStatusMessage("cleaning up old ontology network");
+		
+		CyNetwork underlyingNetwork = generatedOntologyNetwork.getUnderlyingCyNetwork();
+		appManager.getCyNetworkManager().addNetwork(underlyingNetwork);
+		
+		CyNetworkView networkView = appManager.getCyNetworkViewFactory()
+					.createNetworkView(underlyingNetwork);
+		appManager.getCyNetworkViewManager().addNetworkView(networkView);
+		
 		appManager.getCyEventHelper().flushPayloadEvents();
-		DelayedVizProp.applyAll(networkView, edgeVizProps);
+	
 		DelayedVizProp.applyAll(networkView, otherVizProps);
 
 		taskMonitor.setStatusMessage("relayouting the ontology network");
 
 		HashSet<View<CyNode>> nodesToLayout = new HashSet<View<CyNode>>();
 
-		for (Long nodeSUID : generatedOntologyNetwork.getAllRootNodes()) {
-			ExpandableNode expandableNode = generatedOntologyNetwork
-					.getNode(nodeSUID);
+		for (ExpandableNode expandableNode : generatedOntologyNetwork.getAllRootNodes()) {
 			expandableNode.collapse();
 			ViewOperationUtils.hideSubTree(expandableNode, networkView);
 			if (!expandableNode.getDirectChildNodes().isEmpty()) {
@@ -160,6 +146,7 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		
 		networkView.updateView();
 
+		
 	}
 
 }

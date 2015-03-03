@@ -57,18 +57,18 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	}
 
 	private void rePopOntologyTree() {
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
-				.getEncapsulatingOntologyNetwork(network);
-		if (ontologyNetwork == null)
+		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+				network))
 			return;
+		
+		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+				.getOntologyNetworkFromUnderlyingCyNetwork(network);
 
 		DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(
 				"Ontology Tree");
 
-		Collection<Long> allRootNodes = ontologyNetwork.getAllRootNodes();
-		for (Long rootSUID : allRootNodes) {
-
-			ExpandableNode root = ontologyNetwork.getNode(rootSUID);
+		Collection<ExpandableNode> allRootNodes = ontologyNetwork.getAllRootNodes();
+		for (ExpandableNode root : allRootNodes) {
 			if (root.getDirectChildNodes().isEmpty())
 				continue;
 			DefaultMutableTreeNode ontologyRoot = new DefaultMutableTreeNode(
@@ -94,8 +94,13 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	}
 
 	private void rePopInteractionType() {
-
-		Collection<CyRow> allRows = network.getDefaultEdgeTable().getAllRows();
+		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+				network))
+			return;
+		
+		CyNetwork originaNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
+		
+		Collection<CyRow> allRows = originaNetwork.getDefaultEdgeTable().getAllRows();
 
 		HashSet<String> allTypes = new HashSet<String>();
 
@@ -110,11 +115,13 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 
 	private void rePopAggregationValues() {
 
-		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
+		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				network))
 			return;
+		
+		CyNetwork originaNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
 
-		Collection<CyColumn> allColumns = network.getDefaultNodeTable()
+		Collection<CyColumn> allColumns = originaNetwork.getDefaultNodeTable()
 				.getColumns();
 
 		HashSet<String> allAggregationColumns = new HashSet<String>();

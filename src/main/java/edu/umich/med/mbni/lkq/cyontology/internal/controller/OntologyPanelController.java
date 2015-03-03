@@ -47,7 +47,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTaskFactory;
@@ -92,11 +92,18 @@ public class OntologyPanelController implements
 		CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
 				.getCurrentNetwork();
 
-		PopulateOntologyNetworkTaskFactory populateOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(
+		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
 				interactionType);
+		
+		CyNetwork originalNetwork;
+		if(MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork)) {
+			originalNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork).getOriginalCyNetwork();
+		} else {
+			originalNetwork = underlyingNetwork;
+		}
 
-		taskManager.execute(populateOntologyNetworkTaskFactory
-				.createTaskIterator(underlyingNetwork));
+		taskManager.execute(populateNewOntologyNetworkTaskFactory
+				.createTaskIterator(originalNetwork));
 
 	}
 
@@ -145,6 +152,7 @@ public class OntologyPanelController implements
 				false, true, false, null);
 		CyNetwork currentNetwork = appManager.getCyApplicationManager()
 				.getCurrentNetwork();
+		
 		if (currentNetwork == null)
 			return;
 		UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(
@@ -178,7 +186,7 @@ public class OntologyPanelController implements
 				|| encapsulatingOntologyNetwork == null)
 			return;
 
-		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
+		if (encapsulatingOntologyNetwork.getUnderlyingCyNetwork() != underlyingNetworkView
 				.getModel())
 			return;
 
@@ -228,7 +236,7 @@ public class OntologyPanelController implements
 			return;
 
 		List<CyNode> nodes = CyTableUtil.getNodesInState(ontologyTree
-				.getOntologyNetwork().getUnderlyingNetwork(), "selected", true);
+				.getOntologyNetwork().getUnderlyingCyNetwork(), "selected", true);
 
 		for (CyNode node : nodes) {
 
@@ -319,7 +327,7 @@ public class OntologyPanelController implements
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
-		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
+		if (encapsulatingOntologyNetwork.getUnderlyingCyNetwork() != underlyingNetworkView
 				.getModel())
 			return;
 
@@ -347,7 +355,7 @@ public class OntologyPanelController implements
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
-		if (encapsulatingOntologyNetwork.getUnderlyingNetwork() != underlyingNetworkView
+		if (encapsulatingOntologyNetwork.getUnderlyingCyNetwork() != underlyingNetworkView
 				.getModel())
 			return;
 

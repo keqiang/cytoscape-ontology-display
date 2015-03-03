@@ -32,7 +32,7 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 		CyNetwork underlyingNetwork = networkView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
-				.getEncapsulatingOntologyNetwork(underlyingNetwork);
+				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
 
 		expandableNode.collapse();
@@ -48,7 +48,7 @@ public class CollapseNodeEdit extends AbstractCyEdit {
 		CyNetwork underlyingNetwork = networkView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
-				.getEncapsulatingOntologyNetwork(underlyingNetwork);
+				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
 				.getNode(nodeView.getModel());
 

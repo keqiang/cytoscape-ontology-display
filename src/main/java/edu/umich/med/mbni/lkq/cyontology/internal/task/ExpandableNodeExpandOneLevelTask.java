@@ -23,7 +23,7 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) {
-		if (!MyApplicationCenter.getInstance().hasEncapsulatingOntologyNetwork(
+		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				netView.getModel()))
 			return;
 
@@ -32,7 +32,7 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 		CyNetwork underlyingNetwork = netView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
-				.getEncapsulatingOntologyNetwork(underlyingNetwork);
+				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
 		
 		// node is in expanded state already
