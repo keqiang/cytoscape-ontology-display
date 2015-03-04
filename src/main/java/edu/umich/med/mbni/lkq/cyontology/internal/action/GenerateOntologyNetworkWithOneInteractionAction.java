@@ -30,11 +30,14 @@ public class GenerateOntologyNetworkWithOneInteractionAction extends AbstractCyA
 	public void actionPerformed(ActionEvent e) {
 		DialogTaskManager taskManager = appManager.getTaskManager();
 		
-		CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
+		CyNetwork currentNetwork = appManager.getCyApplicationManager()
 				.getCurrentNetwork();
+		
+		if (currentNetwork == null) return;
+		
 		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(OntologyNetworkUtils.INTERACTION_IS_A);
 		
-		taskManager.execute(populateNewOntologyNetworkTaskFactory.createTaskIterator(underlyingNetwork));
+		taskManager.execute(populateNewOntologyNetworkTaskFactory.createTaskIterator(currentNetwork));
 	}
 
 }

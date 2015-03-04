@@ -9,56 +9,69 @@ import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 
 /**
- * @author keqiangli task to generate a new ontology network based on an existing network
+ * @author keqiangli task to generate a new ontology network based on an
+ *         existing network
  *
  */
-public class PopulateNewOntologyNetworkTask extends AbstractNetworkTask  {
-	
+public class PopulateNewOntologyNetworkTask extends AbstractNetworkTask {
+
 	// what type of interaction to retain
 	private final String interactionType;
 
-	public PopulateNewOntologyNetworkTask(final CyNetwork network, String interactionType) {
+	public PopulateNewOntologyNetworkTask(final CyNetwork network,
+			String interactionType) {
 		super(network);
 		this.interactionType = interactionType;
 	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		
-		// this is the original network based on which this function is going to generate an ontology network
-		CyNetwork originalNetwork = network;
-		
+
 		taskMonitor.setTitle("Generating Ontology Network");
 
-		// if an ontology network based on this original network exists
-		if (MyApplicationManager.getInstance().hasOntologyNetworkFromOriginalCyNetwork(
-				originalNetwork)) {
-			OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromOriginalCyNetwork(originalNetwork);
-			// if this ontology network is the same as what we're going to generate
-			if (interactionType.equals(ontologyNetwork.getInteractionType())) {
-				MyApplicationManager.getInstance().getOntologyPanelController().setOntologyNetwork(ontologyNetwork);
-				return;
+		OntologyNetwork ontologyNetwork = null;
+		// if current network is already an ontology network, just create view
+		// for it
+		if (MyApplicationManager.getInstance()
+				.hasOntologyNetworkFromUnderlyingCyNetwork(network)) {
+			ontologyNetwork = MyApplicationManager.getInstance()
+					.getOntologyNetworkFromUnderlyingCyNetwork(network);
+		} else if (MyApplicationManager.getInstance()
+				.hasOntologyNetworkFromOriginalCyNetwork(network)) {
+			ontologyNetwork = MyApplicationManager.getInstance()
+					.getOntologyNetworkFromOriginalCyNetwork(network);
+			if (!interactionType.equals(ontologyNetwork.getInteractionType())) {
+				MyApplicationManager.getInstance()
+						.removeOntologyNetworkByOriginalNetwork(network);
+				ontologyNetwork = null;
 			}
-			// if interaction type is different, just remove this ontology and generated a new one
-			else {
-				MyApplicationManager.getInstance().removeOntologyNetworkByOriginalNetwork(originalNetwork);
-			}			
 		}
-		
-		// generate a new ontology originalNetwork and view based on the underlying network and interaction type
-		
-		taskMonitor.setStatusMessage("populating all ontology items");
-		
-		OntologyNetwork generatedOntologyNetwork = OntologyNetworkUtils
-				.generateNewOntologyNetwork(originalNetwork, interactionType);
 
-		MyApplicationManager.getInstance().addOntologyNetwork(
-				generatedOntologyNetwork);
-		
-		taskMonitor.setStatusMessage("cleaning up old ontology network");
-		
-		MyApplicationManager.getInstance().getOntologyPanelController().setOntologyNetwork(generatedOntologyNetwork);
-		
+		if (ontologyNetwork == null) {
+			// this is the original network based on which this function is
+			// going to generate an ontology network
+			CyNetwork originalNetwork = network;
+
+			// generate a new ontology originalNetwork based on the underlying
+			// network and interaction type
+
+			taskMonitor.setStatusMessage("Populating All Ontology Items");
+
+			ontologyNetwork = OntologyNetworkUtils.generateNewOntologyNetwork(
+					originalNetwork, interactionType);
+
+			MyApplicationManager.getInstance().addOntologyNetwork(
+					ontologyNetwork);
+
+			MyApplicationManager.getInstance().getCytoscapeServiceManager()
+					.getCyNetworkManager()
+					.addNetwork(ontologyNetwork.getUnderlyingCyNetwork());
+		}
+
+		taskMonitor.setStatusMessage("Updating Ontology Plugin Panel");
+
+		MyApplicationManager.getInstance().getOntologyPanelController()
+				.setOntologyNetwork(ontologyNetwork);
 	}
 
 }

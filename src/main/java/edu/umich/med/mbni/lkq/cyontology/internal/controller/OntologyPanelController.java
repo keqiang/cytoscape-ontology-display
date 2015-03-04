@@ -108,32 +108,23 @@ public class OntologyPanelController implements
 	}
 	
 	public void setOntologyNetwork(OntologyNetwork newOntologyNetwork) {
-		if (newOntologyNetwork != curOntologyNetwork) {
-			curOntologyNetwork = newOntologyNetwork;
-			OntologyNetworkChangedEvent event = new OntologyNetworkChangedEvent(this, curOntologyNetwork, newOntologyNetwork);
-			fireOntologyNetworkChangedEvent(event);
-		}
+
+		curOntologyNetwork = newOntologyNetwork;
+		OntologyNetworkChangedEvent event = new OntologyNetworkChangedEvent(this, curOntologyNetwork, newOntologyNetwork);
+		fireOntologyNetworkChangedEvent(event);
+
 	}
 	
 	@Override
 	public void interactionChangePerformed(OntologyInteractionChangeEvent event) {
 
 		String interactionType = event.getInteractionType();
-		CyNetwork underlyingNetwork = cytoscapeServiceManager.getCyApplicationManager()
-				.getCurrentNetwork();
 
 		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
 				interactionType);
-		
-		CyNetwork originalNetwork;
-		if(MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork)) {
-			originalNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork).getOriginalCyNetwork();
-		} else {
-			originalNetwork = underlyingNetwork;
-		}
 
 		taskManager.execute(populateNewOntologyNetworkTaskFactory
-				.createTaskIterator(originalNetwork));
+				.createTaskIterator(getOntologyNetwork().getOriginalCyNetwork()));
 
 	}
 
@@ -487,7 +478,15 @@ public class OntologyPanelController implements
 		
 		PopulateOntologyNetworkViewTaskFactory populateOntologyNetworkViewTaskFactory = new PopulateOntologyNetworkViewTaskFactory(newOntologyNetwork);
 		
-		CyNetworkView networkView = cytoscapeServiceManager.getCyNetworkViewFactory().createNetworkView(newOntologyNetwork.getUnderlyingCyNetwork());
+		CyNetworkView networkView;
+		
+		Collection<CyNetworkView> networkViews = cytoscapeServiceManager.getCyNetworkViewManager().getNetworkViews(newOntologyNetwork.getUnderlyingCyNetwork());
+		if (networkViews.isEmpty()) {
+			networkView = cytoscapeServiceManager.getCyNetworkViewFactory().createNetworkView(newOntologyNetwork.getUnderlyingCyNetwork());
+			cytoscapeServiceManager.getCyNetworkViewManager().addNetworkView(networkView);
+		} else {
+			networkView = networkViews.iterator().next();
+		}
 		taskManager.execute(populateOntologyNetworkViewTaskFactory.createTaskIterator(networkView));
 	}
 }

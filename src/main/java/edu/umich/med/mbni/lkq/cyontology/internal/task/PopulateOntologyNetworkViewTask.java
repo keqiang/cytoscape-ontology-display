@@ -6,7 +6,6 @@ import java.util.List;
 import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
-import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.task.AbstractNetworkViewTask;
 import org.cytoscape.view.model.CyNetworkView;
@@ -41,11 +40,6 @@ public class PopulateOntologyNetworkViewTask extends AbstractNetworkViewTask {
 		taskMonitor.setStatusMessage("Generating ontology network view");
 		
 		CytoscapeServiceManager cytoscapeServiceManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
-
-		CyNetwork underlyingNetwork = ontologyNetwork.getUnderlyingCyNetwork();
-		cytoscapeServiceManager.getCyNetworkManager().addNetwork(underlyingNetwork);
-
-		cytoscapeServiceManager.getCyNetworkViewManager().addNetworkView(view);
 	
 		List<DelayedVizProp> visualProps = ontologyNetwork.getVisualProps();
 		
