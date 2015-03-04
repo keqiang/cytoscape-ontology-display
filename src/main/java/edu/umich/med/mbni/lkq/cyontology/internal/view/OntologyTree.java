@@ -26,7 +26,7 @@ public class OntologyTree extends JTree {
 		this.bindedOntologyNetwork = ontologyNetwork;
 	}
 	
-	public void collpaseNodeCompletely(DefaultMutableTreeNode node) {
+	public synchronized void collpaseNodeCompletely(DefaultMutableTreeNode node) {
 		for (int i = 0; i < node.getChildCount(); ++i) {
 			DefaultMutableTreeNode child = (DefaultMutableTreeNode) node
 					.getChildAt(i);
@@ -37,7 +37,7 @@ public class OntologyTree extends JTree {
 		this.collapsePath(new TreePath(node.getPath()));
 	}
 
-	public void expandNode(DefaultMutableTreeNode node) {
+	public synchronized void expandNode(DefaultMutableTreeNode node) {
 		this.expandPath(new TreePath(node.getPath()));
 	}
 }

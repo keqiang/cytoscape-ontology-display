@@ -14,7 +14,7 @@ import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.swing.DialogTaskManager;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 
 /**
@@ -141,8 +141,8 @@ public class ViewOperationUtils {
 			CyLayoutAlgorithmManager layoutAlgorithmManager,
 			CyNetworkView networkView, String layoutAlgorithmName, Set<View<CyNode>> nodesToLayout) {
 
-		DialogTaskManager taskManager = MyApplicationCenter.getInstance()
-				.getApplicationManager().getTaskManager();
+		DialogTaskManager taskManager = MyApplicationManager.getInstance()
+				.getCytoscapeServiceManager().getTaskManager();
 
 		final CyLayoutAlgorithm layout = layoutAlgorithmManager
 				.getLayout(layoutAlgorithmName);

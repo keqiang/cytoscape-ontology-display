@@ -7,7 +7,7 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.work.TaskMonitor;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
@@ -21,7 +21,7 @@ public class ExpandableNodeCollapseTask extends AbstractNodeViewTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) {
-		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				netView.getModel()))
 			return;
 		
@@ -29,7 +29,7 @@ public class ExpandableNodeCollapseTask extends AbstractNodeViewTask {
 		
 		CyNetwork underlyingNetwork = netView.getModel();
 
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
 		

@@ -12,7 +12,7 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.task.AbstractNetworkTask;
 import org.cytoscape.work.TaskMonitor;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
@@ -57,11 +57,11 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	}
 
 	private void rePopOntologyTree() {
-		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				network))
 			return;
 		
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(network);
 
 		DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(
@@ -77,7 +77,7 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 			treeRoot.add(ontologyRoot);
 		}
 
-		MyApplicationCenter.getInstance().getOntologyPanelController()
+		MyApplicationManager.getInstance().getOntologyPanelController()
 				.setOntologyTree(treeRoot, ontologyNetwork);
 	}
 
@@ -94,11 +94,11 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	}
 
 	private void rePopInteractionType() {
-		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				network))
 			return;
 		
-		CyNetwork originaNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
+		CyNetwork originaNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
 		
 		Collection<CyRow> allRows = originaNetwork.getDefaultEdgeTable().getAllRows();
 
@@ -115,11 +115,11 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 
 	private void rePopAggregationValues() {
 
-		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				network))
 			return;
 		
-		CyNetwork originaNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
+		CyNetwork originaNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
 
 		Collection<CyColumn> allColumns = originaNetwork.getDefaultNodeTable()
 				.getColumns();

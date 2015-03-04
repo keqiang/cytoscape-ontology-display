@@ -30,17 +30,20 @@ import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.swing.DialogTaskManager;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyAggregationColumnChangeEvent;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyAggregationMethodChangeEvent;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyHideDanglingNodesEvent;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyInteractionChangeEvent;
+import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyNetworkChangedEvent;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyAggregationChoiceRefreshListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyAggregationColumnChangeListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyAggregationMethodChangeListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyHideDanglingNodesListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyInteractionChangeListener;
+import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNetworkChangedListener;
+import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNetworkRemovedListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNodeExpansionListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
@@ -48,6 +51,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTas
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkViewTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTaskFactory;
@@ -62,13 +66,17 @@ public class OntologyPanelController implements
 		OntologyHideDanglingNodesListener, TreeSelectionListener,
 		RowsSetListener, NetworkAboutToBeDestroyedListener,
 		NetworkViewAboutToBeDestroyedListener, TreeWillExpandListener,
-		OntologyNodeExpansionListener {
+		OntologyNodeExpansionListener,
+		OntologyNetworkRemovedListener,
+		OntologyNetworkChangedListener {
 	private OntologyPluginPanel ontologyPluginPanel;
-	private MyApplicationManager appManager;
+	private CytoscapeServiceManager cytoscapeServiceManager;
 	private DialogTaskManager taskManager;
 	private OntologyTree ontologyTree;
+	private OntologyNetwork curOntologyNetwork;
+	private List<OntologyNetworkChangedListener> ontologyNetworkChangedListeners;
 
-	public OntologyPanelController(OntologyPluginPanel ontologyPluginPanel) {
+	public OntologyPanelController(OntologyPluginPanel ontologyPluginPanel, OntologyNetwork ontologyNetwork) {
 		ontologyPluginPanel.setOntologyInteractionChangeListener(this);
 		ontologyPluginPanel.setOntologyAggregationColumnChangeListener(this);
 		ontologyPluginPanel.setOntologyAggregationMethodChangeListener(this);
@@ -81,23 +89,45 @@ public class OntologyPanelController implements
 
 		this.ontologyPluginPanel = ontologyPluginPanel;
 		this.ontologyTree = ontologyPluginPanel.getOntologyTree();
-		appManager = MyApplicationCenter.getInstance().getApplicationManager();
-		taskManager = appManager.getTaskManager();
+		this.curOntologyNetwork = ontologyNetwork;
+		cytoscapeServiceManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
+		taskManager = cytoscapeServiceManager.getTaskManager();
+		
+		ontologyNetworkChangedListeners = new LinkedList<OntologyNetworkChangedListener>();
+		addOntologyNetworkChangedListeners(this);
+		
+		MyApplicationManager.getInstance().addOntologyNetworkRemovedListener(this);
+	}
+	
+	public void addOntologyNetworkChangedListeners(OntologyNetworkChangedListener listner) {
+		ontologyNetworkChangedListeners.add(listner);
 	}
 
+	public OntologyNetwork getOntologyNetwork() {
+		return curOntologyNetwork;
+	}
+	
+	public void setOntologyNetwork(OntologyNetwork newOntologyNetwork) {
+		if (newOntologyNetwork != curOntologyNetwork) {
+			curOntologyNetwork = newOntologyNetwork;
+			OntologyNetworkChangedEvent event = new OntologyNetworkChangedEvent(this, curOntologyNetwork, newOntologyNetwork);
+			fireOntologyNetworkChangedEvent(event);
+		}
+	}
+	
 	@Override
 	public void interactionChangePerformed(OntologyInteractionChangeEvent event) {
 
 		String interactionType = event.getInteractionType();
-		CyNetwork underlyingNetwork = appManager.getCyApplicationManager()
+		CyNetwork underlyingNetwork = cytoscapeServiceManager.getCyApplicationManager()
 				.getCurrentNetwork();
 
 		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
 				interactionType);
 		
 		CyNetwork originalNetwork;
-		if(MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork)) {
-			originalNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork).getOriginalCyNetwork();
+		if(MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork)) {
+			originalNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork).getOriginalCyNetwork();
 		} else {
 			originalNetwork = underlyingNetwork;
 		}
@@ -111,7 +141,7 @@ public class OntologyPanelController implements
 	public void ontologyAggregationColumnChangePerformed(
 			OntologyAggregationColumnChangeEvent event) {
 
-		CyNetworkView networkView = appManager.getCyApplicationManager()
+		CyNetworkView networkView = cytoscapeServiceManager.getCyApplicationManager()
 				.getCurrentNetworkView();
 
 		String aggregationColumn = event.getAggregationColumn();
@@ -130,7 +160,7 @@ public class OntologyPanelController implements
 	@Override
 	public void ontologyAggreagationMethodChangePerformed(
 			OntologyAggregationMethodChangeEvent event) {
-		CyNetworkView networkView = appManager.getCyApplicationManager()
+		CyNetworkView networkView = cytoscapeServiceManager.getCyApplicationManager()
 				.getCurrentNetworkView();
 
 		String aggregationColumn = event.getAggregationColumn();
@@ -150,7 +180,7 @@ public class OntologyPanelController implements
 	public void ontologyAggregationChoiceRefreshPerformed(EventObject event) {
 		UpdateOntologyControlPanelTask.UpdateOntologyControlOptions options = new UpdateOntologyControlPanelTask.UpdateOntologyControlOptions(
 				false, true, false, null);
-		CyNetwork currentNetwork = appManager.getCyApplicationManager()
+		CyNetwork currentNetwork = cytoscapeServiceManager.getCyApplicationManager()
 				.getCurrentNetwork();
 		
 		if (currentNetwork == null)
@@ -166,7 +196,7 @@ public class OntologyPanelController implements
 	@Override
 	public void ontologyHideDanglingNodesPerformed(
 			OntologyHideDanglingNodesEvent event) {
-		CyNetworkView currentNetworkView = appManager.getCyApplicationManager()
+		CyNetworkView currentNetworkView = cytoscapeServiceManager.getCyApplicationManager()
 				.getCurrentNetworkView();
 
 		HideOrShowDanglingNodesTaskFactory hideOrShowDanglingNodesTaskFactory = new HideOrShowDanglingNodesTaskFactory(
@@ -178,7 +208,7 @@ public class OntologyPanelController implements
 
 	@Override
 	public void valueChanged(TreeSelectionEvent event) {
-		CyNetworkView underlyingNetworkView = appManager
+		CyNetworkView underlyingNetworkView = cytoscapeServiceManager
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
@@ -323,7 +353,7 @@ public class OntologyPanelController implements
 		ExpandableNode correspondingNode = (ExpandableNode) expandingNode
 				.getUserObject();
 
-		CyNetworkView underlyingNetworkView = appManager
+		CyNetworkView underlyingNetworkView = cytoscapeServiceManager
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
@@ -351,7 +381,7 @@ public class OntologyPanelController implements
 		ExpandableNode correspondingNode = (ExpandableNode) collpasingNode
 				.getUserObject();
 
-		CyNetworkView underlyingNetworkView = appManager
+		CyNetworkView underlyingNetworkView = cytoscapeServiceManager
 				.getCyApplicationManager().getCurrentNetworkView();
 		OntologyNetwork encapsulatingOntologyNetwork = ontologyTree
 				.getOntologyNetwork();
@@ -371,7 +401,7 @@ public class OntologyPanelController implements
 		throw new ExpandVetoException(event);
 	}
 
-	public void setOntologyTree(DefaultMutableTreeNode root,
+	public synchronized void setOntologyTree(DefaultMutableTreeNode root,
 			OntologyNetwork ontologyNetwork) {
 
 		ontologyTree.setOntologyNetwork(ontologyNetwork);
@@ -394,7 +424,7 @@ public class OntologyPanelController implements
 		ontologyTree.addTreeWillExpandListener(this);
 	}
 
-	private List<DefaultMutableTreeNode> searchNodeInTree(Object userNode,
+	private synchronized List<DefaultMutableTreeNode> searchNodeInTree(Object userNode,
 			JTree tree) {
 		LinkedList<DefaultMutableTreeNode> nodesFound = new LinkedList<DefaultMutableTreeNode>();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel()
@@ -413,7 +443,7 @@ public class OntologyPanelController implements
 		return nodesFound;
 	}
 
-	public void setOntologyTreeNodeCollpased(DefaultMutableTreeNode node,
+	public synchronized void setOntologyTreeNodeCollpased(DefaultMutableTreeNode node,
 			boolean isCollpasing) {
 		// remove the listener to avoid triggering of the event on child nodes
 		// again
@@ -430,5 +460,34 @@ public class OntologyPanelController implements
 		}
 
 		ontologyTree.addTreeWillExpandListener(this);
+	}
+
+	@Override
+	public void ontologyNetworkRemoved(EventObject event) {
+		OntologyNetwork removedOntologyNetwork = (OntologyNetwork)event.getSource();
+		if (curOntologyNetwork == removedOntologyNetwork) {
+			setOntologyNetwork(null);
+		}	
+	}
+	
+	public void fireOntologyNetworkChangedEvent(OntologyNetworkChangedEvent event) {
+		for (OntologyNetworkChangedListener listener : ontologyNetworkChangedListeners) {
+			listener.ontologyNetworkChanged(event);
+		}
+	}
+
+	@Override
+	public void ontologyNetworkChanged(OntologyNetworkChangedEvent event) {
+		OntologyNetwork newOntologyNetwork = event.getNewOntologyNetwork();
+		
+		if (newOntologyNetwork == null) {
+			ontologyPluginPanel.cleanUpView();
+			return;
+		}
+		
+		PopulateOntologyNetworkViewTaskFactory populateOntologyNetworkViewTaskFactory = new PopulateOntologyNetworkViewTaskFactory(newOntologyNetwork);
+		
+		CyNetworkView networkView = cytoscapeServiceManager.getCyNetworkViewFactory().createNetworkView(newOntologyNetwork.getUnderlyingCyNetwork());
+		taskManager.execute(populateOntologyNetworkViewTaskFactory.createTaskIterator(networkView));
 	}
 }

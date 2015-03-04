@@ -10,7 +10,7 @@ import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.TaskMonitor;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
@@ -23,7 +23,7 @@ public class SelectDirectChildNodeTask extends AbstractNodeViewTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				netView.getModel()))
 			return;
 
@@ -31,7 +31,7 @@ public class SelectDirectChildNodeTask extends AbstractNodeViewTask {
 
 		CyNetwork underlyingNetwork = netView.getModel();
 
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView
 				.getModel());

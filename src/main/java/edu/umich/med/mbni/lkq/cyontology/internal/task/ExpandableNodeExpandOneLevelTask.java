@@ -8,8 +8,8 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.work.TaskMonitor;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
@@ -23,7 +23,7 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) {
-		if (!MyApplicationCenter.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
+		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				netView.getModel()))
 			return;
 
@@ -31,7 +31,7 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 		
 		CyNetwork underlyingNetwork = netView.getModel();
 
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
 		
@@ -47,12 +47,12 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 		ViewOperationUtils.showOneLevel(expandableNode, netView);
 		taskMonitor.setProgress(0.5);
 		
-		MyApplicationManager appManager = MyApplicationCenter.getInstance().getApplicationManager();
+		CytoscapeServiceManager cytoscapeServiceManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
 		
 		if (!expandableNode.getDirectChildNodes().isEmpty()) {
 			ViewOperationUtils.reLayoutNetwork(
-					appManager.getCyLayoutAlgorithmManager(), netView,
-					MyApplicationCenter.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);
+					cytoscapeServiceManager.getCyLayoutAlgorithmManager(), netView,
+					MyApplicationManager.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		}
 		
 		taskMonitor.setProgress(0.8);

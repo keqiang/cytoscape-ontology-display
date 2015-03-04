@@ -7,8 +7,8 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.work.undo.AbstractCyEdit;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
@@ -17,14 +17,14 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 
 	private CyNetworkView networkView;
 	private View<CyNode> nodeView;
-	private MyApplicationManager appManager;
+	private CytoscapeServiceManager cytoscapeServiceManager;
 
 	public ExpandNodeEdit(String presentationName, CyNetworkView networkView,
 			View<CyNode> nodeView) {
 		super(presentationName);
 		this.networkView = networkView;
 		this.nodeView = nodeView;
-		appManager = MyApplicationCenter.getInstance().getApplicationManager();
+		cytoscapeServiceManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
 	}
 
 
@@ -33,7 +33,7 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 
 		CyNetwork underlyingNetwork = networkView.getModel();
 
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
 				.getNode(nodeView.getModel());
@@ -42,17 +42,17 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 
 		ViewOperationUtils.showSubTree(expandableNode, networkView);
 		ViewOperationUtils.reLayoutNetwork(
-				appManager.getCyLayoutAlgorithmManager(), networkView,
+				cytoscapeServiceManager.getCyLayoutAlgorithmManager(), networkView,
 				"hierarchical", CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		networkView.updateView();
-		appManager.getCyEventHelper().flushPayloadEvents();
+		cytoscapeServiceManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 	@Override
 	public void undo() {
 		CyNetwork underlyingNetwork = networkView.getModel();
 
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance()
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
 				.getNode(nodeView.getModel());
@@ -61,7 +61,7 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 
 		ViewOperationUtils.hideSubTree(expandableNode, networkView);
 		networkView.updateView();
-		appManager.getCyEventHelper().flushPayloadEvents();
+		cytoscapeServiceManager.getCyEventHelper().flushPayloadEvents();
 	}
 
 }

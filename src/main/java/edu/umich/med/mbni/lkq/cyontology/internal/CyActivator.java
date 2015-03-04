@@ -25,8 +25,8 @@ import org.osgi.framework.BundleContext;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkWithOneInteractionAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
@@ -74,15 +74,15 @@ public class CyActivator extends AbstractCyActivator {
 		DialogTaskManager taskManager = getService(context, DialogTaskManager.class);
 		
 		/*
-		 * register these services to this App
+		 * register these services to this App, my application manager is the central point to get the cytoscape services
 		 */
-		MyApplicationManager myApplicationManager = new MyApplicationManager(
+		CytoscapeServiceManager myApplicationManager = new CytoscapeServiceManager(
 				cytoscapeDesktopService, applicationManager, networkFactory,
 				networkManager, networkViewFactory, networkViewManager, vmMgr,
 				algorithmManager, eventHelper, undoSupport, taskManager);
 		
-		MyApplicationCenter appCenter = MyApplicationCenter.getInstance();
-		MyApplicationCenter.registerApplicationManager(myApplicationManager);
+		MyApplicationManager appCenter = MyApplicationManager.getInstance();
+		MyApplicationManager.registerApplicationManager(myApplicationManager);
 
 		appCenter.setLayoutAlgorithmName("hierarchical");
 		/*
@@ -91,7 +91,7 @@ public class CyActivator extends AbstractCyActivator {
 		GenerateOntologyNetworkAction generateOntologyNetworkAction = new GenerateOntologyNetworkAction("Create collapsable and expandable ontology network");
 		registerService(context, generateOntologyNetworkAction, CyAction.class, new Properties());
 		
-		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkWithOneInteractionAction("create ontology network with one interaction");
+		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkWithOneInteractionAction("Create ontology network with one interaction");
 		registerService(context, generateOntologyNetworkWithOneInteractionAction, CyAction.class, new Properties());
 		
 		registerService(context, appCenter, NetworkAboutToBeDestroyedListener.class, new Properties());
@@ -100,7 +100,6 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps.setProperty("title","Collpase this ontology term");
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
 		registerService(context, expandableNodeCollapseTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
 		
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty("title","Select child nodes in common");
@@ -124,8 +123,8 @@ public class CyActivator extends AbstractCyActivator {
 		
 		OntologyPluginPanel ontologyPluginPanel = new OntologyPluginPanel();
 		registerService(context, ontologyPluginPanel, CytoPanelComponent.class, new Properties());
-		OntologyPanelController ontologyPanelController = new OntologyPanelController(ontologyPluginPanel);
-		MyApplicationCenter.getInstance().setOntologyPluginPanelController(ontologyPanelController);
+		OntologyPanelController ontologyPanelController = new OntologyPanelController(ontologyPluginPanel, null);
+		MyApplicationManager.getInstance().setOntologyPluginPanelController(ontologyPanelController);
 		
 		registerService(context, ontologyPanelController, RowsSetListener.class, new Properties());
 		

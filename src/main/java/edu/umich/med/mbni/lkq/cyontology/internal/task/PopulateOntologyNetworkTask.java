@@ -19,8 +19,8 @@ import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.swing.DialogTaskManager;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork_old;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask.UpdateOntologyControlOptions;
@@ -44,12 +44,12 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		taskMonitor.setTitle("Generating Ontology Network");
 		taskMonitor.setStatusMessage("cleaning up old ontology network");
 
-		MyApplicationManager appManager = MyApplicationCenter.getInstance()
-				.getApplicationManager();
+		CytoscapeServiceManager cytoscapeServiceManager = MyApplicationManager.getInstance()
+				.getCytoscapeServiceManager();
 
-		if (MyApplicationCenter.getInstance().hasOntologyNetworkFromOriginalCyNetwork(
+		if (MyApplicationManager.getInstance().hasOntologyNetworkFromOriginalCyNetwork(
 				network)) {
-			MyApplicationCenter.getInstance().removeOntologyNetworkByOriginalNetwork(
+			MyApplicationManager.getInstance().removeOntologyNetworkByOriginalNetwork(
 					network);
 		}
 
@@ -77,25 +77,25 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		taskMonitor.setStatusMessage("populating all ontology items");
 		
 		OntologyNetwork_old generatedOntologyNetwork = OntologyNetworkUtils
-				.convertNetworkToOntology(appManager.getCyApplicationManager()
+				.convertNetworkToOntology(cytoscapeServiceManager.getCyApplicationManager()
 						.getCurrentNetwork(), otherVizProps, interactionType);
 
 		//MyApplicationCenter.getInstance().addOntologyNetwork(
 			//	generatedOntologyNetwork);
 		
-		Collection<CyNetworkView> networkViews = appManager
+		Collection<CyNetworkView> networkViews = cytoscapeServiceManager
 				.getCyNetworkViewManager().getNetworkViews(network);
 		CyNetworkView networkView;
 
 		if (networkViews.isEmpty()) {
-			networkView = appManager.getCyNetworkViewFactory()
+			networkView = cytoscapeServiceManager.getCyNetworkViewFactory()
 					.createNetworkView(network);
-			appManager.getCyNetworkViewManager().addNetworkView(networkView);
+			cytoscapeServiceManager.getCyNetworkViewManager().addNetworkView(networkView);
 		} else {
 			networkView = networkViews.iterator().next();
 		}
 
-		appManager.getCyEventHelper().flushPayloadEvents();
+		cytoscapeServiceManager.getCyEventHelper().flushPayloadEvents();
 		DelayedVizProp.applyAll(networkView, edgeVizProps);
 		DelayedVizProp.applyAll(networkView, otherVizProps);
 
@@ -126,14 +126,14 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		}
 
 		networkView.updateView();
-		appManager.getCyEventHelper().flushPayloadEvents();
+		cytoscapeServiceManager.getCyEventHelper().flushPayloadEvents();
 
 		ViewOperationUtils.reLayoutNetwork(
-				appManager.getCyLayoutAlgorithmManager(), networkView,
-				MyApplicationCenter.getInstance().getLayoutAlgorithmName(), nodesToLayout);
+				cytoscapeServiceManager.getCyLayoutAlgorithmManager(), networkView,
+				MyApplicationManager.getInstance().getLayoutAlgorithmName(), nodesToLayout);
 
-		CytoPanel cytoPanelWest = MyApplicationCenter.getInstance()
-				.getApplicationManager().getCyDesktopService()
+		CytoPanel cytoPanelWest = MyApplicationManager.getInstance()
+				.getCytoscapeServiceManager().getCyDesktopService()
 				.getCytoPanel(CytoPanelName.WEST);
 
 		if (cytoPanelWest.getState() == CytoPanelState.HIDE) {
@@ -154,7 +154,7 @@ public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 		UpdateOntologyControlOptions options = new UpdateOntologyControlOptions(true, true, true, interactionType);
 		
 		UpdateOntologyControlPanelTaskFactory updateOntologyControlPanelTaskFactory = new UpdateOntologyControlPanelTaskFactory(ontologyViewerControlPanel, options);
-		DialogTaskManager taskManager = appManager.getTaskManager();
+		DialogTaskManager taskManager = cytoscapeServiceManager.getTaskManager();
 		taskManager.execute(updateOntologyControlPanelTaskFactory
 				.createTaskIterator(networkView.getModel()));
 		

@@ -6,14 +6,14 @@ import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.work.swing.DialogTaskManager;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 
 public class GenerateOntologyNetworkWithOneInteractionAction extends AbstractCyAction {
 
-	private final MyApplicationManager appManager;
+	private final CytoscapeServiceManager appManager;
 	
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class GenerateOntologyNetworkWithOneInteractionAction extends AbstractCyA
 
 	public GenerateOntologyNetworkWithOneInteractionAction(String name) {
 		super(name);
-		appManager = MyApplicationCenter.getInstance().getApplicationManager();
+		appManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
 		setPreferredMenu("Apps.Ontology Viewer");
 	}
 

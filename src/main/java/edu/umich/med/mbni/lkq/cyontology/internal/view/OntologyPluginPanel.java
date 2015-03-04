@@ -292,14 +292,14 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 
 	}
 
-	public void setAggregationColumnChoice(Collection<String> columns) {
+	public synchronized void setAggregationColumnChoice(Collection<String> columns) {
 		aggregationColumnChoice.removeAll();
 		for (String item : columns) {
 			aggregationColumnChoice.addItem(item);
 		}
 	}
 
-	public void setInteractionTypeChoice(Collection<String> interactions,
+	public synchronized void setInteractionTypeChoice(Collection<String> interactions,
 			String selectedItem) {
 		interactionTypeChoice.removeAll();
 		for (String item : interactions) {
@@ -333,7 +333,7 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 		return ONTOLOGY_PANEL_TITLE;
 	}
 
-	public void cleanUpView() {
+	public synchronized void cleanUpView() {
 		aggregationColumnChoice.removeAll();
 		interactionTypeChoice.removeAll();
 

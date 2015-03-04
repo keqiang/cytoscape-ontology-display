@@ -11,7 +11,7 @@ import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.TaskMonitor;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
@@ -25,7 +25,7 @@ public class FindCommonChildNodesTask extends AbstractNodeViewTask {
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		List<CyNode> nodes = CyTableUtil.getNodesInState(netView.getModel(), "selected", true);
 		
-		OntologyNetwork ontologyNetwork = MyApplicationCenter.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(netView.getModel());
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(netView.getModel());
 		if (ontologyNetwork == null) return;
 		
 		List<ExpandableNode> correspondingExpandableNodes = ontologyNetwork.getCorrespondingExpandableNodes(nodes);

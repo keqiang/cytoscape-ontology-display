@@ -11,15 +11,10 @@ public class OntologyHideDanglingNodesEvent extends EventObject {
 	
 	public OntologyHideDanglingNodesEvent(Object source, boolean isHiding) {
 		super(source);
-		this.setHiding(isHiding);
+		this.isHiding = isHiding;
 	}
 
 	public boolean isHiding() {
 		return isHiding;
 	}
-
-	public void setHiding(boolean isHiding) {
-		this.isHiding = isHiding;
-	}
-
 }

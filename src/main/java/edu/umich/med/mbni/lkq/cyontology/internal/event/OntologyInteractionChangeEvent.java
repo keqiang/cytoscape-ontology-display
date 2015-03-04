@@ -11,13 +11,9 @@ public class OntologyInteractionChangeEvent extends EventObject {
 	private String interactionType;
 	public OntologyInteractionChangeEvent(Object source, String interactionType) {
 		super(source);
-		this.setInteractionType(interactionType);
+		this.interactionType = interactionType;
 	}
 	public String getInteractionType() {
 		return interactionType;
 	}
-	public void setInteractionType(String interactionType) {
-		this.interactionType = interactionType;
-	}
-
 }

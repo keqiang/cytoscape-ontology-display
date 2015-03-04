@@ -7,8 +7,8 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.TaskMonitor;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationCenter;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
@@ -16,25 +16,25 @@ import edu.umich.med.mbni.lkq.cyontology.internal.util.ViewOperationUtils;
 public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 
 	private boolean isHiding;
-	private MyApplicationManager appManager;
+	private CytoscapeServiceManager cytoscapeServiceManager;
 
 	public HideOrShowDanglingNodesTask(CyNetworkView view, boolean isHiding) {
 		super(view);
 		this.isHiding = isHiding;
-		appManager = MyApplicationCenter.getInstance().getApplicationManager();
+		cytoscapeServiceManager = MyApplicationManager.getInstance()
+				.getCytoscapeServiceManager();
 	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) {
 		CyNetwork underlyingNetwork = view.getModel();
-		
-		if (!MyApplicationCenter
-				.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork))
+
+		if (!MyApplicationManager.getInstance()
+				.hasOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork))
 			return;
-		
-		OntologyNetwork ontologyNetwork = MyApplicationCenter
-				.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(
-						underlyingNetwork);
+
+		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
+				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 
 		for (ExpandableNode node : ontologyNetwork.getAllRootNodes()) {
 			if (node.getDirectChildNodes().isEmpty()) {
@@ -42,8 +42,11 @@ public class HideOrShowDanglingNodesTask extends AbstractNetworkViewTask {
 						BasicVisualLexicon.NODE_VISIBLE, !isHiding);
 			}
 		}
-		
-		ViewOperationUtils.reLayoutNetwork(appManager.getCyLayoutAlgorithmManager(), view, MyApplicationCenter.getInstance().getLayoutAlgorithmName(), CyLayoutAlgorithm.ALL_NODE_VIEWS);
+
+		ViewOperationUtils.reLayoutNetwork(
+				cytoscapeServiceManager.getCyLayoutAlgorithmManager(), view,
+				MyApplicationManager.getInstance().getLayoutAlgorithmName(),
+				CyLayoutAlgorithm.ALL_NODE_VIEWS);
 		view.updateView();
 	}
 
