@@ -53,10 +53,10 @@ public class OntologyNetworkUtils {
 				.getCyNetworkFactory();
 		CyNetwork underlyingCyNetwork = networkFactory.createNetwork();
 
-		String underlyingNetworkName = originalCyNetwork.getRow(
+		String originalNetworkName = originalCyNetwork.getRow(
 				originalCyNetwork).get(CyNetwork.NAME, String.class);
 		underlyingCyNetwork.getRow(underlyingCyNetwork).set(CyNetwork.NAME,
-				underlyingNetworkName + " Ontology View");
+				originalNetworkName + " (Ontology View)");
 
 		List<CyNode> allNodes = originalCyNetwork.getNodeList();
 
