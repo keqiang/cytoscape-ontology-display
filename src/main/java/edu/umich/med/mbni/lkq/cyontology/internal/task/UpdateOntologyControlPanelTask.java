@@ -49,7 +49,7 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		if (options.updateAggregationColumns)
-			rePopAggregationValues();
+			rePopAggregationColumns();
 		if (options.updateInteraction)
 			rePopInteractionType();
 		if (options.updateOntologyTree)
@@ -113,15 +113,13 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 				options.interactionType);
 	}
 
-	private void rePopAggregationValues() {
+	private void rePopAggregationColumns() {
 
 		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
 				network))
 			return;
-		
-		CyNetwork originaNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
 
-		Collection<CyColumn> allColumns = originaNetwork.getDefaultNodeTable()
+		Collection<CyColumn> allColumns = network.getDefaultNodeTable()
 				.getColumns();
 
 		HashSet<String> allAggregationColumns = new HashSet<String>();

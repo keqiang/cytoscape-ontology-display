@@ -99,7 +99,7 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 		}
 	}
 
-	public void setOntologyRefreshAggregationChoiceChangeListener(
+	public void setOntologyAggregationChoiceRefreshListener(
 			OntologyAggregationChoiceRefreshListener ontologyAggregationChoiceRefreshListener) {
 		this.ontologyAggregationChoiceRefreshListener = ontologyAggregationChoiceRefreshListener;
 	}

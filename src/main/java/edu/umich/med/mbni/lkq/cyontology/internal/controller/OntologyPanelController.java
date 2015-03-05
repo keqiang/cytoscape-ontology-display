@@ -81,7 +81,7 @@ public class OntologyPanelController implements
 		ontologyPluginPanel.setOntologyAggregationColumnChangeListener(this);
 		ontologyPluginPanel.setOntologyAggregationMethodChangeListener(this);
 		ontologyPluginPanel
-				.setOntologyRefreshAggregationChoiceChangeListener(this);
+				.setOntologyAggregationChoiceRefreshListener(this);
 		ontologyPluginPanel.setOntologyHideDanglingNodesListener(this);
 
 		ontologyPluginPanel.getOntologyTree().addTreeSelectionListener(this);
