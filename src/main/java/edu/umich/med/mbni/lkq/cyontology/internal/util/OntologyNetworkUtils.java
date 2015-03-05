@@ -76,6 +76,7 @@ public class OntologyNetworkUtils {
 
 			allRootNodes.add(expandableNode);
 			createdNodes.put(node.getSUID(), expandableNode);
+
 		}
 
 		// get all the edges in the original network
@@ -105,43 +106,39 @@ public class OntologyNetworkUtils {
 							sourceExpandableNode.getCyNode(), false);
 					underlyingCyNetwork.getRow(newEdge).set("interaction",
 							interactionType);
-					DelayedVizProp vizProp = new DelayedVizProp(newEdge,
-							BasicVisualLexicon.EDGE_WIDTH, 1.0, true);
-					vizProps.add(vizProp);
-					vizProp = new DelayedVizProp(newEdge,
-							BasicVisualLexicon.EDGE_LINE_TYPE,
-							LineTypeVisualProperty.LONG_DASH, true);
-					vizProps.add(vizProp);
-					vizProp = new DelayedVizProp(newEdge,
-							BasicVisualLexicon.EDGE_TRANSPARENCY, 120, true);
-					vizProps.add(vizProp);
+					setEdgeProp(newEdge, vizProps, interactionType, false);
 				}
 			} else {
+
+				if (!containedInteraction(interactionType)
+						&& !containingInteraction(interactionType))
+					continue;
+				boolean shouldAddEdge = false;
+
 				if (containedInteraction(keepInteraction)) {
 					if (!targetExpandableNode.hasChild(sourceExpandableNode)) {
 						targetExpandableNode.addChildNode(sourceExpandableNode);
-						CyEdge newEdge = underlyingCyNetwork.addEdge(
-								sourceExpandableNode.getCyNode(),
-								targetExpandableNode.getCyNode(), true);
-						underlyingCyNetwork.getRow(newEdge).set("interaction",
-								keepInteraction);
-						setEdgeProp(newEdge, vizProps);
+						shouldAddEdge = true;
 						// this node is a child node of some other node, so
 						// remove it from the root list.
 						allRootNodes.remove(sourceExpandableNode);
 					}
 
-				} else if (containingInteraction(keepInteraction)) {
+				} else {
 					if (!sourceExpandableNode.hasChild(targetExpandableNode)) {
 						sourceExpandableNode.addChildNode(targetExpandableNode);
-						CyEdge newEdge = underlyingCyNetwork.addEdge(
-								sourceExpandableNode.getCyNode(),
-								targetExpandableNode.getCyNode(), true);
-						underlyingCyNetwork.getRow(newEdge).set("interaction",
-								interactionType);
-						setEdgeProp(newEdge, vizProps);
+						shouldAddEdge = true;
 						allRootNodes.remove(targetExpandableNode);
 					}
+				}
+
+				if (shouldAddEdge) {
+					CyEdge newEdge = underlyingCyNetwork.addEdge(
+							sourceExpandableNode.getCyNode(),
+							targetExpandableNode.getCyNode(), true);
+					underlyingCyNetwork.getRow(newEdge).set("interaction",
+							keepInteraction);
+					setEdgeProp(newEdge, vizProps, interactionType, true);
 				}
 			}
 		}
@@ -152,22 +149,42 @@ public class OntologyNetworkUtils {
 	}
 
 	private static void setEdgeProp(CyEdge connectingEdge,
-			LinkedList<DelayedVizProp> vizProps) {
-		DelayedVizProp vizProp = new DelayedVizProp(connectingEdge,
-				BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
-				ArrowShapeVisualProperty.DELTA, true);
-		vizProps.add(vizProp);
+			LinkedList<DelayedVizProp> vizProps, String interaction,
+			boolean isInterestedInteraction) {
+		DelayedVizProp vizProp;
+
+		if (isInterestedInteraction) {
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE,
+					ArrowShapeVisualProperty.DELTA, true);
+			vizProps.add(vizProp);
+
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_WIDTH, 2.0, true);
+			vizProps.add(vizProp);
+
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_LINE_TYPE,
+					LineTypeVisualProperty.SOLID, true);
+			vizProps.add(vizProp);
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_TRANSPARENCY, 255, true);
+			vizProps.add(vizProp);
+		} else {
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_WIDTH, 1.0, true);
+			vizProps.add(vizProp);
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_LINE_TYPE,
+					LineTypeVisualProperty.LONG_DASH, true);
+			vizProps.add(vizProp);
+			vizProp = new DelayedVizProp(connectingEdge,
+					BasicVisualLexicon.EDGE_TRANSPARENCY, 120, true);
+			vizProps.add(vizProp);
+		}
 
 		vizProp = new DelayedVizProp(connectingEdge,
-				BasicVisualLexicon.EDGE_WIDTH, 2.0, true);
-		vizProps.add(vizProp);
-
-		vizProp = new DelayedVizProp(connectingEdge,
-				BasicVisualLexicon.EDGE_LINE_TYPE,
-				LineTypeVisualProperty.SOLID, true);
-		vizProps.add(vizProp);
-		vizProp = new DelayedVizProp(connectingEdge,
-				BasicVisualLexicon.EDGE_TRANSPARENCY, 255, true);
+				BasicVisualLexicon.EDGE_TOOLTIP, interaction, true);
 		vizProps.add(vizProp);
 	}
 
@@ -202,6 +219,10 @@ public class OntologyNetworkUtils {
 
 		vizProp = new DelayedVizProp(node,
 				BasicVisualLexicon.NODE_BORDER_WIDTH, 3.0, true);
+		vizProps.add(vizProp);
+
+		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_TOOLTIP,
+				nodeName, true);
 		vizProps.add(vizProp);
 	}
 
