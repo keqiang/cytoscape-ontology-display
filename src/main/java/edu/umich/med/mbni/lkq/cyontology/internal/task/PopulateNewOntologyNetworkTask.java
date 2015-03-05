@@ -17,11 +17,13 @@ public class PopulateNewOntologyNetworkTask extends AbstractNetworkTask {
 
 	// what type of interaction to retain
 	private final String interactionType;
+	private boolean retainOtherInteraction;
 
 	public PopulateNewOntologyNetworkTask(final CyNetwork network,
-			String interactionType) {
+			String interactionType, boolean retainOtherInteraction) {
 		super(network);
 		this.interactionType = interactionType;
+		this.retainOtherInteraction = retainOtherInteraction;
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class PopulateNewOntologyNetworkTask extends AbstractNetworkTask {
 			taskMonitor.setStatusMessage("Populating All Ontology Items");
 
 			ontologyNetwork = OntologyNetworkUtils.generateNewOntologyNetwork(
-					originalNetwork, interactionType);
+					originalNetwork, interactionType, retainOtherInteraction);
 
 			MyApplicationManager.getInstance().addOntologyNetwork(
 					ontologyNetwork);

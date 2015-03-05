@@ -31,7 +31,7 @@ public class ExpandableNodeExpandTask extends AbstractNodeViewTask {
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
-				.getNode(nodeView.getModel());
+				.getNodeFromUnderlyingNode(nodeView.getModel());
 
 		expandableNode.expand();
 		taskMonitor.setProgress(0.3);

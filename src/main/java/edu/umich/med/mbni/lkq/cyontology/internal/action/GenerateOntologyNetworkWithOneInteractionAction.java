@@ -11,33 +11,41 @@ import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 
-public class GenerateOntologyNetworkWithOneInteractionAction extends AbstractCyAction {
+public class GenerateOntologyNetworkWithOneInteractionAction extends
+		AbstractCyAction {
 
 	private final CytoscapeServiceManager appManager;
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5430469897020869631L;
+	private boolean retainOtherInteraction;
 
-	public GenerateOntologyNetworkWithOneInteractionAction(String name) {
+	public GenerateOntologyNetworkWithOneInteractionAction(String name,
+			boolean retainOtherInteraction) {
 		super(name);
-		appManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
+		this.retainOtherInteraction = retainOtherInteraction;
+		appManager = MyApplicationManager.getInstance()
+				.getCytoscapeServiceManager();
 		setPreferredMenu("Apps.Ontology Viewer");
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		DialogTaskManager taskManager = appManager.getTaskManager();
-		
+
 		CyNetwork currentNetwork = appManager.getCyApplicationManager()
 				.getCurrentNetwork();
-		
-		if (currentNetwork == null) return;
-		
-		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(OntologyNetworkUtils.INTERACTION_IS_A);
-		
-		taskManager.execute(populateNewOntologyNetworkTaskFactory.createTaskIterator(currentNetwork));
+
+		if (currentNetwork == null)
+			return;
+
+		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
+				OntologyNetworkUtils.INTERACTION_IS_A, retainOtherInteraction);
+
+		taskManager.execute(populateNewOntologyNetworkTaskFactory
+				.createTaskIterator(currentNetwork));
 	}
 
 }

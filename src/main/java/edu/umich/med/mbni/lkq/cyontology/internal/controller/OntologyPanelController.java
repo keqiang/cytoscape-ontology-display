@@ -119,9 +119,10 @@ public class OntologyPanelController implements
 	public void interactionChangePerformed(OntologyInteractionChangeEvent event) {
 
 		String interactionType = event.getInteractionType();
+		boolean retainOtherInteraction = curOntologyNetwork.isRetainOtherInteraction();
 
 		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
-				interactionType);
+				interactionType, retainOtherInteraction);
 
 		taskManager.execute(populateNewOntologyNetworkTaskFactory
 				.createTaskIterator(getOntologyNetwork().getOriginalCyNetwork()));
@@ -262,7 +263,7 @@ public class OntologyPanelController implements
 		for (CyNode node : nodes) {
 
 			ExpandableNode userNode = ontologyTree.getOntologyNetwork()
-					.getNode(node);
+					.getNodeFromUnderlyingNode(node);
 
 			if (userNode == null)
 				continue;

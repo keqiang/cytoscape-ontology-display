@@ -36,7 +36,7 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
-				.getNode(nodeView.getModel());
+				.getNodeFromUnderlyingNode(nodeView.getModel());
 
 		expandableNode.expand();
 
@@ -55,7 +55,7 @@ public class ExpandNodeEdit extends AbstractCyEdit {
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
-				.getNode(nodeView.getModel());
+				.getNodeFromUnderlyingNode(nodeView.getModel());
 
 		expandableNode.collapse();
 

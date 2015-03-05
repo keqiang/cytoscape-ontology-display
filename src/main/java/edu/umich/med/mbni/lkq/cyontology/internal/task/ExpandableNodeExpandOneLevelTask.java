@@ -27,13 +27,14 @@ public class ExpandableNodeExpandOneLevelTask extends AbstractNodeViewTask {
 				netView.getModel()))
 			return;
 
+		taskMonitor.setTitle("Expanding node");
 		taskMonitor.setProgress(0.0);
 		
 		CyNetwork underlyingNetwork = netView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
-		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
+		ExpandableNode expandableNode = ontologyNetwork.getNodeFromUnderlyingNode(nodeView.getModel());
 		
 		// node is in expanded state already
 		if (!expandableNode.isCollapsed()) {

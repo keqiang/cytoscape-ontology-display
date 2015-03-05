@@ -33,7 +33,7 @@ public class ExpandOneLevelEdit extends AbstractCyEdit {
 
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
-		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
+		ExpandableNode expandableNode = ontologyNetwork.getNodeFromUnderlyingNode(nodeView.getModel());
 
 		expandableNode.expandOneLevel();
 
@@ -63,7 +63,7 @@ public class ExpandOneLevelEdit extends AbstractCyEdit {
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		ExpandableNode expandableNode = ontologyNetwork
-				.getNode(nodeView.getModel());
+				.getNodeFromUnderlyingNode(nodeView.getModel());
 
 		expandableNode.collapse();
 

@@ -33,7 +33,7 @@ public class SelectDirectChildNodeTask extends AbstractNodeViewTask {
 
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
-		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView
+		ExpandableNode expandableNode = ontologyNetwork.getNodeFromUnderlyingNode(nodeView
 				.getModel());
 
 		Collection<ExpandableNode> allChildNodes = expandableNode

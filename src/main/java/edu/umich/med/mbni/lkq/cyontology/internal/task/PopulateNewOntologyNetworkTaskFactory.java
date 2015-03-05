@@ -7,13 +7,15 @@ import org.cytoscape.work.TaskIterator;
 public class PopulateNewOntologyNetworkTaskFactory extends AbstractNetworkTaskFactory {
 
 	private String interactionType;
-	public PopulateNewOntologyNetworkTaskFactory(String interactionType) {
+	private boolean retainOtherInteraction;
+	public PopulateNewOntologyNetworkTaskFactory(String interactionType, boolean retainOtherInteraction) {
 		this.interactionType = interactionType;
+		this.retainOtherInteraction = retainOtherInteraction;
 	}
 	
 	@Override
 	public TaskIterator createTaskIterator(CyNetwork network) {
-		return new TaskIterator(new PopulateNewOntologyNetworkTask(network, interactionType));
+		return new TaskIterator(new PopulateNewOntologyNetworkTask(network, interactionType, retainOtherInteraction));
 	}
 
 }

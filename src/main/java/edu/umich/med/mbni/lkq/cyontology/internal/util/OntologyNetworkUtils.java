@@ -15,11 +15,10 @@ import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
 import org.cytoscape.view.presentation.property.NodeShapeVisualProperty;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
-import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork_old;
 
 public class OntologyNetworkUtils {
 
@@ -35,200 +34,121 @@ public class OntologyNetworkUtils {
 	/**
 	 * @param originalCyNetwork
 	 *            the original network
-	 * @param networkFactory
+	 * @param keepInteraction
 	 *            network factory used to create a new ontology network
-	 * @return the newly created network
+	 * @param retainOtherInteraction
+	 *            indicates if the newly generated network will retain all the
+	 *            other interactions other than the spicified interaction type
+	 * @return
 	 */
-	public static OntologyNetwork_old convertNetworkToOntology(
-			CyNetwork originalCyNetwork, LinkedList<DelayedVizProp> vizProps,
-			String keepInteraction) {
-		
-		if (MyApplicationManager.getInstance().hasOntologyNetworkFromOriginalCyNetwork(
-				originalCyNetwork)) {
-			MyApplicationManager.getInstance().removeOntologyNetworkByOriginalNetwork(originalCyNetwork);
-		}
-				
-		String underlyingNetworkName = originalCyNetwork.getRow(originalCyNetwork).get(
-				CyNetwork.NAME, String.class);
-		
-		if (!underlyingNetworkName.endsWith("Ontology View")) {
-			underlyingNetworkName += " Ontology View";
-			originalCyNetwork.getRow(originalCyNetwork).set(CyNetwork.NAME,
-					underlyingNetworkName);
-		}		
-
-		List<CyNode> allNodes = originalCyNetwork.getNodeList();
-		
-		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
-		HashSet<Long> allRootNodes = new HashSet<Long>();
-		
-		for (CyNode node : allNodes) {
-			String nodeName = originalCyNetwork.getRow(node).get(
-					CyNetwork.NAME, String.class);
-			ExpandableNode expandableNode = new ExpandableNode(node, nodeName);
-			allRootNodes.add(node.getSUID());
-			createdNodes.put(node.getSUID(), expandableNode);
-		}
-
-		for (CyNode sourceNode : allNodes) {
-			ExpandableNode sourceExpandableNode = createdNodes.get(sourceNode.getSUID());
-			String sourceNodeName = originalCyNetwork.getRow(sourceNode).get(
-					CyNetwork.NAME, String.class);
-
-			setNodeProp(sourceNode, vizProps, sourceNodeName);
-
-			List<CyNode> neighborNodes = originalCyNetwork.getNeighborList(
-					sourceNode, CyEdge.Type.DIRECTED);
-
-			for (CyNode targetNode : neighborNodes) {
-				ExpandableNode targetExpandableNode = createdNodes.get(targetNode.getSUID());
-
-				String targetNodeName = originalCyNetwork.getRow(targetNode)
-						.get(CyNetwork.NAME, String.class);
-				setNodeProp(targetNode, vizProps, targetNodeName);
-
-				List<CyEdge> allEdges = originalCyNetwork
-						.getConnectingEdgeList(sourceNode, targetNode,
-								CyEdge.Type.DIRECTED);
-
-				for (CyEdge edge : allEdges) {
-					
-					String interactionType = originalCyNetwork.getRow(edge)
-							.get(CyEdge.INTERACTION, String.class);
-
-					if (!interactionType.equalsIgnoreCase(keepInteraction))
-						continue;
-
-					if (containedInteraction(keepInteraction)) {
-						if (edge.getSource() == targetNode
-								&& edge.getTarget() == sourceNode) {
-
-							if (!sourceExpandableNode
-									.hasChild(targetExpandableNode)) {
-								sourceExpandableNode
-										.addChildNode(targetExpandableNode);
-								setEdgeProp(edge, vizProps);
-								// this node is a child node of some other node, so remove it from the root list.
-								allRootNodes.remove(targetNode.getSUID());
-							}
-						}
-					} else if (containingInteraction(keepInteraction)) {
-						if (edge.getSource() == sourceNode
-								&& edge.getTarget() == targetNode) {
-
-							if (!sourceExpandableNode
-									.hasChild(targetExpandableNode)) {
-								sourceExpandableNode
-										.addChildNode(targetExpandableNode);
-								setEdgeProp(edge, vizProps);
-								allRootNodes.remove(targetNode.getSUID());
-
-							}
-						}
-					}
-				}
-			}
-			
-			//sourceExpandableNode.collapse();
-		}
-		
-		return new OntologyNetwork_old(originalCyNetwork, null, createdNodes, allRootNodes, keepInteraction);
-	}
-	
 	public static OntologyNetwork generateNewOntologyNetwork(
-			CyNetwork originalCyNetwork,
-			String keepInteraction) {
-		
+			CyNetwork originalCyNetwork, String keepInteraction,
+			boolean retainOtherInteraction) {
+
 		LinkedList<DelayedVizProp> vizProps = new LinkedList<DelayedVizProp>();
-		CytoscapeServiceManager cytoscapeServiceManager = MyApplicationManager.getInstance().getCytoscapeServiceManager();
-		
-		CyNetworkFactory networkFactory = cytoscapeServiceManager.getCyNetworkFactory();
+		CytoscapeServiceManager cytoscapeServiceManager = MyApplicationManager
+				.getInstance().getCytoscapeServiceManager();
+
+		CyNetworkFactory networkFactory = cytoscapeServiceManager
+				.getCyNetworkFactory();
 		CyNetwork underlyingCyNetwork = networkFactory.createNetwork();
-		
-		String underlyingNetworkName = originalCyNetwork.getRow(originalCyNetwork).get(
-				CyNetwork.NAME, String.class);
+
+		String underlyingNetworkName = originalCyNetwork.getRow(
+				originalCyNetwork).get(CyNetwork.NAME, String.class);
 		underlyingCyNetwork.getRow(underlyingCyNetwork).set(CyNetwork.NAME,
-				underlyingNetworkName + " Ontology View");	
+				underlyingNetworkName + " Ontology View");
 
 		List<CyNode> allNodes = originalCyNetwork.getNodeList();
-		
+
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
 		HashSet<ExpandableNode> allRootNodes = new HashSet<ExpandableNode>();
-		
+
 		for (CyNode node : allNodes) {
 			String nodeName = originalCyNetwork.getRow(node).get(
 					CyNetwork.NAME, String.class);
 			CyNode generatedNode = underlyingCyNetwork.addNode();
-			underlyingCyNetwork.getRow(generatedNode).set(CyNetwork.NAME, nodeName);
-			ExpandableNode expandableNode = new ExpandableNode(generatedNode, nodeName);
-			
+			underlyingCyNetwork.getRow(generatedNode).set(CyNetwork.NAME,
+					nodeName);
+			ExpandableNode expandableNode = new ExpandableNode(generatedNode,
+					nodeName);
+
+			setNodeProp(generatedNode, vizProps, nodeName);
+
 			allRootNodes.add(expandableNode);
 			createdNodes.put(node.getSUID(), expandableNode);
 		}
 
-		for (CyNode sourceNode : allNodes) {
-			ExpandableNode sourceExpandableNode = createdNodes.get(sourceNode.getSUID());
-			String sourceNodeName = originalCyNetwork.getRow(sourceNode).get(
-					CyNetwork.NAME, String.class);
+		// get all the edges in the original network
+		List<CyEdge> allEdges = originalCyNetwork.getEdgeList();
+		for (CyEdge edge : allEdges) {
+			if (!edge.isDirected())
+				continue; // we only care about the directed nodes
+			// get the interaction type of current edge
+			String interactionType = originalCyNetwork.getRow(edge).get(
+					CyEdge.INTERACTION, String.class);
+			if (interactionType == null || interactionType.isEmpty())
+				continue; // invalid interaction type
 
-			setNodeProp(sourceExpandableNode.getCyNode(), vizProps, sourceNodeName);
+			CyNode sourceNode = edge.getSource();
+			CyNode targetNode = edge.getTarget();
+			ExpandableNode sourceExpandableNode = createdNodes.get(sourceNode
+					.getSUID());
+			ExpandableNode targetExpandableNode = createdNodes.get(targetNode
+					.getSUID());
 
-			List<CyNode> neighborNodes = originalCyNetwork.getNeighborList(
-					sourceNode, CyEdge.Type.DIRECTED);
+			// is not the interaction we care about
+			if (!interactionType.equalsIgnoreCase(keepInteraction)) {
+				if (retainOtherInteraction) {
+					// create the corresponding edge in the underlying network
+					CyEdge newEdge = underlyingCyNetwork.addEdge(
+							targetExpandableNode.getCyNode(),
+							sourceExpandableNode.getCyNode(), false);
+					underlyingCyNetwork.getRow(newEdge).set("interaction",
+							interactionType);
+					DelayedVizProp vizProp = new DelayedVizProp(newEdge,
+							BasicVisualLexicon.EDGE_WIDTH, 1.0, true);
+					vizProps.add(vizProp);
+					vizProp = new DelayedVizProp(newEdge,
+							BasicVisualLexicon.EDGE_LINE_TYPE,
+							LineTypeVisualProperty.LONG_DASH, true);
+					vizProps.add(vizProp);
+					vizProp = new DelayedVizProp(newEdge,
+							BasicVisualLexicon.EDGE_TRANSPARENCY, 120, true);
+					vizProps.add(vizProp);
+				}
+			} else {
+				if (containedInteraction(keepInteraction)) {
+					if (!targetExpandableNode.hasChild(sourceExpandableNode)) {
+						targetExpandableNode.addChildNode(sourceExpandableNode);
+						CyEdge newEdge = underlyingCyNetwork.addEdge(
+								sourceExpandableNode.getCyNode(),
+								targetExpandableNode.getCyNode(), true);
+						underlyingCyNetwork.getRow(newEdge).set("interaction",
+								keepInteraction);
+						setEdgeProp(newEdge, vizProps);
+						// this node is a child node of some other node, so
+						// remove it from the root list.
+						allRootNodes.remove(sourceExpandableNode);
+					}
 
-			for (CyNode targetNode : neighborNodes) {
-				ExpandableNode targetExpandableNode = createdNodes.get(targetNode.getSUID());
-
-				String targetNodeName = originalCyNetwork.getRow(targetNode)
-						.get(CyNetwork.NAME, String.class);
-				setNodeProp(targetExpandableNode.getCyNode(), vizProps, targetNodeName);
-
-				List<CyEdge> allEdges = originalCyNetwork
-						.getConnectingEdgeList(sourceNode, targetNode,
-								CyEdge.Type.DIRECTED);
-
-				for (CyEdge edge : allEdges) {
-					
-					String interactionType = originalCyNetwork.getRow(edge)
-							.get(CyEdge.INTERACTION, String.class);
-
-					if (!interactionType.equalsIgnoreCase(keepInteraction))
-						continue;
-
-					if (containedInteraction(keepInteraction)) {
-						if (edge.getSource() == targetNode
-								&& edge.getTarget() == sourceNode) {
-
-							if (!sourceExpandableNode
-									.hasChild(targetExpandableNode)) {
-								sourceExpandableNode
-										.addChildNode(targetExpandableNode);
-								CyEdge newEdge = underlyingCyNetwork.addEdge(targetExpandableNode.getCyNode(), sourceExpandableNode.getCyNode(), true);
-								setEdgeProp(newEdge, vizProps);
-								// this node is a child node of some other node, so remove it from the root list.
-								allRootNodes.remove(targetExpandableNode);
-							}
-						}
-					} else if (containingInteraction(keepInteraction)) {
-						if (edge.getSource() == sourceNode
-								&& edge.getTarget() == targetNode) {
-
-							if (!sourceExpandableNode
-									.hasChild(targetExpandableNode)) {
-								sourceExpandableNode
-										.addChildNode(targetExpandableNode);
-								CyEdge newEdge = underlyingCyNetwork.addEdge(sourceExpandableNode.getCyNode(), targetExpandableNode.getCyNode(), true);
-								setEdgeProp(newEdge, vizProps);
-								allRootNodes.remove(targetExpandableNode);
-
-							}
-						}
+				} else if (containingInteraction(keepInteraction)) {
+					if (!sourceExpandableNode.hasChild(targetExpandableNode)) {
+						sourceExpandableNode.addChildNode(targetExpandableNode);
+						CyEdge newEdge = underlyingCyNetwork.addEdge(
+								sourceExpandableNode.getCyNode(),
+								targetExpandableNode.getCyNode(), true);
+						underlyingCyNetwork.getRow(newEdge).set("interaction",
+								interactionType);
+						setEdgeProp(newEdge, vizProps);
+						allRootNodes.remove(targetExpandableNode);
 					}
 				}
 			}
 		}
-		
-		return new OntologyNetwork(originalCyNetwork, underlyingCyNetwork, createdNodes, allRootNodes, keepInteraction, vizProps);
+
+		return new OntologyNetwork(originalCyNetwork, underlyingCyNetwork,
+				createdNodes, allRootNodes, keepInteraction,
+				retainOtherInteraction, vizProps);
 	}
 
 	private static void setEdgeProp(CyEdge connectingEdge,
@@ -241,14 +161,13 @@ public class OntologyNetworkUtils {
 		vizProp = new DelayedVizProp(connectingEdge,
 				BasicVisualLexicon.EDGE_WIDTH, 2.0, true);
 		vizProps.add(vizProp);
-		
+
 		vizProp = new DelayedVizProp(connectingEdge,
 				BasicVisualLexicon.EDGE_LINE_TYPE,
 				LineTypeVisualProperty.SOLID, true);
 		vizProps.add(vizProp);
 		vizProp = new DelayedVizProp(connectingEdge,
-				BasicVisualLexicon.EDGE_TRANSPARENCY,
-				255, true);
+				BasicVisualLexicon.EDGE_TRANSPARENCY, 255, true);
 		vizProps.add(vizProp);
 	}
 
@@ -262,11 +181,11 @@ public class OntologyNetworkUtils {
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SHAPE,
 				NodeShapeVisualProperty.ELLIPSE, true);
 		vizProps.add(vizProp);
-		
+
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_SIZE, 120.0,
 				true);
 		vizProps.add(vizProp);
-		
+
 		vizProp = new DelayedVizProp(node,
 				BasicVisualLexicon.NODE_LABEL_FONT_SIZE, 18, true);
 		vizProps.add(vizProp);
@@ -280,7 +199,7 @@ public class OntologyNetworkUtils {
 				BasicVisualLexicon.NODE_BORDER_LINE_TYPE,
 				LineTypeVisualProperty.SOLID, true);
 		vizProps.add(vizProp);
-		
+
 		vizProp = new DelayedVizProp(node,
 				BasicVisualLexicon.NODE_BORDER_WIDTH, 3.0, true);
 		vizProps.add(vizProp);
@@ -289,12 +208,16 @@ public class OntologyNetworkUtils {
 	private static boolean containedInteraction(String interactionType) {
 		return interactionType.equalsIgnoreCase(INTERACTION_PART_OF)
 				|| interactionType.equalsIgnoreCase(INTERACTION_OCCURS_IN)
-				|| interactionType.equalsIgnoreCase(INTERACTION_IS_A) || interactionType.equalsIgnoreCase(INTERACTION_HAPPENS_DURING);
+				|| interactionType.equalsIgnoreCase(INTERACTION_IS_A)
+				|| interactionType.equalsIgnoreCase(INTERACTION_HAPPENS_DURING);
 	}
 
 	private static boolean containingInteraction(String interactionType) {
 		return interactionType.equalsIgnoreCase(INTERACTION_HAS_PART)
 				|| interactionType.equalsIgnoreCase(INTERACTION_REGULATES)
-				|| interactionType.equalsIgnoreCase(INTERACTION_NEGATIVELY_REGULATES) || interactionType.equalsIgnoreCase(INTERACTION_POSITIVELY_REGULATES);
+				|| interactionType
+						.equalsIgnoreCase(INTERACTION_NEGATIVELY_REGULATES)
+				|| interactionType
+						.equalsIgnoreCase(INTERACTION_POSITIVELY_REGULATES);
 	}
 }

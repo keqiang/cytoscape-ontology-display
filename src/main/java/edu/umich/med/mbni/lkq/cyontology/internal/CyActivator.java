@@ -24,7 +24,6 @@ import org.osgi.framework.BundleContext;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkWithOneInteractionAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
-import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
@@ -68,73 +67,99 @@ public class CyActivator extends AbstractCyActivator {
 
 		CyLayoutAlgorithmManager algorithmManager = getService(context,
 				CyLayoutAlgorithmManager.class);
-		
+
 		UndoSupport undoSupport = getService(context, UndoSupport.class);
-		
-		DialogTaskManager taskManager = getService(context, DialogTaskManager.class);
-		
+
+		DialogTaskManager taskManager = getService(context,
+				DialogTaskManager.class);
+
 		/*
-		 * register these services to this App, my application manager is the central point to get the cytoscape services
+		 * register these services to this App, my application manager is the
+		 * central point to get the cytoscape services
 		 */
 		CytoscapeServiceManager myApplicationManager = new CytoscapeServiceManager(
 				cytoscapeDesktopService, applicationManager, networkFactory,
 				networkManager, networkViewFactory, networkViewManager, vmMgr,
 				algorithmManager, eventHelper, undoSupport, taskManager);
-		
+
 		MyApplicationManager appCenter = MyApplicationManager.getInstance();
 		MyApplicationManager.registerApplicationManager(myApplicationManager);
 
 		appCenter.setLayoutAlgorithmName("hierarchical");
 		/*
-		 *  register all the services this App provides
+		 * register all the services this App provides
 		 */
-		GenerateOntologyNetworkAction generateOntologyNetworkAction = new GenerateOntologyNetworkAction("Create collapsable and expandable ontology network");
-		registerService(context, generateOntologyNetworkAction, CyAction.class, new Properties());
+
+		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkWithOneInteractionAction(
+				"Create ontology network with one interaction", false);
+		registerService(context,
+				generateOntologyNetworkWithOneInteractionAction,
+				CyAction.class, new Properties());
 		
-		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkWithOneInteractionAction("Create ontology network with one interaction");
-		registerService(context, generateOntologyNetworkWithOneInteractionAction, CyAction.class, new Properties());
-		
-		registerService(context, appCenter, NetworkAboutToBeDestroyedListener.class, new Properties());
-		
+		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkRetainOtherInteraction = new GenerateOntologyNetworkWithOneInteractionAction(
+				"Create ontology network retain other interaction", true);
+		registerService(context,
+				generateOntologyNetworkRetainOtherInteraction,
+				CyAction.class, new Properties());
+
+		registerService(context, appCenter,
+				NetworkAboutToBeDestroyedListener.class, new Properties());
+
 		Properties myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Collpase this ontology term");
+		myNodeViewTaskFactoryProps.setProperty("title",
+				"Collpase this ontology term");
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
-		registerService(context, expandableNodeCollapseTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+		registerService(context, expandableNodeCollapseTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Select child nodes in common");
+		myNodeViewTaskFactoryProps.setProperty("title",
+				"Select child nodes in common");
 		FindCommonChildNodesTaskFactory findCommonChildNodesTaskFactory = new FindCommonChildNodesTaskFactory();
-		registerService(context, findCommonChildNodesTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+		registerService(context, findCommonChildNodesTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Expand this ontology term");
+		myNodeViewTaskFactoryProps.setProperty("title",
+				"Expand this ontology term");
 		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
-		registerService(context, expandableNodeExpandOneLevelTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+		registerService(context, expandableNodeExpandOneLevelTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Select all children ontology items");
+		myNodeViewTaskFactoryProps.setProperty("title",
+				"Select all children ontology items");
 		SelectChildNodeTaskFactory selectChildNodeTaskFactory = new SelectChildNodeTaskFactory();
-		registerService(context, selectChildNodeTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+		registerService(context, selectChildNodeTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title","Select direct children ontology items");
+		myNodeViewTaskFactoryProps.setProperty("title",
+				"Select direct children ontology items");
 		SelectDirectChildNodeTaskFactory selectDirectChildNodeTaskFactory = new SelectDirectChildNodeTaskFactory();
-		registerService(context, selectDirectChildNodeTaskFactory, NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+		registerService(context, selectDirectChildNodeTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
 		OntologyPluginPanel ontologyPluginPanel = new OntologyPluginPanel();
-		registerService(context, ontologyPluginPanel, CytoPanelComponent.class, new Properties());
-		OntologyPanelController ontologyPanelController = new OntologyPanelController(ontologyPluginPanel, null);
-		MyApplicationManager.getInstance().setOntologyPluginPanelController(ontologyPanelController);
-		
-		registerService(context, ontologyPanelController, RowsSetListener.class, new Properties());
-		
-		registerService(context, ontologyPanelController, NetworkAboutToBeDestroyedListener.class, new Properties());
-		registerService(context, ontologyPanelController, NetworkViewAboutToBeDestroyedListener.class, new Properties());
-		
-		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(cytoscapeDesktopService, ontologyPluginPanel);
-		registerService(context, controlPanelAction, CyAction.class, new Properties());
-		
-		
+		registerService(context, ontologyPluginPanel, CytoPanelComponent.class,
+				new Properties());
+		OntologyPanelController ontologyPanelController = new OntologyPanelController(
+				ontologyPluginPanel, null);
+		MyApplicationManager.getInstance().setOntologyPluginPanelController(
+				ontologyPanelController);
+
+		registerService(context, ontologyPanelController,
+				RowsSetListener.class, new Properties());
+
+		registerService(context, ontologyPanelController,
+				NetworkAboutToBeDestroyedListener.class, new Properties());
+		registerService(context, ontologyPanelController,
+				NetworkViewAboutToBeDestroyedListener.class, new Properties());
+
+		OntologyControlPanelAction controlPanelAction = new OntologyControlPanelAction(
+				cytoscapeDesktopService, ontologyPluginPanel);
+		registerService(context, controlPanelAction, CyAction.class,
+				new Properties());
 
 	}
 

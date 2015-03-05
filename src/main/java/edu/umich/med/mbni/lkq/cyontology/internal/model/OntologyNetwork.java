@@ -15,6 +15,10 @@ import org.cytoscape.model.CyNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyNodeExpansionListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.DelayedVizProp;
 
+/**
+ * @author keqiangli a model class represents an ontology network
+ *
+ */
 public class OntologyNetwork {
 
 	private final String interactionType;
@@ -33,19 +37,22 @@ public class OntologyNetwork {
 	private final Set<ExpandableNode> allRootNodes;
 
 	private final List<DelayedVizProp> visualProps;
+	
+	private boolean retainOtherInteraction;
 
 	private LinkedList<OntologyNodeExpansionListener> expansionListeners = new LinkedList<OntologyNodeExpansionListener>();
 
 	public OntologyNetwork(CyNetwork originalCyNetwork,
 			CyNetwork underlyingCyNetwork,
 			Map<Long, ExpandableNode> originalNodeToExpandableNode,
-			Set<ExpandableNode> allRootNodes, String interactionType, List<DelayedVizProp> visualProps) {
+			Set<ExpandableNode> allRootNodes, String interactionType, boolean retainOtherInteraction, List<DelayedVizProp> visualProps) {
 		this.originalCyNetwork = originalCyNetwork;
 		this.underlyingCyNetwork = underlyingCyNetwork;
 		this.originalNodeToExpandableNode = originalNodeToExpandableNode;
 		this.allRootNodes = allRootNodes;
 		this.interactionType = interactionType;
 		this.visualProps = visualProps;
+		this.retainOtherInteraction = retainOtherInteraction;
 
 		linkNodes();
 	}
@@ -83,11 +90,11 @@ public class OntologyNetwork {
 		return underlyingCyNetwork;
 	}
 
-	public ExpandableNode getNode(CyNode node) {
+	public ExpandableNode getNodeFromUnderlyingNode(CyNode node) {
 		return underlyingNodeToExpandableNode.get(node.getSUID());
 	}
 
-	public ExpandableNode getNode(Long nodeSUID) {
+	public ExpandableNode getNodeFromUnderlyingNode(Long nodeSUID) {
 		return underlyingNodeToExpandableNode.get(nodeSUID);
 	}
 
@@ -125,7 +132,7 @@ public class OntologyNetwork {
 			List<CyNode> nodes) {
 		List<ExpandableNode> correspondingExpandableNodes = new LinkedList<ExpandableNode>();
 		for (CyNode node : nodes) {
-			correspondingExpandableNodes.add(getNode(node));
+			correspondingExpandableNodes.add(getNodeFromUnderlyingNode(node));
 		}
 		return correspondingExpandableNodes;
 	}
@@ -136,5 +143,9 @@ public class OntologyNetwork {
 
 	public List<DelayedVizProp> getVisualProps() {
 		return visualProps;
+	}
+
+	public boolean isRetainOtherInteraction() {
+		return retainOtherInteraction;
 	}
 }

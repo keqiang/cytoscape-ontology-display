@@ -25,13 +25,15 @@ public class ExpandableNodeCollapseTask extends AbstractNodeViewTask {
 				netView.getModel()))
 			return;
 		
+		taskMonitor.setTitle("Collapsing node");
+		
 		taskMonitor.setProgress(0.0);
 		
 		CyNetwork underlyingNetwork = netView.getModel();
 
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
-		ExpandableNode expandableNode = ontologyNetwork.getNode(nodeView.getModel());
+		ExpandableNode expandableNode = ontologyNetwork.getNodeFromUnderlyingNode(nodeView.getModel());
 		
 		// the node is already in collapsed state
 		if (expandableNode.isCollapsed()) {
