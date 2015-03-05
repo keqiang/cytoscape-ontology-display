@@ -22,7 +22,7 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
-import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkWithOneInteractionAction;
+import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
@@ -90,13 +90,13 @@ public class CyActivator extends AbstractCyActivator {
 		 * register all the services this App provides
 		 */
 
-		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkWithOneInteractionAction(
+		GenerateOntologyNetworkAction generateOntologyNetworkWithOneInteractionAction = new GenerateOntologyNetworkAction(
 				"Create ontology network with one interaction", false);
 		registerService(context,
 				generateOntologyNetworkWithOneInteractionAction,
 				CyAction.class, new Properties());
 		
-		GenerateOntologyNetworkWithOneInteractionAction generateOntologyNetworkRetainOtherInteraction = new GenerateOntologyNetworkWithOneInteractionAction(
+		GenerateOntologyNetworkAction generateOntologyNetworkRetainOtherInteraction = new GenerateOntologyNetworkAction(
 				"Create ontology network retain other interaction", true);
 		registerService(context,
 				generateOntologyNetworkRetainOtherInteraction,

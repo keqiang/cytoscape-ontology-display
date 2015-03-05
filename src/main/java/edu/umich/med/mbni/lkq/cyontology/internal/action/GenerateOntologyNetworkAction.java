@@ -8,10 +8,10 @@ import org.cytoscape.work.swing.DialogTaskManager;
 
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
 
-public class GenerateOntologyNetworkWithOneInteractionAction extends
+public class GenerateOntologyNetworkAction extends
 		AbstractCyAction {
 
 	private final CytoscapeServiceManager appManager;
@@ -22,7 +22,7 @@ public class GenerateOntologyNetworkWithOneInteractionAction extends
 	private static final long serialVersionUID = -5430469897020869631L;
 	private boolean retainOtherInteraction;
 
-	public GenerateOntologyNetworkWithOneInteractionAction(String name,
+	public GenerateOntologyNetworkAction(String name,
 			boolean retainOtherInteraction) {
 		super(name);
 		this.retainOtherInteraction = retainOtherInteraction;
@@ -41,7 +41,7 @@ public class GenerateOntologyNetworkWithOneInteractionAction extends
 		if (currentNetwork == null)
 			return;
 
-		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
+		PopulateOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(
 				OntologyNetworkUtils.INTERACTION_IS_A, retainOtherInteraction);
 
 		taskManager.execute(populateNewOntologyNetworkTaskFactory

@@ -13,13 +13,13 @@ import edu.umich.med.mbni.lkq.cyontology.internal.util.OntologyNetworkUtils;
  *         existing network
  *
  */
-public class PopulateNewOntologyNetworkTask extends AbstractNetworkTask {
+public class PopulateOntologyNetworkTask extends AbstractNetworkTask {
 
 	// what type of interaction to retain
 	private final String interactionType;
 	private boolean retainOtherInteraction;
 
-	public PopulateNewOntologyNetworkTask(final CyNetwork network,
+	public PopulateOntologyNetworkTask(final CyNetwork network,
 			String interactionType, boolean retainOtherInteraction) {
 		super(network);
 		this.interactionType = interactionType;

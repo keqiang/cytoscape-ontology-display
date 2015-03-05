@@ -50,7 +50,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.HideOrShowDanglingNodesTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateNewOntologyNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.PopulateOntologyNetworkViewTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateAggregationTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.UpdateOntologyControlPanelTask;
@@ -121,7 +121,7 @@ public class OntologyPanelController implements
 		String interactionType = event.getInteractionType();
 		boolean retainOtherInteraction = curOntologyNetwork.isRetainOtherInteraction();
 
-		PopulateNewOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateNewOntologyNetworkTaskFactory(
+		PopulateOntologyNetworkTaskFactory populateNewOntologyNetworkTaskFactory = new PopulateOntologyNetworkTaskFactory(
 				interactionType, retainOtherInteraction);
 
 		taskManager.execute(populateNewOntologyNetworkTaskFactory
