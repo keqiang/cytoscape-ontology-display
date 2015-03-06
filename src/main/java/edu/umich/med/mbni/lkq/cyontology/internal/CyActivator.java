@@ -22,6 +22,7 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.action.DEBUG_GenerateFakeNodeData;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
@@ -100,6 +101,12 @@ public class CyActivator extends AbstractCyActivator {
 				"Create ontology network retain other interaction", true);
 		registerService(context,
 				generateOntologyNetworkRetainOtherInteraction,
+				CyAction.class, new Properties());
+		
+		DEBUG_GenerateFakeNodeData generateFakeNodeData = new DEBUG_GenerateFakeNodeData(
+				"generate fake data");
+		registerService(context,
+				generateFakeNodeData,
 				CyAction.class, new Properties());
 
 		registerService(context, appCenter,

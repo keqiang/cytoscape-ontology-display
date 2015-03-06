@@ -10,7 +10,9 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 
 public class ExpandableNode {
-	private String displayName;
+	private String nodeName;
+	private String definition;
+	
 	private int referCount = 0;
 	private CyNode node;
 
@@ -18,15 +20,24 @@ public class ExpandableNode {
 
 	private HashMap<Long, ExpandableNode> directChildNodes;
 
-	public ExpandableNode(CyNode node, String displayName) {
+	public ExpandableNode(CyNode node, String nodeName, String definition) {
 		this.node = node;
 		directChildNodes = new HashMap<>();
 		isCollapsed = false;
-		this.displayName = displayName;
+		this.nodeName = nodeName;
+		this.definition = definition;
 	}
 	
-	public String getDisplayName() {
-		return displayName;
+	public String nodeName() {
+		return nodeName;
+	}
+	
+	public String getToolTip() {
+		if (definition != null && !definition.isEmpty()) {
+			return nodeName + " : " + definition;
+		} else {
+			return nodeName;
+		}
 	}
 
 	public Collection<ExpandableNode> getDirectChildNodes() {
@@ -118,14 +129,14 @@ public class ExpandableNode {
 	
 	@Override 
 	public String toString() {
-		return displayName;
+		return nodeName;
 	}
 	
 	@Override
 	public boolean equals(Object otherNode) {
 		if (otherNode instanceof ExpandableNode) {
 			ExpandableNode other = (ExpandableNode)otherNode;
-			return this.displayName.equals(other.displayName);
+			return this.nodeName.equals(other.nodeName);
 		}
 		return false;
 			

@@ -1,9 +1,12 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.view;
 
+import java.awt.event.MouseEvent;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.model.ExpandableNode;
 import edu.umich.med.mbni.lkq.cyontology.internal.model.OntologyNetwork;
 
 public class OntologyTree extends JTree {
@@ -39,5 +42,17 @@ public class OntologyTree extends JTree {
 
 	public synchronized void expandNode(DefaultMutableTreeNode node) {
 		this.expandPath(new TreePath(node.getPath()));
+	}
+	
+	@Override
+	public String getToolTipText(MouseEvent event) {
+		if (getRowForLocation(event.getX(), event.getY()) == -1)
+	          return null;
+	    TreePath curPath = getPathForLocation(event.getX(), event.getY());
+	    DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) curPath.getLastPathComponent();
+	    ExpandableNode expandableNode = (ExpandableNode) treeNode.getUserObject();
+	    
+	    return expandableNode.getToolTip();
+		
 	}
 }

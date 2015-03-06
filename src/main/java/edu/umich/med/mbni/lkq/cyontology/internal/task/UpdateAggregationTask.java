@@ -73,6 +73,7 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 	public Double popTreeAggregationValue(ExpandableNode root, CyNetwork network) {
 		Double rootValue = null;
 
+		// if it's a leaf node, look up the value in the table directly.
 		if (root.getDirectChildNodes().isEmpty()) {
 			if (network.getRow(root.getCyNode()).isSet(columnName)) {
 				rootValue = network.getRow(root.getCyNode()).get(columnName,

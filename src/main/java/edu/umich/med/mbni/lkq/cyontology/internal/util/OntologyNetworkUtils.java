@@ -1,11 +1,13 @@
 package edu.umich.med.mbni.lkq.cyontology.internal.util;
 
 import java.awt.Color;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
@@ -63,16 +65,39 @@ public class OntologyNetworkUtils {
 		HashMap<Long, ExpandableNode> createdNodes = new HashMap<Long, ExpandableNode>();
 		HashSet<ExpandableNode> allRootNodes = new HashSet<ExpandableNode>();
 
+		Collection<CyColumn> originalColumns = originalCyNetwork.getDefaultNodeTable().getColumns();
+		for (CyColumn column : originalColumns) {
+			String columnName = column.getName();
+			if (underlyingCyNetwork.getDefaultNodeTable().getColumn(columnName) == null) {
+				if (column.getType() == List.class) {
+					underlyingCyNetwork.getDefaultNodeTable().createListColumn(columnName, column.getListElementType(), false);
+				}
+				else {
+					underlyingCyNetwork.getDefaultNodeTable().createColumn(columnName, column.getType(), false);
+				}
+			}
+		}
+		
+		
 		for (CyNode node : allNodes) {
+			
 			String nodeName = originalCyNetwork.getRow(node).get(
 					CyNetwork.NAME, String.class);
 			CyNode generatedNode = underlyingCyNetwork.addNode();
-			underlyingCyNetwork.getRow(generatedNode).set(CyNetwork.NAME,
-					nodeName);
-			ExpandableNode expandableNode = new ExpandableNode(generatedNode,
-					nodeName);
+			
+			//underlyingCyNetwork.getRow(generatedNode).set(CyNetwork.NAME,
+			//		nodeName);
 
-			setNodeProp(generatedNode, vizProps, nodeName);
+			for (CyColumn column : originalColumns) {
+				String columnName = column.getName();
+				underlyingCyNetwork.getRow(generatedNode).set(columnName, originalCyNetwork.getRow(node).get(columnName, column.getType()));
+			}
+			
+			String definition = underlyingCyNetwork.getRow(generatedNode).get("def", String.class);
+			ExpandableNode expandableNode = new ExpandableNode(generatedNode,
+					nodeName, definition);
+
+			setNodeProp(generatedNode, vizProps, nodeName, definition);
 
 			allRootNodes.add(expandableNode);
 			createdNodes.put(node.getSUID(), expandableNode);
@@ -189,7 +214,7 @@ public class OntologyNetworkUtils {
 	}
 
 	private static void setNodeProp(CyNode node,
-			LinkedList<DelayedVizProp> vizProps, String nodeName) {
+			LinkedList<DelayedVizProp> vizProps, String nodeName, String definition) {
 
 		DelayedVizProp vizProp = new DelayedVizProp(node,
 				BasicVisualLexicon.NODE_LABEL, nodeName, true);
@@ -221,8 +246,12 @@ public class OntologyNetworkUtils {
 				BasicVisualLexicon.NODE_BORDER_WIDTH, 3.0, true);
 		vizProps.add(vizProp);
 
+		String toolTip = nodeName;
+		if (definition != null && !definition.isEmpty()) {
+			toolTip = toolTip + " : " + definition;
+		}
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_TOOLTIP,
-				nodeName, true);
+				toolTip, true);
 		vizProps.add(vizProp);
 	}
 

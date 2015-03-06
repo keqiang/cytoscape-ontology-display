@@ -16,6 +16,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ToolTipManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -276,6 +277,7 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 				"Ontology Tree");
 		ontologyTree = new OntologyTree(root, null);
+		ToolTipManager.sharedInstance().registerComponent(ontologyTree);
 
 		// TODO Doesn't work for now
 		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
