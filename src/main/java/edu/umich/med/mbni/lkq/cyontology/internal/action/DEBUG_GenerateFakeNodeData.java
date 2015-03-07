@@ -36,7 +36,9 @@ public class DEBUG_GenerateFakeNodeData extends AbstractCyAction{
 		
 		OntologyNetwork ontologyNetwork = appManager.getOntologyNetworkFromUnderlyingCyNetwork(underlyingNetwork);
 		
-		underlyingNetwork.getDefaultNodeTable().createColumn("test_data", Double.class, false);
+		if (underlyingNetwork.getDefaultNodeTable().getColumn("test_data") == null) {
+			underlyingNetwork.getDefaultNodeTable().createColumn("test_data", Double.class, false);
+		}
 		
 		Random random = new Random(Calendar.getInstance().getTimeInMillis());
 		for (CyNode node : underlyingNetwork.getNodeList()) {
@@ -46,6 +48,9 @@ public class DEBUG_GenerateFakeNodeData extends AbstractCyAction{
 			// set value only for leaf nodes
 			if (expandableNode.getDirectChildNodes().isEmpty())
 				underlyingNetwork.getRow(node).set("test_data", random.nextDouble());
+			else {
+				underlyingNetwork.getRow(node).set("test_data", null);
+			}
 		}
 		
 		DEBUG_MapDataToColorTaskFactory taskFactory = new DEBUG_MapDataToColorTaskFactory();

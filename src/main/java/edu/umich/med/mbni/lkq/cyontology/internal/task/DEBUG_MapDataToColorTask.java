@@ -62,6 +62,9 @@ public class DEBUG_MapDataToColorTask extends AbstractNetworkViewTask {
 				Color color = convertUtil.convertToColor(rootValue);
 				view.getNodeView(root.getCyNode()).setLockedValue(
 						BasicVisualLexicon.NODE_FILL_COLOR, color);
+			} else {
+				view.getNodeView(root.getCyNode()).setLockedValue(
+						BasicVisualLexicon.NODE_FILL_COLOR, Color.white);
 			}
 		}
 

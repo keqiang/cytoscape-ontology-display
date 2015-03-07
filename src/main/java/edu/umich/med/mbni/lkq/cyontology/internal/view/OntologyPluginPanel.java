@@ -24,7 +24,10 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.work.swing.DialogTaskManager;
 
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyAggregationColumnChangeEvent;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyAggregationMethodChangeEvent;
 import edu.umich.med.mbni.lkq.cyontology.internal.event.OntologyHideDanglingNodesEvent;
@@ -35,6 +38,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyAggregationMe
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyHideDanglingNodesListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyInteractionChangeListener;
 import edu.umich.med.mbni.lkq.cyontology.internal.listener.OntologyTreeSelectionChangeListener;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.ClearAggregationTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.AggregationMethodUtil;
 import edu.umich.med.mbni.lkq.cyontology.internal.util.ResourceUtil;
 
@@ -153,7 +157,7 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 	private void setUpUI() {
 
 		setLayout(null);
-		setPreferredSize(new Dimension(500, 600));
+		setPreferredSize(new Dimension(500, 882));
 
 		JLabel lblNewLabel = new JLabel("Aggregation Method");
 		lblNewLabel.setBounds(17, 6, 130, 29);
@@ -291,6 +295,17 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 		JScrollPane scrollPane = new JScrollPane(ontologyTree);
 		scrollPane.setBounds(17, 149, 397, 700);
 		add(scrollPane);
+		
+		JButton btnNewButton = new JButton("Clear");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DialogTaskManager taskManager = MyApplicationManager.getInstance().getCytoscapeServiceManager().getTaskManager();
+				CyNetworkView netView = MyApplicationManager.getInstance().getCytoscapeServiceManager().getCyApplicationManager().getCurrentNetworkView();
+				taskManager.execute(new ClearAggregationTaskFactory().createTaskIterator(netView));
+			}
+		});
+		btnNewButton.setBounds(326, 7, 88, 29);
+		add(btnNewButton);
 
 	}
 
@@ -346,5 +361,4 @@ public class OntologyPluginPanel extends JPanel implements CytoPanelComponent2 {
 
 		ontologyTree.setOntologyNetwork(null);
 	}
-
 }
