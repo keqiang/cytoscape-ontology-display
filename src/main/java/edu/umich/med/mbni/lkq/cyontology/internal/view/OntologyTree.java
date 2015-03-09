@@ -50,9 +50,13 @@ public class OntologyTree extends JTree {
 	          return null;
 	    TreePath curPath = getPathForLocation(event.getX(), event.getY());
 	    DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) curPath.getLastPathComponent();
-	    ExpandableNode expandableNode = (ExpandableNode) treeNode.getUserObject();
 	    
-	    return expandableNode.getToolTip();
-		
+	    Object userObject = treeNode.getUserObject();
+	    if (userObject instanceof String) {
+	    	return (String)userObject;
+	    } else {
+	    	ExpandableNode expandableNode = (ExpandableNode)userObject;
+	    	return expandableNode.getToolTip();
+	    }
 	}
 }

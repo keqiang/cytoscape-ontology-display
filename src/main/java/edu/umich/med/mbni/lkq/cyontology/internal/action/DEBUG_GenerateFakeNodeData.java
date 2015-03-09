@@ -24,7 +24,7 @@ public class DEBUG_GenerateFakeNodeData extends AbstractCyAction{
 
 	public DEBUG_GenerateFakeNodeData(String name) {
 		super(name);
-		setPreferredMenu("Apps.Ontology Viewer");
+		setPreferredMenu("Apps.Ontology Viewer.Debug");
 	}
 
 	@Override

@@ -84,9 +84,6 @@ public class OntologyNetworkUtils {
 			String nodeName = originalCyNetwork.getRow(node).get(
 					CyNetwork.NAME, String.class);
 			CyNode generatedNode = underlyingCyNetwork.addNode();
-			
-			//underlyingCyNetwork.getRow(generatedNode).set(CyNetwork.NAME,
-			//		nodeName);
 
 			for (CyColumn column : originalColumns) {
 				String columnName = column.getName();
@@ -246,9 +243,11 @@ public class OntologyNetworkUtils {
 				BasicVisualLexicon.NODE_BORDER_WIDTH, 3.0, true);
 		vizProps.add(vizProp);
 
-		String toolTip = nodeName;
+		String toolTip = "[name : " + nodeName;
 		if (definition != null && !definition.isEmpty()) {
-			toolTip = toolTip + " : " + definition;
+			toolTip = toolTip + "; definition : " + definition + "]";
+		} else {
+			toolTip += "]";
 		}
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_TOOLTIP,
 				toolTip, true);

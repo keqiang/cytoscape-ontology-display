@@ -19,7 +19,7 @@ public class OntologyControlPanelAction extends AbstractCyAction {
 
 	public OntologyControlPanelAction(CySwingApplication swingApplication,
 			OntologyPluginPanel ontologyViewerControlPanel) {
-		super("Ontology Control Panel");
+		super("Ontology Panel");
 
 		setPreferredMenu("Apps.Ontology Viewer");
 

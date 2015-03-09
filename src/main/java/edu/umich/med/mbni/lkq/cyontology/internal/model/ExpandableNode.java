@@ -28,16 +28,21 @@ public class ExpandableNode {
 		this.definition = definition;
 	}
 	
-	public String nodeName() {
+	public String getNodeName() {
 		return nodeName;
 	}
 	
+	public String getDefinition() {
+		return definition;
+	}
+	
 	public String getToolTip() {
+		String toolTip = "[name : " + nodeName;
 		if (definition != null && !definition.isEmpty()) {
-			return nodeName + " : " + definition;
-		} else {
-			return nodeName;
+			toolTip += "; definition : " + definition; 
 		}
+		toolTip += "]";
+		return toolTip;
 	}
 
 	public Collection<ExpandableNode> getDirectChildNodes() {

@@ -102,12 +102,6 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context,
 				generateOntologyNetworkRetainOtherInteraction,
 				CyAction.class, new Properties());
-		
-		DEBUG_GenerateFakeNodeData generateFakeNodeData = new DEBUG_GenerateFakeNodeData(
-				"generate fake data");
-		registerService(context,
-				generateFakeNodeData,
-				CyAction.class, new Properties());
 
 		registerService(context, appCenter,
 				NetworkAboutToBeDestroyedListener.class, new Properties());
@@ -168,6 +162,12 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, controlPanelAction, CyAction.class,
 				new Properties());
 
+		DEBUG_GenerateFakeNodeData generateFakeNodeData = new DEBUG_GenerateFakeNodeData(
+				"Generate fake data");
+		registerService(context,
+				generateFakeNodeData,
+				CyAction.class, new Properties());
+		
 	}
 
 }

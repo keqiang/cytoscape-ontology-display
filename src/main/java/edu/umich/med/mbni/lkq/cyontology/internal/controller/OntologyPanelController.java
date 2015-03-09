@@ -69,12 +69,15 @@ public class OntologyPanelController implements
 		OntologyNodeExpansionListener,
 		OntologyNetworkRemovedListener,
 		OntologyNetworkChangedListener {
+	
 	private OntologyPluginPanel ontologyPluginPanel;
 	private CytoscapeServiceManager cytoscapeServiceManager;
 	private DialogTaskManager taskManager;
 	private OntologyTree ontologyTree;
 	private OntologyNetwork curOntologyNetwork;
 	private List<OntologyNetworkChangedListener> ontologyNetworkChangedListeners;
+	
+	private String currentAggregationColumn = null;
 
 	public OntologyPanelController(OntologyPluginPanel ontologyPluginPanel, OntologyNetwork ontologyNetwork) {
 		ontologyPluginPanel.setOntologyInteractionChangeListener(this);
@@ -97,6 +100,14 @@ public class OntologyPanelController implements
 		addOntologyNetworkChangedListeners(this);
 		
 		MyApplicationManager.getInstance().addOntologyNetworkRemovedListener(this);
+	}
+	
+	public String getCurrentAggregationColumn() {
+		return currentAggregationColumn;
+	}
+	
+	public boolean isAggregationColumnSet() {
+		return currentAggregationColumn != null && !currentAggregationColumn.isEmpty();
 	}
 	
 	public void addOntologyNetworkChangedListeners(OntologyNetworkChangedListener listner) {
@@ -146,7 +157,6 @@ public class OntologyPanelController implements
 
 		taskManager.execute(updateAggregationTaskFactory
 				.createTaskIterator(networkView));
-
 	}
 
 	@Override
@@ -165,7 +175,6 @@ public class OntologyPanelController implements
 
 		taskManager.execute(updateAggregationTaskFactory
 				.createTaskIterator(networkView));
-
 	}
 
 	@Override
