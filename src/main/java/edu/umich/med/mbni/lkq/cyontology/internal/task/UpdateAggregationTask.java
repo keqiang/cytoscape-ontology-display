@@ -96,10 +96,8 @@ public class UpdateAggregationTask extends AbstractNetworkViewTask {
 			Color color = convertUtil.convertToColor(rootValue);
 			view.getNodeView(root.getCyNode()).setLockedValue(
 					BasicVisualLexicon.NODE_FILL_COLOR, color);
-			String definition = root.getDefinition();
-			String rootName = root.getNodeName();
 			
-			String toolTip = "[name : " + rootName + "; definition : " + definition + "; " + columnName  +" : " + rootValue + "]";
+			String toolTip = root.getToolTipWithAggregationColumn(columnName, rootValue);
 			view.getNodeView(root.getCyNode()).setLockedValue(BasicVisualLexicon.NODE_TOOLTIP, toolTip);
 			
 		}

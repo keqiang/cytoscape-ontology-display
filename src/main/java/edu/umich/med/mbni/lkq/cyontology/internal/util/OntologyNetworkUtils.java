@@ -94,7 +94,7 @@ public class OntologyNetworkUtils {
 			ExpandableNode expandableNode = new ExpandableNode(generatedNode,
 					nodeName, definition);
 
-			setNodeProp(generatedNode, vizProps, nodeName, definition);
+			setNodeProp(expandableNode, vizProps, nodeName, definition);
 
 			allRootNodes.add(expandableNode);
 			createdNodes.put(node.getSUID(), expandableNode);
@@ -210,8 +210,10 @@ public class OntologyNetworkUtils {
 		vizProps.add(vizProp);
 	}
 
-	private static void setNodeProp(CyNode node,
+	private static void setNodeProp(ExpandableNode expandableNode,
 			LinkedList<DelayedVizProp> vizProps, String nodeName, String definition) {
+		
+		CyNode node = expandableNode.getCyNode();
 
 		DelayedVizProp vizProp = new DelayedVizProp(node,
 				BasicVisualLexicon.NODE_LABEL, nodeName, true);
@@ -243,14 +245,8 @@ public class OntologyNetworkUtils {
 				BasicVisualLexicon.NODE_BORDER_WIDTH, 3.0, true);
 		vizProps.add(vizProp);
 
-		String toolTip = "[name : " + nodeName;
-		if (definition != null && !definition.isEmpty()) {
-			toolTip = toolTip + "; definition : " + definition + "]";
-		} else {
-			toolTip += "]";
-		}
 		vizProp = new DelayedVizProp(node, BasicVisualLexicon.NODE_TOOLTIP,
-				toolTip, true);
+				expandableNode.getToolTip(), true);
 		vizProps.add(vizProp);
 	}
 

@@ -44,6 +44,23 @@ public class ExpandableNode {
 		toolTip += "]";
 		return toolTip;
 	}
+	
+	public boolean isLeaf() {
+		return directChildNodes.isEmpty();
+	}
+	
+	public String getToolTipWithAggregationColumn(String aggregationColumn, Double value) {
+		String toolTip = "[name : " + nodeName;
+		if (definition != null && !definition.isEmpty()) {
+			toolTip += "; definition : " + definition; 
+		}
+		if (isLeaf()) {
+			toolTip += "; " + aggregationColumn + " : " + value + "]";
+		} else {
+			toolTip += "; " + aggregationColumn + "(aggregated) : " + value + "]";
+		}
+		return toolTip;
+	}
 
 	public Collection<ExpandableNode> getDirectChildNodes() {
 		return directChildNodes.values();
