@@ -48,26 +48,34 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		if (options.updateAggregationColumns)
+		taskMonitor.setTitle("Updating Ontology Panel");
+		if (options.updateAggregationColumns) {
 			rePopAggregationColumns();
-		if (options.updateInteraction)
+			taskMonitor.setProgress(0.3);
+		}
+		if (options.updateInteraction) {
 			rePopInteractionType();
+			taskMonitor.setProgress(0.7);
+		}
 		if (options.updateOntologyTree)
 			rePopOntologyTree();
+
+		taskMonitor.setProgress(1.0);
 	}
 
 	private void rePopOntologyTree() {
-		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
-				network))
+		if (!MyApplicationManager.getInstance()
+				.hasOntologyNetworkFromUnderlyingCyNetwork(network))
 			return;
-		
+
 		OntologyNetwork ontologyNetwork = MyApplicationManager.getInstance()
 				.getOntologyNetworkFromUnderlyingCyNetwork(network);
 
 		DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(
 				"Ontology Tree");
 
-		Collection<ExpandableNode> allRootNodes = ontologyNetwork.getAllRootNodes();
+		Collection<ExpandableNode> allRootNodes = ontologyNetwork
+				.getAllRootNodes();
 		for (ExpandableNode root : allRootNodes) {
 			if (root.getDirectChildNodes().isEmpty())
 				continue;
@@ -94,13 +102,16 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 	}
 
 	private void rePopInteractionType() {
-		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
-				network))
+		if (!MyApplicationManager.getInstance()
+				.hasOntologyNetworkFromUnderlyingCyNetwork(network))
 			return;
-		
-		CyNetwork originaNetwork = MyApplicationManager.getInstance().getOntologyNetworkFromUnderlyingCyNetwork(network).getOriginalCyNetwork();
-		
-		Collection<CyRow> allRows = originaNetwork.getDefaultEdgeTable().getAllRows();
+
+		CyNetwork originaNetwork = MyApplicationManager.getInstance()
+				.getOntologyNetworkFromUnderlyingCyNetwork(network)
+				.getOriginalCyNetwork();
+
+		Collection<CyRow> allRows = originaNetwork.getDefaultEdgeTable()
+				.getAllRows();
 
 		HashSet<String> allTypes = new HashSet<String>();
 
@@ -115,8 +126,8 @@ public class UpdateOntologyControlPanelTask extends AbstractNetworkTask {
 
 	private void rePopAggregationColumns() {
 
-		if (!MyApplicationManager.getInstance().hasOntologyNetworkFromUnderlyingCyNetwork(
-				network))
+		if (!MyApplicationManager.getInstance()
+				.hasOntologyNetworkFromUnderlyingCyNetwork(network))
 			return;
 
 		Collection<CyColumn> allColumns = network.getDefaultNodeTable()

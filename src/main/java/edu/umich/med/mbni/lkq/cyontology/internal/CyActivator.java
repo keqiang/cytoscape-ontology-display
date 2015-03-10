@@ -31,6 +31,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelContro
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.FindCommonChildNodesTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.FindSelectedNodeInOtherNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectDirectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
@@ -96,11 +97,10 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context,
 				generateOntologyNetworkWithOneInteractionAction,
 				CyAction.class, new Properties());
-		
+
 		GenerateOntologyNetworkAction generateOntologyNetworkRetainOtherInteraction = new GenerateOntologyNetworkAction(
 				"Create ontology network retain other interaction", true);
-		registerService(context,
-				generateOntologyNetworkRetainOtherInteraction,
+		registerService(context, generateOntologyNetworkRetainOtherInteraction,
 				CyAction.class, new Properties());
 
 		registerService(context, appCenter,
@@ -141,6 +141,13 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, selectDirectChildNodeTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 
+		myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty("title",
+				"Search selected nodes in other network");
+		FindSelectedNodeInOtherNetworkTaskFactory findSelectedNodeInOtherNetworkTaskFactory = new FindSelectedNodeInOtherNetworkTaskFactory();
+		registerService(context, findSelectedNodeInOtherNetworkTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
 		OntologyPluginPanel ontologyPluginPanel = new OntologyPluginPanel();
 		registerService(context, ontologyPluginPanel, CytoPanelComponent.class,
 				new Properties());
@@ -164,10 +171,9 @@ public class CyActivator extends AbstractCyActivator {
 
 		DEBUG_GenerateFakeNodeData generateFakeNodeData = new DEBUG_GenerateFakeNodeData(
 				"Generate dummy data");
-		registerService(context,
-				generateFakeNodeData,
-				CyAction.class, new Properties());
-		
+		registerService(context, generateFakeNodeData, CyAction.class,
+				new Properties());
+
 	}
 
 }
