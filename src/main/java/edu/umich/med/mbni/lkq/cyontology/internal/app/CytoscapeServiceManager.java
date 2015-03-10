@@ -13,7 +13,7 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 
 /**
- * @author keqiangli This class give the access to all the cytoscape services needed in this plugin
+ * @author keqiangli This class gives the access to all the cytoscape services needed in this plugin
  *
  */
 public class CytoscapeServiceManager {

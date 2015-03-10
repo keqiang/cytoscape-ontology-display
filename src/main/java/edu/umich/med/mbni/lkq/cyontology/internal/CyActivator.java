@@ -163,7 +163,7 @@ public class CyActivator extends AbstractCyActivator {
 				new Properties());
 
 		DEBUG_GenerateFakeNodeData generateFakeNodeData = new DEBUG_GenerateFakeNodeData(
-				"Generate fake data");
+				"Generate dummy data");
 		registerService(context,
 				generateFakeNodeData,
 				CyAction.class, new Properties());
