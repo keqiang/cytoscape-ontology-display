@@ -18,6 +18,7 @@ import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
@@ -25,13 +26,13 @@ import org.osgi.framework.BundleContext;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.DEBUG_GenerateFakeNodeData;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
-import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
+import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.FindCommonChildNodesTaskFactory;
-import edu.umich.med.mbni.lkq.cyontology.internal.task.FindSelectedNodeInOtherNetworkTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.task.SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectDirectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
@@ -107,47 +108,67 @@ public class CyActivator extends AbstractCyActivator {
 				NetworkAboutToBeDestroyedListener.class, new Properties());
 
 		Properties myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title",
+
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Collpase this ontology term");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "1.0");
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
 		registerService(context, expandableNodeCollapseTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-
+		
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title",
-				"Select child nodes in common");
-		FindCommonChildNodesTaskFactory findCommonChildNodesTaskFactory = new FindCommonChildNodesTaskFactory();
-		registerService(context, findCommonChildNodesTaskFactory,
-				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-
-		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title",
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Expand this ontology term");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "2.0");
 		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
 		registerService(context, expandableNodeExpandOneLevelTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title",
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
+				"Select child nodes in common");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "3.0");
+		FindCommonChildNodesTaskFactory findCommonChildNodesTaskFactory = new FindCommonChildNodesTaskFactory();
+		registerService(context, findCommonChildNodesTaskFactory,
+				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
+
+		myNodeViewTaskFactoryProps = new Properties();
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Select all children ontology items");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "4.0");
 		SelectChildNodeTaskFactory selectChildNodeTaskFactory = new SelectChildNodeTaskFactory();
 		registerService(context, selectChildNodeTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title",
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Select direct children ontology items");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "5.0");
 		SelectDirectChildNodeTaskFactory selectDirectChildNodeTaskFactory = new SelectDirectChildNodeTaskFactory();
 		registerService(context, selectDirectChildNodeTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
 
 		myNodeViewTaskFactoryProps = new Properties();
-		myNodeViewTaskFactoryProps.setProperty("title",
-				"Search selected nodes in other network");
-		FindSelectedNodeInOtherNetworkTaskFactory findSelectedNodeInOtherNetworkTaskFactory = new FindSelectedNodeInOtherNetworkTaskFactory();
+		myNodeViewTaskFactoryProps
+				.setProperty(ServiceProperties.TITLE,
+						"Select in other networks the gene nodes belonging to selected GO iterms");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "6.0");
+		SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory findSelectedNodeInOtherNetworkTaskFactory = new SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory();
 		registerService(context, findSelectedNodeInOtherNetworkTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-
+		
 		OntologyPluginPanel ontologyPluginPanel = new OntologyPluginPanel();
 		registerService(context, ontologyPluginPanel, CytoPanelComponent.class,
 				new Properties());

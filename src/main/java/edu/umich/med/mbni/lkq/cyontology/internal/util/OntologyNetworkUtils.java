@@ -90,11 +90,11 @@ public class OntologyNetworkUtils {
 				underlyingCyNetwork.getRow(generatedNode).set(columnName, originalCyNetwork.getRow(node).get(columnName, column.getType()));
 			}
 			
-			String definition = underlyingCyNetwork.getRow(generatedNode).get("def", String.class);
+			String termName = underlyingCyNetwork.getRow(generatedNode).get("term name", String.class);
 			ExpandableNode expandableNode = new ExpandableNode(generatedNode,
-					nodeName, definition);
+					nodeName, termName);
 
-			setNodeProp(expandableNode, vizProps, nodeName, definition);
+			setNodeProp(expandableNode, vizProps, nodeName);
 
 			allRootNodes.add(expandableNode);
 			createdNodes.put(node.getSUID(), expandableNode);
@@ -211,7 +211,7 @@ public class OntologyNetworkUtils {
 	}
 
 	private static void setNodeProp(ExpandableNode expandableNode,
-			LinkedList<DelayedVizProp> vizProps, String nodeName, String definition) {
+			LinkedList<DelayedVizProp> vizProps, String nodeName) {
 		
 		CyNode node = expandableNode.getCyNode();
 

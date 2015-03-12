@@ -11,7 +11,7 @@ import org.cytoscape.model.CyNode;
 
 public class ExpandableNode {
 	private String nodeName;
-	private String definition;
+	private String termName;
 	
 	private int referCount = 0;
 	private CyNode node;
@@ -20,12 +20,12 @@ public class ExpandableNode {
 
 	private HashMap<Long, ExpandableNode> directChildNodes;
 
-	public ExpandableNode(CyNode node, String nodeName, String definition) {
+	public ExpandableNode(CyNode node, String nodeName, String termName) {
 		this.node = node;
 		directChildNodes = new HashMap<>();
 		isCollapsed = false;
 		this.nodeName = nodeName;
-		this.definition = definition;
+		this.termName = termName;
 	}
 	
 	public String getNodeName() {
@@ -33,13 +33,13 @@ public class ExpandableNode {
 	}
 	
 	public String getDefinition() {
-		return definition;
+		return termName;
 	}
 	
 	public String getToolTip() {
 		String toolTip = "[name : " + nodeName;
-		if (definition != null && !definition.isEmpty()) {
-			toolTip += "; definition : " + definition; 
+		if (termName != null && !termName.isEmpty()) {
+			toolTip += "; term name : " + termName; 
 		}
 		toolTip += "]";
 		return toolTip;
@@ -51,8 +51,8 @@ public class ExpandableNode {
 	
 	public String getToolTipWithAggregationColumn(String aggregationColumn, Double value) {
 		String toolTip = "[name : " + nodeName;
-		if (definition != null && !definition.isEmpty()) {
-			toolTip += "; definition : " + definition; 
+		if (termName != null && !termName.isEmpty()) {
+			toolTip += "; term name : " + termName; 
 		}
 		if (isLeaf()) {
 			toolTip += "; " + aggregationColumn + " : " + value + "]";
