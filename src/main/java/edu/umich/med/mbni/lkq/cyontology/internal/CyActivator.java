@@ -26,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.DEBUG_GenerateFakeNodeData;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.action.OntologyControlPanelAction;
+import edu.umich.med.mbni.lkq.cyontology.internal.action.ReactomePathwayAction;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.controller.OntologyPanelController;
@@ -35,6 +36,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.task.FindCommonChildNodesTaskF
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectDirectChildNodeTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.PlugInObjectManager;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
 public class CyActivator extends AbstractCyActivator {
@@ -42,6 +44,13 @@ public class CyActivator extends AbstractCyActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 
+		PlugInObjectManager.getManager().setBundleContext(context);
+
+		ReactomePathwayAction pathwayLoadAction = new ReactomePathwayAction();
+
+		registerService(context, pathwayLoadAction, CyAction.class,
+				new Properties());
+		
 		/*
 		 * get all the services needed by this App
 		 */

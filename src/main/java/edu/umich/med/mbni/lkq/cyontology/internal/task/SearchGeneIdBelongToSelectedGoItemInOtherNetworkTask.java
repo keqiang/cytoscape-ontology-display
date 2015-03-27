@@ -81,7 +81,6 @@ public class SearchGeneIdBelongToSelectedGoItemInOtherNetworkTask extends Abstra
 			taskMonitor.setProgress(curProgress);
 		}
 		
-		System.out.println(symbols);
 		taskMonitor.setProgress(1.0);
 	}
 
