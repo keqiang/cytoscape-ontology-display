@@ -24,7 +24,7 @@ public class ReactomePathwayAction extends AbstractCyAction {
 	private static final long serialVersionUID = -4111670211200214535L;
 
 	public ReactomePathwayAction() {
-        super("Load Pathway");
+        super("Load All Pathway");
         setPreferredMenu("Apps.Ontology Viewer");
     }
     

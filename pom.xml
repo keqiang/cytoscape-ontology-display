@@ -94,7 +94,6 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 
 						<Embed-Dependency>*;scope=!provided</Embed-Dependency>
-						<Embed-Transitive>true</Embed-Transitive>
 						<Import-Package>*;resolution:=optional</Import-Package>
 
 					</instructions>
@@ -216,6 +215,14 @@
 			<optional>true</optional>
 		</dependency>
 
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxrpc-api-osgi</artifactId>
+			<version>1.1-b01</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- These are all relevant to JDOM. Currently all JDOM dependencies are 
+			resolved by DynamicImport. -->
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>com.springsource.org.jdom</artifactId>
