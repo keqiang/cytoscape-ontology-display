@@ -2,6 +2,7 @@ package edu.umich.med.mbni.lkq.cyontology.view;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -14,7 +15,7 @@ import javax.swing.tree.TreeCellRenderer;
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.gk.model.ReactomeJavaConstants;
-import org.jdom2.Element;
+import org.jdom.Element;
 
 import edu.umich.med.mbni.lkq.cyontology.model.PathwayEvent;
 import edu.umich.med.mbni.lkq.cyontology.service.ReactomeRESTfulService;
@@ -178,5 +179,10 @@ public class PathwayControlPanel extends JPanel implements CytoPanelComponent2 {
             event.setHasDiagram(hasDiagram.equals("true") ? true : false);
         return event;
     }
+
+	public void markHitGeneNumberInPathwayTree(Collection<String> hitGenes) {
+		System.out.println(hitGenes);
+		
+	}
 
 }

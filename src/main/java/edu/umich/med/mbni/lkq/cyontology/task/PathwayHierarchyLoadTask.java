@@ -10,13 +10,14 @@ import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umich.med.mbni.lkq.cyontology.controller.PathwayControlPanelController;
 import edu.umich.med.mbni.lkq.cyontology.service.ReactomeRESTfulService;
 import edu.umich.med.mbni.lkq.cyontology.util.PlugInObjectManager;
 import edu.umich.med.mbni.lkq.cyontology.view.PathwayControlPanel;
@@ -94,6 +95,8 @@ public class PathwayHierarchyLoadTask extends AbstractTask {
 		index = getIndexOfPathwayControlPane(panel);
 		if (index >= 0)
 			panel.setSelectedIndex(index);
+		
+		PathwayControlPanelController.getInstance().setPathwayControlPanel(controlPane);
 	}
 
 	/**

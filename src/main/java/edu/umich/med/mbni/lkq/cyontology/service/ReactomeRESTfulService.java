@@ -3,7 +3,7 @@ package edu.umich.med.mbni.lkq.cyontology.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdom2.Element;
+import org.jdom.Element;
 
 import edu.umich.med.mbni.lkq.cyontology.util.PlugInObjectManager;
 import edu.umich.med.mbni.lkq.cyontology.util.PlugInUtilities;

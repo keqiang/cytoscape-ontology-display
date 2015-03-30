@@ -9,16 +9,24 @@ import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyNetworkTableManager;
+import org.cytoscape.model.CyTableFactory;
+import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.service.util.AbstractCyActivator;
+import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NodeViewTaskFactory;
+import org.cytoscape.task.edit.MapTableToNetworkTablesTaskFactory;
+import org.cytoscape.task.write.SaveSessionAsTaskFactory;
+import org.cytoscape.util.swing.FileUtil;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.events.NetworkViewAboutToBeDestroyedListener;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.ServiceProperties;
+import org.cytoscape.work.TaskManager;
 import org.cytoscape.work.swing.DialogTaskManager;
 import org.cytoscape.work.undo.UndoSupport;
 import org.osgi.framework.BundleContext;
@@ -26,10 +34,14 @@ import org.osgi.framework.BundleContext;
 import edu.umich.med.mbni.lkq.cyontology.action.DEBUG_GenerateFakeNodeData;
 import edu.umich.med.mbni.lkq.cyontology.action.GenerateOntologyNetworkAction;
 import edu.umich.med.mbni.lkq.cyontology.action.OntologyControlPanelAction;
-import edu.umich.med.mbni.lkq.cyontology.action.ReactomePathwayAction;
+import edu.umich.med.mbni.lkq.cyontology.action.OverallFINetworkLoadAction;
 import edu.umich.med.mbni.lkq.cyontology.app.CytoscapeServiceManager;
 import edu.umich.med.mbni.lkq.cyontology.app.MyApplicationManager;
 import edu.umich.med.mbni.lkq.cyontology.controller.OntologyPanelController;
+import edu.umich.med.mbni.lkq.cyontology.controller.PathwayControlPanelController;
+import edu.umich.med.mbni.lkq.cyontology.service.FIVisualStyle;
+import edu.umich.med.mbni.lkq.cyontology.service.FIVisualStyleImpl;
+import edu.umich.med.mbni.lkq.cyontology.service.TableFormatterImpl;
 import edu.umich.med.mbni.lkq.cyontology.task.ExpandableNodeCollapseTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.task.ExpandableNodeExpandOneLevelTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.task.FindCommonChildNodesTaskFactory;
@@ -45,11 +57,52 @@ public class CyActivator extends AbstractCyActivator {
 	public void start(BundleContext context) throws Exception {
 
 		PlugInObjectManager.getManager().setBundleContext(context);
-
-		ReactomePathwayAction pathwayLoadAction = new ReactomePathwayAction();
-
-		registerService(context, pathwayLoadAction, CyAction.class,
+		
+		OverallFINetworkLoadAction overallFINetworkLoadAction = new OverallFINetworkLoadAction();
+		registerService(context, overallFINetworkLoadAction, CyAction.class,
 				new Properties());
+		
+		TaskManager taskManager = getService(context, TaskManager.class);
+        CyNetworkManager networkManager = getService(context,
+                CyNetworkManager.class);
+        CySessionManager sessionManager = getService(context,
+                CySessionManager.class);
+        CyNetworkFactory networkFactory = getService(context,
+                CyNetworkFactory.class);
+        CyNetworkTableManager networkTableManager = getService(context, CyNetworkTableManager.class);
+        CyNetworkViewFactory viewFactory = getService(context,
+                CyNetworkViewFactory.class);
+        CyNetworkViewManager viewManager = getService(context,
+                CyNetworkViewManager.class);
+        CyTableFactory tableFactory = getService(context, CyTableFactory.class);
+        CyTableManager tableManager = getService(context, CyTableManager.class);
+        SaveSessionAsTaskFactory saveSessionAsTaskFactory = getService(context,
+                SaveSessionAsTaskFactory.class);
+        FileUtil fileUtil = getService(context, FileUtil.class);
+        CyLayoutAlgorithmManager layoutManager = getService(context,
+                CyLayoutAlgorithmManager.class);
+        
+		
+		// Register FI network visualization mapping as OSGi services
+        //Initialize and register the FI VIsual Style with the framework,
+        //allowing it to be used by all Reactome FI classes.
+        FIVisualStyle styleHelper = new FIVisualStyleImpl();
+        Properties visStyleHelperProps = new Properties();
+        visStyleHelperProps.setProperty("title", "FIVisualStyleImpl");
+        registerAllServices(context, styleHelper, visStyleHelperProps);
+        
+        //Initialize and register the TableFormatter with the network
+        //so that it is accessible across the app.
+        MapTableToNetworkTablesTaskFactory mapNetworkAttrTFServiceRef = getService(context,
+                                                                                   MapTableToNetworkTablesTaskFactory.class);
+    
+        TableFormatterImpl tableFormatter = new TableFormatterImpl(tableFactory, 
+                                                                   tableManager,
+                                                                   networkTableManager,
+                                                                   mapNetworkAttrTFServiceRef);
+        Properties tableFormatterProps = new Properties();
+        tableFormatterProps.setProperty("title", "TableFormatterImpl");
+        registerAllServices(context, tableFormatter, tableFormatterProps);
 		
 		/*
 		 * get all the services needed by this App
@@ -66,11 +119,6 @@ public class CyActivator extends AbstractCyActivator {
 		VisualMappingManager vmMgr = getService(context,
 				VisualMappingManager.class);
 
-		CyNetworkFactory networkFactory = getService(context,
-				CyNetworkFactory.class);
-
-		CyNetworkManager networkManager = getService(context,
-				CyNetworkManager.class);
 
 		CyNetworkViewFactory networkViewFactory = getService(context,
 				CyNetworkViewFactory.class);
@@ -82,7 +130,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		UndoSupport undoSupport = getService(context, UndoSupport.class);
 
-		DialogTaskManager taskManager = getService(context,
+		DialogTaskManager dialogTaskManager = getService(context,
 				DialogTaskManager.class);
 
 		/*
@@ -92,7 +140,7 @@ public class CyActivator extends AbstractCyActivator {
 		CytoscapeServiceManager myApplicationManager = new CytoscapeServiceManager(
 				cytoscapeDesktopService, applicationManager, networkFactory,
 				networkManager, networkViewFactory, networkViewManager, vmMgr,
-				algorithmManager, eventHelper, undoSupport, taskManager);
+				algorithmManager, eventHelper, undoSupport, dialogTaskManager);
 
 		MyApplicationManager appCenter = MyApplicationManager.getInstance();
 		MyApplicationManager.registerApplicationManager(myApplicationManager);
@@ -187,6 +235,9 @@ public class CyActivator extends AbstractCyActivator {
 				ontologyPanelController);
 
 		registerService(context, ontologyPanelController,
+				RowsSetListener.class, new Properties());
+		
+		registerService(context, PathwayControlPanelController.getInstance(),
 				RowsSetListener.class, new Properties());
 
 		registerService(context, ontologyPanelController,
