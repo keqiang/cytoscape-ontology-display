@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<properties>
-						<bundle.symbolicName>edu.umich.med.mbni.lkq.cyontology</bundle.symbolicName>
+		<bundle.symbolicName>edu.umich.med.mbni.lkq.cyontology</bundle.symbolicName>
 		<bundle.namespace>edu.umich.med.mbni.lkq.cyontology</bundle.namespace>
 	</properties>
 
@@ -11,14 +12,26 @@
 	<artifactId>cy-ontology-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-			<name>${bundle.symbolicName} [${bundle.namespace}]</name>
-	
+	<name>${bundle.symbolicName} [${bundle.namespace}]</name>
+
 	<packaging>bundle</packaging>
 
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
+				<directory>${project.basedir}/src/main/java/edu/umich/med/mbni/lkq/cyontology/internal/view</directory>
+				<targetPath>edu/umich/med/mbni/lkq/cyontology/internal/view</targetPath>
+				<includes>
+					<include>*.gif</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${project.basedir}/src/main/java/edu/umich/med/mbni/lkq/cyontology/internal/util</directory>
+				<targetPath>edu/umich/med/mbni/lkq/cyontology/internal/util</targetPath>
+				<includes>
+					<include>Config.prop</include>
+				</includes>
 			</resource>
 		</resources>
 		<!-- Cytoscape requires Java 1.6 -->
@@ -71,12 +84,15 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-												<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>${bundle.namespace}</Export-Package>
 						<Private-Package>${bundle.namespace}.internal.*</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
-											</instructions>
+						<Embed-Dependency>
+							*;groupId=!org.osgi|org.cytoscape;
+						</Embed-Dependency>
+					</instructions>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -104,6 +120,12 @@
 			<name>Cytoscape Releases</name>
 			<url>http://code.cytoscape.org/nexus/content/repositories/releases/</url>
 		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+
 	</repositories>
 
 	<!-- Dependencies needed to compile this project. -->
@@ -113,7 +135,7 @@
 			<artifactId>org.osgi.core</artifactId>
 			<version>4.2.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>service-api</artifactId>
@@ -129,29 +151,49 @@
 			<artifactId>session-api</artifactId>
 			<version>3.2.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>presentation-api</artifactId>
 			<version>3.2.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>core-task-api</artifactId>
 			<version>3.2.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>group-api</artifactId>
 			<version>3.2.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>layout-api</artifactId>
 			<version>3.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.reactome</groupId>
+			<artifactId>caBIGR3-minimal</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>com.springsource.org.jdom</artifactId>
+			<version>1.0.0</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Logging -->

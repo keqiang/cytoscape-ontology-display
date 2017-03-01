@@ -3,6 +3,7 @@ package edu.umich.med.mbni.lkq.cyontology.internal;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.ActionEnableSupport;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanelComponent;
@@ -35,6 +36,7 @@ import edu.umich.med.mbni.lkq.cyontology.internal.task.FindCommonChildNodesTaskF
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectChildNodeTaskFactory;
 import edu.umich.med.mbni.lkq.cyontology.internal.task.SelectDirectChildNodeTaskFactory;
+import edu.umich.med.mbni.lkq.cyontology.internal.util.ProjectStringConstant;
 import edu.umich.med.mbni.lkq.cyontology.internal.view.OntologyPluginPanel;
 
 public class CyActivator extends AbstractCyActivator {
@@ -42,6 +44,7 @@ public class CyActivator extends AbstractCyActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 
+		//PlugInObjectManager.getManager().setBundleContext(context);
 		/*
 		 * get all the services needed by this App
 		 */
@@ -111,19 +114,27 @@ public class CyActivator extends AbstractCyActivator {
 
 		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Collpase this ontology term");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "1.0");
+		myNodeViewTaskFactoryProps.setProperty(
+				ServiceProperties.PREFERRED_MENU,
+				ProjectStringConstant.CONTEXT_MENU_NAME);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR,
+				ActionEnableSupport.ENABLE_FOR_SELECTED_NODES_OR_EDGES);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY,
+				"1.0");
 		ExpandableNodeCollapseTaskFactory expandableNodeCollapseTaskFactory = new ExpandableNodeCollapseTaskFactory();
 		registerService(context, expandableNodeCollapseTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Expand this ontology term");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "2.0");
+		myNodeViewTaskFactoryProps.setProperty(
+				ServiceProperties.PREFERRED_MENU,
+				ProjectStringConstant.CONTEXT_MENU_NAME);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR,
+				ActionEnableSupport.ENABLE_FOR_SELECTED_NODES_OR_EDGES);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY,
+				"2.0");
 		ExpandableNodeExpandOneLevelTaskFactory expandableNodeExpandOneLevelTaskFactory = new ExpandableNodeExpandOneLevelTaskFactory();
 		registerService(context, expandableNodeExpandOneLevelTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
@@ -131,9 +142,13 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Select child nodes in common");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "3.0");
+		myNodeViewTaskFactoryProps.setProperty(
+				ServiceProperties.PREFERRED_MENU,
+				ProjectStringConstant.CONTEXT_MENU_NAME);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR,
+				ActionEnableSupport.ENABLE_FOR_SELECTED_NODES_OR_EDGES);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY,
+				"3.0");
 		FindCommonChildNodesTaskFactory findCommonChildNodesTaskFactory = new FindCommonChildNodesTaskFactory();
 		registerService(context, findCommonChildNodesTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
@@ -141,9 +156,13 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Select all children ontology items");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "4.0");
+		myNodeViewTaskFactoryProps.setProperty(
+				ServiceProperties.PREFERRED_MENU,
+				ProjectStringConstant.CONTEXT_MENU_NAME);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR,
+				ActionEnableSupport.ENABLE_FOR_SELECTED_NODES_OR_EDGES);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY,
+				"4.0");
 		SelectChildNodeTaskFactory selectChildNodeTaskFactory = new SelectChildNodeTaskFactory();
 		registerService(context, selectChildNodeTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
@@ -151,9 +170,13 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps = new Properties();
 		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.TITLE,
 				"Select direct children ontology items");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "5.0");
+		myNodeViewTaskFactoryProps.setProperty(
+				ServiceProperties.PREFERRED_MENU,
+				ProjectStringConstant.CONTEXT_MENU_NAME);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR,
+				ActionEnableSupport.ENABLE_FOR_SELECTED_NODES_OR_EDGES);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY,
+				"5.0");
 		SelectDirectChildNodeTaskFactory selectDirectChildNodeTaskFactory = new SelectDirectChildNodeTaskFactory();
 		registerService(context, selectDirectChildNodeTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
@@ -162,13 +185,17 @@ public class CyActivator extends AbstractCyActivator {
 		myNodeViewTaskFactoryProps
 				.setProperty(ServiceProperties.TITLE,
 						"Select in other networks the gene nodes belonging to selected GO iterms");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.PREFERRED_MENU, "Ontology Viewer");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR, "selectedNodesOrEdges");
-		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY, "6.0");
+		myNodeViewTaskFactoryProps.setProperty(
+				ServiceProperties.PREFERRED_MENU,
+				ProjectStringConstant.CONTEXT_MENU_NAME);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.ENABLE_FOR,
+				ActionEnableSupport.ENABLE_FOR_SELECTED_NODES_OR_EDGES);
+		myNodeViewTaskFactoryProps.setProperty(ServiceProperties.MENU_GRAVITY,
+				"6.0");
 		SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory findSelectedNodeInOtherNetworkTaskFactory = new SearchGeneIdBelongToSelectedGoItemInOtherNetworkTaskFactory();
 		registerService(context, findSelectedNodeInOtherNetworkTaskFactory,
 				NodeViewTaskFactory.class, myNodeViewTaskFactoryProps);
-		
+
 		OntologyPluginPanel ontologyPluginPanel = new OntologyPluginPanel();
 		registerService(context, ontologyPluginPanel, CytoPanelComponent.class,
 				new Properties());
